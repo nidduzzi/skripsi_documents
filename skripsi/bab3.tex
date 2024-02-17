@@ -1,0 +1,129 @@
+\chapter{METODOLOGI PENELITIAN}
+\label{sec:metodologi_penelitian}
+
+Secara umum, metode penelitian yang digunakan pada pekerjaan penelitian disampaikan pada bab ini. Judul bab tidak harus seperti yang dituliskan. Dalam kata lain bisa diubah sesuai kebutuhan.
+
+\section{Model Komputasi}
+\noindent The DeepONet architecture contains an element that is difficult to optimize.
+% \begin{mini}
+%   {W_b}{y=(W_b\cdot f+b_b)^\top\cdot(W_t\cdot v+b_t)+\xi
+% \end{mini}
+
+\begin{mini!}|s|
+{\substack{W_b,b_b,W_t,b_t,\xi}}{\frac{1}{2}\Vert W_b\Vert_F^2 + \frac{1}{2}\Vert W_t\Vert_F^2 + \frac{c}{2}\sum_{i=1}^{l}\xi_i^2} {}{}
+\addConstraint{y_i}{=(W_b f_i+b_b)^\top(W_t v_i+b_t)+\xi_i,\quad}{i=1,\ldots,l}
+\end{mini!}
+
+\begin{equation}
+  \begin{aligned}
+    L(W_b,b_b,W_t,b_t,\xi;\alpha)= {} & \frac{1}{2}\Vert W_b\Vert_F^2 + \frac{1}{2}\Vert W_t\Vert_F^2 +\frac{c}{2}\sum_{i=1}^{l}\xi_i^2 \\ &+ \sum_{i=1}^{l}\alpha_i(y_i-\xi_i-(W_b f_i+b_b)^\top(W_t v_i+b_t))
+  \end{aligned}
+\end{equation}
+\begin{equation}
+  \begin{aligned}
+    \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{W_b}                               & = 0                                                                                \\
+    \frac{2}{2}W_b + 0 + 0 - \sum_{i=1}^{l}\alpha_i((W_t v_i+b_t)f_i^\top) & = 0                                                                                \\
+    W_b - \sum_{i=1}^{l}\alpha_i((W_t v_i+b_t)f_i^\top)                    & = 0                                                                                \\
+    W_b                                                                    & = \sum_{i=1}^{l}\alpha_i(W_t v_i f_i^\top+b_t f_i^\top)                            \\
+    W_b                                                                    & = \sum_{i=1}^{l}(\alpha_i W_t v_i f_i^\top)+ \sum_{i=1}^{l}(\alpha_i b_t f_i^\top) \\
+    W_b                                                                    & = W_t \sum_{i=1}^{l}(\alpha_i v_i f_i^\top)+ b_t \sum_{i=1}^{l}(\alpha_i f_i^\top) \\
+    W_b                                                                    & = W_t \sum_{i=1}^{l}(\alpha_i v_i f_i^\top)+ b_t \sum_{i=1}^{l}(\alpha_i f_i^\top) \\
+  \end{aligned}
+\end{equation}
+\begin{equation}
+  \begin{aligned}
+    \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{W_t}                                        & = 0                                                                                                                                                                                    \\
+    0 + \frac{2}{2}W_t + 0 - \sum_{i=1}^{l}\alpha_i((W_b f_i + b_b)v_i^\top)        & = 0                                                                                                                                                                                    \\
+    W_t - \sum_{i=1}^{l}\alpha_i((W_b f_i + b_b)v_i^\top)                           & = 0                                                                                                                                                                                    \\
+    W_t                                                                             & = \sum_{i=1}^{l}\alpha_i(W_b f_i v_i^\top + b_b v_i^\top)                                                                                                                              \\
+    W_t                                                                             & = \sum_{i=1}^{l}\alpha_i((\sum_{j=1}^{l}\alpha_j(W_t v_j f_j^\top + b_t f_j^\top)) f_i v_i^\top+b_b v_i^\top)                                                                          \\
+    W_t                                                                             & = \sum_{i=1}^{l}(\sum_{j=1}^{l}(\alpha_i\alpha_jW_t v_j f_j^\top f_i v_i^\top + \alpha_i\alpha_j b_t f_j^\top f_i v_i^\top) + \alpha_i b_b v_i^\top)                                   \\
+    W_t                                                                             & = \sum_{i=1}^{l}(\sum_{j=1}^{l}(\alpha_i\alpha_jW_t v_j f_j^\top f_i v_i^\top) + \sum_{j=1}^{l}(\alpha_i\alpha_j b_t f_j^\top f_i v_i^\top) + \alpha_i b_b v_i^\top)                   \\
+    W_t - \sum_{i=1}^{l}\sum_{j=1}^{l}\alpha_i\alpha_jW_t v_j f_j^\top f_i v_i^\top & = \sum_{i=1}^{l}(\sum_{j=1}^{l}(\alpha_i\alpha_j b_t f_j^\top f_i v_i^\top) + \alpha_i b_b v_i^\top)                                                                                   \\
+    W_t(I - \sum_{i=1}^{l}\sum_{j=1}^{l}\alpha_i\alpha_j v_j f_j^\top f_i v_i^\top) & = \sum_{i=1}^{l}(\sum_{j=1}^{l}(\alpha_i\alpha_j b_t f_j^\top f_i v_i^\top) + \alpha_i b_b v_i^\top)                                                                                   \\
+    W_t                                                                             & = \sum_{i=1}^{l}(\sum_{j=1}^{l}(\alpha_i\alpha_j b_t f_j^\top f_i v_i^\top) + \alpha_i b_b v_i^\top) (I - \sum_{i=1}^{l}\sum_{j=1}^{l}\alpha_i\alpha_j v_j f_j^\top f_i v_i^\top)^{-1} \\
+    W_t                                                                             & = \sum_{i=1}^{l}(\alpha_i(\sum_{j=1}^{l}(\alpha_j b_t f_j^\top f_i) + b_b)v_i^\top ) (I - \sum_{i=1}^{l}\sum_{j=1}^{l}\alpha_i\alpha_j v_j f_j^\top f_i v_i^\top)^{-1}                 \\
+  \end{aligned}
+\end{equation}
+\begin{equation}
+  \begin{aligned}
+    \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{b_b}        & = 0 \\
+    0 + 0 + 0 - \sum_{i=1}^{l}\alpha_i(W_t v_i+b_t) & = 0 \\
+    \sum_{i=1}^{l}\alpha_i(W_t v_i+b_t)             & = 0
+  \end{aligned}
+\end{equation}
+\begin{equation}
+  \begin{aligned}
+    \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{b_t}        & = 0 \\
+    0 + 0 + 0 - \sum_{i=1}^{l}\alpha_i(W_b f_i+b_b) & = 0 \\
+    \sum_{i=1}^{l}\alpha_i(W_b f_i+b_b)             & = 0
+  \end{aligned}
+\end{equation}
+\begin{equation}
+  \begin{aligned}
+    \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{\xi}                         & = 0        \\
+    0 + 0 + \frac{2c}{2}\sum_{i=1}^{l}\xi_i - \sum_{i=1}^{l}\alpha_i & = 0        \\
+    \sum_{i=1}^{l}c\xi_i - \alpha_i                                  & = 0        \\
+    c\xi_i                                                           & = \alpha_i \\
+  \end{aligned}
+\end{equation}
+\begin{equation}
+  \begin{aligned}
+    \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{\alpha}                         & = 0 \\
+    0 + 0 + 0 + \sum_{i=1}^{l}y_i-\xi_i-(W_b f_i+b_b)^\top(W_t v_i+b_t) & = 0 \\
+    \sum_{i=1}^{l}y_i-\xi_i-(W_b f_i+b_b)^\top(W_t v_i+b_t)             & = 0
+  \end{aligned}
+\end{equation}
+
+
+
+
+\section{Sub Bab \texorpdfstring{$\alpha$}{α}}
+\noindent Misal kita mau masukin tabel, kita bisa juga.
+\begin{table}[H]
+  \caption{Tabel Sederhana Pertama}
+  \label{co:tabel1}
+  \begin{center}
+    \begin{tabular}{ |c|c|c| }
+      \hline
+      $G$     & $\text{dim }G$      & $\text{dim }F$ \\
+      \hline
+      $SU(N)$ & $N^2 -1$            & $N$            \\
+      $SO(N)$ & $\frac{1}{2}N(N-1)$ & $N$            \\
+      $Sp(N)$ & $N(2N+1)$           & $2N$           \\
+      $E_6$   & $78$                & $27$           \\
+      $E_7$   & $133$               & $56$           \\
+      $E_8$   & $248$               & $248$          \\
+      $F_4$   & $52$                & $6$            \\
+      $G_2$   & $14$                & $7$            \\
+      \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+
+\section{Sub Bab \texorpdfstring{$\beta$}{ꞵ}}
+\noindent Atau bisa juga seperti berikut.
+\begin{table}[H]
+  \caption{Tabel Sederhana Kedua}
+  \label{co:tabel2}
+  \begin{center}
+    \begin{tabularx}{0.8\textwidth} {
+      |>{\raggedright\arraybackslash}X
+      |>{\raggedright\arraybackslash}X
+      |>{\raggedright\arraybackslash}X
+      |}
+      \hline
+      $G$     & $\text{dim }G$      & $\text{dim }F$ \\
+      \hline
+      $SU(N)$ & $N^2 -1$            & $N$            \\
+      $SO(N)$ & $\frac{1}{2}N(N-1)$ & $N$            \\
+      $Sp(N)$ & $N(2N+1)$           & $2N$           \\
+      $E_6$   & $78$                & $27$           \\
+      $E_7$   & $133$               & $56$           \\
+      $E_8$   & $248$               & $248$          \\
+      $F_4$   & $52$                & $6$            \\
+      $G_2$   & $14$                & $7$            \\
+      \hline
+    \end{tabularx}
+  \end{center}
+\end{table}

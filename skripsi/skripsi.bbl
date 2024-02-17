@@ -1,0 +1,53 @@
+\begin{thebibliography}{}
+
+\bibitem[Bl\"ochl, 1994]{paw1994}
+Bl\"ochl, P.~E. (1994).
+\newblock Projector augmented-wave method.
+\newblock {\em Phys. Rev. B}, 50:17953--17979.
+
+\bibitem[Fujita et~al., 1996]{Fujita1996}
+Fujita, T., Okawa, Y., Matsumoto, Y., and Tanaka, K.-i. (1996).
+\newblock Phase boundaries of nanometer scale \textit{c}(2\textit{x}2)-o domains on the cu(100) surface.
+\newblock {\em Phys. Rev. B}, 54:2167--2174.
+
+\bibitem[Hohenberg and Kohn, 1964]{hohen1964}
+Hohenberg, P. and Kohn, W. (1964).
+\newblock Inhomogeneous electron gas.
+\newblock {\em Phys. Rev.}, 136:"B864–B871".
+
+\bibitem[Kim et~al., 2006]{Kim2006}
+Kim, Y., Fregonese, M., Mazille, H., Feron, D., and Santarini, G. (2006).
+\newblock Study of oxygen reduction on stainless steel surfaces and its contribution to acoustic emission recorded during corrosion processes.
+\newblock {\em Corrosion Science}, 48(12):3945 -- 3959.
+
+\bibitem[Kongkanand et~al., 2006]{kongkanand2006}
+Kongkanand, A., Kuwabata, S., Girishkumar, G., and Kamat, P. (2006).
+\newblock {Single-Wall} carbon nanotubes supported platinum nanoparticles with improved electrocatalytic activity for oxygen reduction reaction.
+\newblock {\em Langmuir}, 22(5):2392--2396.
+
+\bibitem[Kresse and Hafner, 1993]{vasp1}
+Kresse, G. and Hafner, J. (1993).
+\newblock Ab initio molecular dynamics for liquid metals.
+\newblock {\em Phy. Rev. B}, 47:558.
+
+\bibitem[Kresse and Joubert, 1999]{kresse1999}
+Kresse, G. and Joubert, D. (1999).
+\newblock From ultrasoft pseudopotentials to the projector augmented-wave method.
+\newblock {\em Phys. Rev. B}, 59:1758--1775.
+
+\bibitem[Leibbrandt et~al., 1993]{Leibb1993}
+Leibbrandt, G. W.~R., van Wijk, R., and Habraken, F. H. P.~M. (1993).
+\newblock Growth and alloy formation of pt on fe(100).
+\newblock {\em Phys. Rev. B}, 47:6630--6643.
+
+\bibitem[Markovic et~al., 2001]{markovic2001}
+Markovic, N.~M., Schmidt, T.~J., Stamenkovic, V., and Ross, P.~N. (2001).
+\newblock Oxygen reduction reaction on pt and pt bimetallic surfaces: A selective review.
+\newblock {\em Fuel Cells}, 1(2):105.
+
+\bibitem[Maxwell, 1996]{maxwell1996}
+Maxwell, I.~E. (1996).
+\newblock Driving forces for innovation in applied catalysis.
+\newblock In Joe W.~Hightower, W. Nicholas~Delgass, E.~I. and Bell, A.~T., editors, {\em 11th International Congress On Catalysis - 40th Anniversary Proceedings of the 11th {ICC}}, volume 101 of {\em Studies in Surface Science and Catalysis}, pages 1 -- 9. Elsevier.
+
+\end{thebibliography}
