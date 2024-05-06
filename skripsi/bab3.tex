@@ -10,15 +10,16 @@ Secara umum, metode penelitian yang digunakan pada pekerjaan penelitian disampai
 % \end{mini}
 
 \begin{mini!}|s|
-{\substack{W_b,b_b,W_t,b_t,\xi}}{\frac{1}{2}\Vert W_b\Vert_F^2 + \frac{1}{2}\Vert W_t\Vert_F^2 + \frac{c}{2}\sum_{i=1}^{l}\xi_i^2} {}{}
-\addConstraint{y_i}{=(W_b f_i+b_b)^\top(W_t v_i+b_t)+\xi_i,\quad}{i=1,\ldots,l}
+{\substack{\vb*{W_b},\vb*{W_t},\vb*{\xi}}}{\frac{1}{2}\Vert \vb*{W_b}\Vert_F^2 + \frac{1}{2}\Vert \vb*{W_t}\Vert_F^2 + \frac{c}{2}\sum_{i=1}^{N}\xi_i^2} {}{}
+\addConstraint{y_i}{=(\vb*{W_b} \vb*{f_i})^\top(\vb*{W_t} \vb*{v_i})+\xi_i,\quad}{i=1,\ldots,N}
 \end{mini!}
-
+Converting the optimization problem above to the lagrange formulation
 \begin{equation}
   \begin{aligned}
-    L(W_b,b_b,W_t,b_t,\xi;\alpha)= {} & \frac{1}{2}\Vert W_b\Vert_F^2 + \frac{1}{2}\Vert W_t\Vert_F^2 +\frac{c}{2}\sum_{i=1}^{l}\xi_i^2 \\ &+ \sum_{i=1}^{l}\alpha_i(y_i-\xi_i-(W_b f_i+b_b)^\top(W_t v_i+b_t))
+    L(\vb*{W_b},\vb*{W_t},\vb*{\xi};\vb*{\alpha})= {} & \frac{1}{2}\Vert \vb*{W_b}\Vert_F^2 + \frac{1}{2}\Vert \vb*{W_t}\Vert_F^2 +\frac{c}{2}\sum_{i=1}^{N}\xi_i^2 \\ &+ \sum_{i=1}^{N}\alpha_i(y_i-\xi_i-(\vb*{W_b} \vb*{f_i})^\top(\vb*{W_t} \vb*{v_i}))
   \end{aligned}
 \end{equation}
+Taking partial derivatives with respect to 
 \begin{equation}
   \begin{aligned}
     \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{W_b}                               & = 0                                                                                \\

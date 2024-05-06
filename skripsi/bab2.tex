@@ -2,8 +2,257 @@
 
 \noindent Bab ini mengulas secara rinci konsep-konsep dasar yang berkaitan dengn pekerjaan penelitian TA dan deskripsi studi pustaka yang dilakukan. Judul bab tidak harus seperti yang dituliskan, melainkan dapat lebih fleksibel yang mencerminkan isi paparan pada bab ini. Demikian halnya dengan judul sub bab.
 
-\section{Sub Bab A} 
-\noindent Teori dasar yang dituliskan pada sub bab ini dapat berupa konsep-konsep fundamental yang menjadi landasan pekerjaan penelitian, dan bisa saja sebagiannya terdapat pada buku teks atau artikel review. Pemahaman tentang teori dan konsep dasar ini, termasuk konsep pendukung seperti statistika atau numerik, harus tampak pada paparan yang diulas dalam sub bab ini.
+\section{Least Squares Support Vector Machine}
+\noindent An arguably fundamental model widely used whether in pedagogical settings or otherwise is the support vector machine. It dates back to works by Vapnik \& Lerner in 1963 (Recognition of Patterns with help of Generalized Portraits) and V. N. Vapnik \& A. Ya. Chervonenkis in 1964 (A note on one class of perceptrons/On a perceptron class). As the development on SVM continued, what originally was a model for classification of separable data generalized to regression tasks as well Vapnik (2000 The Nature of Statistical Learning Theory).
+
+To derive the least squares support vector regression (J.A. Suykens LSSVM Book) model we start with the linear expression:
+
+\begin{equation}
+        y=W^{\intercal}\vb{x}+b
+\end{equation}
+
+\begin{equation}
+        \min_{W,e} J(W,e) = \frac{1}{2}W^{\intercal}W + C\frac{1}{2}\sum_{k=1}^{n}e_{k}
+\end{equation}
+
+Such that
+\begin{equation}
+        y_{k}=W^{\intercal}\vb{x}_{k}+b+e_{k} \qquad k=1,\dots,n
+\end{equation}
+
+\begin{equation}
+        L(W,b,e;\vb{\alpha}) = \frac{1}{2}W^{\intercal}W + C\frac{1}{2}\sum_{k=1}^{n}e_{k} + \sum_{k=1}^{n}\alpha_{k} \left(W^{\intercal}\vb{x}_{k}+b+e_{k} - y_{k} \right)
+\end{equation}
+
+Derive the KKT system
+\begin{equation}
+        \begin{split}
+                \pdv{L}{W} = 0 \rightarrow & W = \sum_{k=1}^{n}\alpha_{k}x_{k} \\
+                \pdv{L}{b} = 0 \rightarrow & \sum_{k=1}^{n}\alpha_{k} = 0 \\
+                \pdv{L}{e_{k}} = 0 \rightarrow & \alpha_{k} = C e_{k} & \qquad k=1,\dots,n\\
+                \pdv{L}{\alpha_{k}} = 0 \rightarrow & W^{\intercal}\vb{x}_{k}+b+e_{k} - y_{k} = 0 & \qquad k=1,\dots,n\\
+        \end{split}
+\end{equation}
+
+After eliminating $W$ and $\vb*{e}$, with $\vb{1}_{n} = \langle 1,\dots,1\rangle$, $\vb{y} = \lbrack y_1, \dots, y_n \rbrack $, and ${\alpha} = \lbrack \alpha_1, \dots, \alpha_n \rbrack $ the solution is as follows in block matrix notation
+\begin{equation} \label{eq:lssvrSolution}
+        \begin{bmatrix}
+                0          & \vb{1}_{n}^{\intercal} \\
+                \vb{1}_{n} & \Omega + \frac{I}{C}
+        \end{bmatrix}
+        \begin{bmatrix}
+                b           \\
+                \vb{\alpha} \\
+        \end{bmatrix}
+        =
+        \begin{bmatrix}
+                0      \\
+                \vb{y} \\
+        \end{bmatrix}
+\end{equation}
+
+The solution in \cref{eq:lssvrSolution}
+
+\begin{algorithm}[H]
+        \caption{LSSVR Training}\label{alg1:cap}
+        \begin{algorithmic}[1]
+                \Require $\vb{X}, \vb{y}, \gamma$
+                \Ensure $\vb{\alpha}, b$
+                \State $\Omega \gets [[]]$ \Comment{Construct matrix of inner products in high dimensional space}
+
+                \For{$k=0 \to n$}
+                \For{$l=0 \to n$}
+                \State$\Omega_{k,l}\gets K(\vb{X}_k,\vb{X}_l)$
+                \EndFor
+                \EndFor
+                \State $\vb{H} \gets \Omega + \frac{\vb{I}}{\gamma}$
+                % \State $\vb{1} \gets [1,1,...,1]$
+                \State $\vb{A} \gets [[]]$ \Comment{Construct left hand side matrix}
+                \State $\vb{A}_{0,0} \gets 0$
+                \For{$k=0 \to n$}
+                \State $\vb{A}_{k+1,0} \gets 1$
+                \State $\vb{A}_{0,k+1} \gets 1$
+                \EndFor
+                \For{$k=0 \to n$}
+                \For{$l=0 \to n$}
+                \State $\vb{A}_{k+1,l+1} \gets \vb{H}_{k,l}$
+                \EndFor
+                \EndFor
+                \State $\vb{B}\gets []$ \Comment{Construct left hand side of the equation}
+                \State $\vb{B}_0 \gets 0$
+                \For{$k=0 \to n$}
+                \State $\vb{B}_{k+1} \gets \vb{y}_{k}$
+                \EndFor
+                \State $\vb{A}^{\dagger} \gets pseudoInverse(\vb{A})$ \Comment{Compute solution using pseudo inverse}
+                \State $\vb{S} \gets \vb{A}^{\dagger}\vb{B}$
+                \State $b \gets \vb{S}_{0}$
+                \For{$k=0 \to n$}
+                \State $\vb{\alpha}_{k} \gets \vb{S}_{k+1}$
+                \EndFor
+        \end{algorithmic}
+\end{algorithm}
+
+The basic psuedocode from the LSSVM Equation for function regression is defined in \nameref{alg1:cap} for a training set of length $n$, features $\vb{X}$, and labels $\vb{y}$. Training the LSSVM means computing the values of langrange multipliers $\vb{\alpha}$ and bias $b$. $K$ is the kernel function used to compute the inner products in high dimensional space, here we asume the RBF kernel. $\vb{A}$ is a matrix of size $n+1$ by $n+1$. $\vb{H}$ is a matrix of size $n$ by $n$. $\vb{I}$ is the identity. $\vb{B}$ is a vector of size $n+1$. $\vb{S}$ is a vector of size $n+1$.
+
+After training the model can be used for prediction of unseen points. The psuedocode for prediction is shown in \nameref{alg2:cap} for prediction features $\vb{U}$. The trained model uses the learned multipliers of training points $\vb{\alpha}$, the training points themselves $\vb{X}$, and the bias $b$.
+
+\begin{algorithm}[H]
+        \caption{LSSVR Prediction}\label{alg2:cap}
+        \begin{algorithmic}[1]
+                \Require $\vb{U}, \vb{\alpha}, \vb{X}, b$
+                \Ensure $\vb{v}$
+                \State $\Omega \gets [[]]$ \Comment{Construct matrix of inner products in high dimensional space}
+
+                \For{$k=0 \to m$}
+                \For{$l=0 \to n$}
+                \State$\Omega_{k,l}\gets K(\vb{U}_{k},\vb{X}_l)$
+                \EndFor
+                \EndFor
+                \State $\vb{v} \gets \Omega\vb{\alpha} + \vb{1}_{m}b$
+        \end{algorithmic}
+\end{algorithm}
+
+In this exmple we will be using the function $2x^2+4$. The values of this function can be seen in Table \ref{table:1}.
+
+\begin{table}[H]
+        \centering
+        \begin{tabular}{@{}lll@{}}
+                \toprule
+                No & x       & y       \\ \midrule
+                1  & 0.0     & 4.0     \\
+                2  & 0.33... & 4.22... \\
+                3  & 0.66... & 4.88... \\
+                4  & 1.0     & 6.0     \\
+                \bottomrule
+        \end{tabular}
+        \caption{Example data of function $2x^2+4$} \label{table:1}
+\end{table}
+For $\Omega_{i,j}=K(x_i,x_j)=exp \left(-\frac{\norm*{x_i-x_j}^2}{2\sigma^2}\right)$
+
+For example, with $\sigma=1$, $x_i=0.0$, \& $x_j = 0.33\dots$
+\begin{equation}
+        \begin{split}
+                K(0.0,0.33) & = exp\left(-\frac{\norm*{0.0-0.33}^2}{2(1)^2}\right) \\
+                & = exp\left(-\frac{0.33^2}{2}\right) \\
+                & = 0.9460
+        \end{split}
+\end{equation}
+
+\begin{equation}
+        \Omega\gets
+        \begin{bmatrix}
+                1.0000 & 0.9460 & 0.8007 & 0.6065 \\
+                0.9460 & 1.0000 & 0.9460 & 0.8007 \\
+                0.8007 & 0.9460 & 1.0000 & 0.9460 \\
+                0.6065 & 0.8007 & 0.9460 & 1.0000 \\
+        \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+        \vb{I}\frac{1}{\gamma}\to\vb{I}\frac{1}{5}\to
+        \begin{bmatrix}
+                0.2000 & 0.0000 & 0.0000 & 0.0000 \\
+                0.0000 & 0.2000 & 0.0000 & 0.0000 \\
+                0.0000 & 0.0000 & 0.2000 & 0.0000 \\
+                0.0000 & 0.0000 & 0.0000 & 0.2000
+        \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+        \Omega+\vb{I}\frac{1}{5}\to H\to \begin{bmatrix}
+                1.2000 & 0.9460 & 0.8007 & 0.6065 \\
+                0.9460 & 1.2000 & 0.9460 & 0.8007 \\
+                0.8007 & 0.9460 & 1.2000 & 0.9460 \\
+                0.6065 & 0.8007 & 0.9460 & 1.2000 \\
+        \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+        A\to \begin{bmatrix}
+                0.0000 & 1.0000 & 1.0000 & 1.0000 & 1.0000 \\
+                1.0000 & 1.2000 & 0.9460 & 0.8007 & 0.6065 \\
+                1.0000 & 0.9460 & 1.2000 & 0.9460 & 0.8007 \\
+                1.0000 & 0.8007 & 0.9460 & 1.2000 & 0.9460 \\
+                1.0000 & 0.6065 & 0.8007 & 0.9460 & 1.2000 \\
+        \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+        B\to \begin{bmatrix}
+                0.0000 \\
+                4.0000 \\
+                4.2222 \\
+                4.8889 \\
+                6.0000 \\
+        \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+        A^{\dag}\to \begin{bmatrix}
+                -0.8994 & 0.4348  & 0.0652  & 0.0652  & 0.4348  \\
+                0.4348  & 2.0686  & -1.6490 & -0.5292 & 0.1096  \\
+                0.0652  & -1.6490 & 3.3774  & -1.1992 & -0.5292 \\
+                0.0652  & -0.5292 & -1.1992 & 3.3774  & -1.6490 \\
+                0.4348  & 0.1096  & -0.5292 & -1.6490 & 2.0686  \\
+        \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+        A^{\dag}B\to S\to \begin{bmatrix}
+                4.9421  \\
+                -0.6177 \\
+                -1.3737 \\
+                -0.5625 \\
+                2.5538  \\
+        \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+        b\to 4.9421
+\end{equation}
+
+\begin{equation}
+        \alpha \to \begin{bmatrix}
+                -0.6177 \\
+                -1.3737 \\
+                -0.5625 \\
+                2.5538  \\
+        \end{bmatrix}
+\end{equation}
+
+Prediction
+\begin{equation}
+        U\to \begin{bmatrix}
+                0.3 \\
+                0.2 \\
+                0.5
+        \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+        \Omega\to \begin{bmatrix}
+                0.9560 & 0.9994 & 0.9350 & 0.7827 \\
+                0.9802 & 0.9912 & 0.8968 & 0.7261 \\
+                0.8825 & 0.9862 & 0.9862 & 0.8825 \\
+        \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+        \Omega\alpha\to \begin{bmatrix}
+                -0.4904 \\
+                -0.6170 \\
+                -0.2008 \\
+        \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+        \Omega\alpha+b\vb{1}_{m}\to v\to \begin{bmatrix}
+                4.4516 \\
+                4.3251 \\
+                4.7413 \\
+        \end{bmatrix}
+\end{equation}
+Where $\vb{1}_{m}$ is a vector of 1s with the length of $U$.
 
 \section{Sub Bab B}
 \noindent Suatu penelitian tidak dapat lepas dari capaian pengetahuan dan pemahaman yang sudah dipublikasikan. Deskripsi tentang capaian ini menjadi penting karena selain menunjukkan tingkat pemahaman mahasiswa, juga mengetahui tempat pekerjaan penelitian TA dalam konstelasi capaian tersebut. Studi pustaka dan paparan hasilnya dapat memperkaya wawasan tentang topik yang diangkat pada penelitian TA.
@@ -16,7 +265,7 @@ Setiap notasi harus unik atau tunggal, sehingga arti setiap notasi adalah unik a
 \subsection{Contoh Persamaan Sederhana}
 Persamaan (\ref{II.1}) mendeskripsikan dinamika fungsi gelombang $\psi(\vec{r},t)$ di bawah pengaruh potensial $V(\vec{r})$ dan dituliskan sebagai berikut:
 \begin{equation}\label{II.1}
-    i\hslash\frac{\partial \psi}{\partial t} = -\frac{\hslash^2}{2 m}\Vec{\nabla}^2 \psi + V(\vec{r})\psi,
+        i\hslash\frac{\partial \psi}{\partial t} = -\frac{\hslash^2}{2 m}\Vec{\nabla}^2 \psi + V(\vec{r})\psi,
 \end{equation}
 dengan $m$ adalah massa partikel dan $\hslash$ merupakan konstanta Planck tereduksi.
 
@@ -24,25 +273,25 @@ Di akhir persamaan (\ref{II.1}) diberi koma karena berada ditengah kalimat. Untu
 
 Untuk menuliskan beberapa set persamaan yang masih terhubung, gunakan \verb|\subequations{}|. Misal kita punya persamaan diferensial terkopel, kita bisa tuliskan
 \begin{subequations}
-\begin{align}
-    \frac{dy}{dt} &= -x ,\\
-    \frac{dx}{dt} &= -y .
-\end{align}
+        \begin{align}
+                \frac{dy}{dt} & = -x , \\
+                \frac{dx}{dt} & = -y .
+        \end{align}
 \end{subequations}
 Kalau perlu matriks, kita bisa tulis seperti berikut.
 \begin{equation}
-    \sigma_x = \begin{pmatrix}
-                0 & 1\\
+        \sigma_x = \begin{pmatrix}
+                0 & 1 \\
                 1 & 0
-    \end{pmatrix},\quad
-    \sigma_y = \begin{pmatrix}
-                0 & -i\\
+        \end{pmatrix},\quad
+        \sigma_y = \begin{pmatrix}
+                0 & -i \\
                 i & 0
-    \end{pmatrix}, \quad
-    \sigma_z = \begin{pmatrix}
-                1 & 0\\
+        \end{pmatrix}, \quad
+        \sigma_z = \begin{pmatrix}
+                1 & 0  \\
                 0 & -1
-    \end{pmatrix}
+        \end{pmatrix}
 \end{equation}
 
 
