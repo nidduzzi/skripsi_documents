@@ -1,6 +1,6 @@
 \usepackage{geometry}
 \geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=4cm,rmargin=3cm}
-\usepackage[pdftex,bookmarks=true,unicode=true,pdfusetitle,bookmarksnumbered=true,bookmarksopen=true,breaklinks=true,pdfborder={0 0 1},backref=true,colorlinks=false]{hyperref}
+\usepackage[pdftex,bookmarks=true,unicode=true,pdfusetitle,bookmarksnumbered=true,bookmarksopen=true,breaklinks=true,pdfborder={0 0 1},backref=none,colorlinks=false]{hyperref}
 
 %%%% identitas (kalo file pdf nya di klik kanan, info..)
 \hypersetup{pdfauthor={\penulis},
@@ -8,25 +8,33 @@
   pdftitle={\judul},
   pdfkeywords={\keywords}}
 
-\usepackage[htt]{hyphenat}
+% \usepackage[htt]{hyphenat}
+\usepackage[none]{hyphenat}
+\sloppy
+%\raggedright		%fix justify
+%\hyphenpenalty=10000
+%\hbadness=10000 
+
+
 \usepackage{listing}
 \usepackage{graphicx}      %menghandle gambar
+\usepackage[inkscapelatex=false]{svg} 	%handle svg with \includesvg
 \usepackage{tabularx}
 \usepackage{float}
 \usepackage[hang,nooneline,scriptsize,md]{subfigure}
 \usepackage{epsfig}
 \usepackage[font=small,labelfont=bf]{caption}
-\usepackage[onehalfspacing]{setspace}      %buat kombinasi spacing
-\usepackage{indentfirst}
-%\setlength{\parindent}{0.6cm}
-\usepackage{parskip}
 \usepackage[titletoc]{appendix}
-\usepackage{cite}          % buat cite pake BibTex
-\bibliographystyle{apalike}
-% \usepackage[bahasa]{babel} %plugin bahasa 
-\usepackage[american]{babel} %plugin english  
 
 \usepackage[utf8]{inputenc}
+\usepackage[backend=biber, style=apa]{biblatex} %TODO change style to apa or other style, backref=true
+\addbibresource{references.bib}
+%\usepackage{cite}          % buat cite pake BibTex
+%\bibliographystyle{apalike}
+% \usepackage[bahasa]{babel} %plugin bahasa 
+\usepackage[american]{babel} %plugin english  
+\usepackage{csquotes}
+
 \usepackage[T1]{fontenc}   % biar bisa kombinasi font
 \usepackage{mathptmx}
 \usepackage{amssymb}
@@ -46,16 +54,6 @@
 
 %%% pengaturan global
 \graphicspath{{gambar/}}   % letak direktori penyimpanan gambar
-%\usepackage[authoryear,round]{natbib}
-\setlength{\emergencystretch}{3em}
-%\citestyle{nature}
-
-
-%\usepackage[fixlanguage]{babelbib}
-%\selectbiblanguage{bahasa}
-
-\pagestyle{plain}
-\setlength{\parindent}{20pt}
 
 %format judul
 \usepackage{titlesec}
@@ -79,6 +77,18 @@
 \renewcommand{\cftchapleader}{\dotfill}
 \renewcommand{\cftsecleader}{\dotfill}
 \renewcommand{\cftsubsecleader}{\dotfill}
+
+%typeset
+\linespread{1.5}
+\setlength{\emergencystretch}{3em}
+
+\usepackage[onehalfspacing]{setspace}      %buat kombinasi spacing
+\usepackage{indentfirst}
+%\setlength{\parindent}{0.6cm}
+\usepackage{parskip} 	%safely change the space inserted between paragraphs
+
+\pagestyle{plain}
+\setlength{\parindent}{20pt}
 
 %tambah "bab" x di daftar isi 
 \renewcommand*\cftchappresnum{\MakeUppercase{bab}~}
