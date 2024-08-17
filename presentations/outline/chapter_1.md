@@ -2,6 +2,7 @@
 
 ## Background
 
+- The goal of scientific computing
 - Ubiquitousnes/importance of PDEs in modern scientific understanding
   - Refrigeration
   - Aerodynamics of vehicles (rockets, cars)
@@ -24,7 +25,6 @@
 - This is critical to quality infrastructure and products
 - The maintenance of said infrastructure also uses this tool to allow engineers and planners to know if critical damage has occured or if any minor maintenance needs to happen
 -  -->
-- The kinds of proble
 - Traditional methods of solving PDEs have several challenges:
   - the solvers intrinsically need the user to know the equations, meaning problems with unknown equations (such as in pure data problems, the unknown equations part may not be the umbrella term and infact may be just a subset of the umbrella term) are not able to be solved
   - The accuracy of some methods which are mesh-based are directly tied to the size of the mesh used
@@ -65,3 +65,6 @@
 - due to the cyclical nature of weather, analysis exploiting this periodicity (fourier analysis) has been used previously in analyzing weather data.
 - in fact, one of ways of analysing weather is to look at long term trends and subtract them from observations. For example, accross multiple years seasons will tend to have the same temperatures. Subtracting this from daily observations allow researchers to see the deviation from expected temperatures.
 - Give example like: for example, in Beijing, the temperature on the 3rd of October year over year averaged 16 degrees celcius. However, last year, it was 17 degrees celcius. This means a difference of 17-16=1 degrees. This difference is called the anomaly. The difference can be furter accounted for better if other trends such as within the same year is also incorporated (<https://doi.org/10.1155/2019/4164097>)
+Limitations:
+- continuous functions (discontinuity can mess up the predictions i.e. gibbs oscilation)
+- Fourier basis (maybe Chebyshev if time allows)
