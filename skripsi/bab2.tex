@@ -3,7 +3,9 @@
 \noindent Bab ini mengulas secara rinci konsep-konsep dasar yang berkaitan dengn pekerjaan penelitian TA dan deskripsi studi pustaka yang dilakukan. Judul bab tidak harus seperti yang dituliskan, melainkan dapat lebih fleksibel yang mencerminkan isi paparan pada bab ini. Demikian halnya dengan judul sub bab.
 
 \section{Least Squares Support Vector Machine}
-\noindent An arguably fundamental model widely used whether in pedagogical settings or otherwise is the support vector machine. It dates back to works by Vapnik \& Lerner in 1963 (Recognition of Patterns with help of Generalized Portraits) and V. N. Vapnik \& A. Ya. Chervonenkis in 1964 (A note on one class of perceptrons/On a perceptron class). As the development on SVM continued, what originally was a model for classification of separable data generalized to regression tasks as well Vapnik (2000 The Nature of Statistical Learning Theory).
+\noindent An arguably fundamental model widely used whether in pedagogical settings or otherwise is the support vector machine. It dates back to works by Vapnik \& Lerner in 1963 (Recognition of Patterns with help of Generalized Portraits) and V. N. Vapnik \& A. Ya. Chervonenkis in 1964 (A note on one class of perceptrons/On a perceptron class). As the development on SVM continued, what originally was a model for classification of separable data generalized to regression tasks as well Vapnik (2000 The Nature of Statistical Learning Theory). 
+\subsection{Disadvantages}
+However, the main disadvantage of LSSVMs are the fact that they do not have the sparse property of SVMs which can leave performance on the table. A simple mitigation can be done by filtering training samples with small absolute values of lagrangian multipliers \autocite{haifengwangComparisonSVMLSSVM2005}.
 
 To derive the least squares support vector regression (J.A. Suykens LSSVM Book) model we start with the linear expression:
 
