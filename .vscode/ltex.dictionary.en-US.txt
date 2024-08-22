@@ -1,0 +1,8 @@
+PDEs
+PDE
+inhomogeneities
+undamped
+PINN
+PINNs
+Chebyshev
+Electro-Impedance

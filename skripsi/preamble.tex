@@ -52,9 +52,16 @@
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 \usepackage{booktabs}
 \usepackage{cleveref}
+%lowercase non abbreviation referece
+\newcommand{\lccref}[1]{\lcnamecref{#1}~\labelcref{#1}}
+\makeatletter
+\def\lcfirstnamecrefs#1,#2\@nil{\lcnamecrefs{#1}}
+\newcommand{\lcfirstnamecref}[1]{\lcfirstnamecrefs #1,\@nil}
+\makeatother
+\newcommand{\lccrefs}[1]{\lcfirstnamecref{#1}~\labelcref{#1}}
 
 %%% pengaturan global
-\graphicspath{{gambar/}}   % letak direktori penyimpanan gambar
+\graphicspath{{figures/}}   % letak direktori penyimpanan gambar
 
 %format judul
 \usepackage{titlesec}

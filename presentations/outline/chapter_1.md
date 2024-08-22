@@ -68,3 +68,7 @@
 Limitations:
 - continuous functions (discontinuity can mess up the predictions i.e. gibbs oscilation)
 - Fourier basis (maybe Chebyshev if time allows)
+- Python only with libraries such as Pytorch, Xarray, Numpy, Pandas for faster performance
+Aims:
+- novel use of SVMs
+- interpretability: partial dependence plots, Shapely values (SHAP), Local Interpretable Model-agnostic Explanations (LIME)

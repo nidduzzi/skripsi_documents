@@ -1,0 +1,6 @@
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QFor a temperature function \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q of spatial coordinates vector \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q and time \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q, the generalized heat equation is defined in eq:heat_equation.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QAs an example, the Finite Difference Method (FDM) approximates the solution by substituting the partial derivatives with finite differences such as the first derivative approximation in eq:forward_finite_difference_1.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\Q\\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q The example differential equation we wish to solve is the simple derivative in eq:derivative.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QThe complex formulation of the Fourier series is presented in eq:fourier_series.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QTo do this we first formulate both into separate Fourier series approximations \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q and \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q in eq:example_fourier_1,eq:example_fourier_2 respectively.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\Q\\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q Next we take the derivative of eq:example_fourier_1 which result in eq:fourier_series_derivative.\\E$"}
