@@ -69,6 +69,7 @@ Limitations:
 - continuous functions (discontinuity can mess up the predictions i.e. gibbs oscilation)
 - Fourier basis (maybe Chebyshev if time allows)
 - Python only with libraries such as Pytorch, Xarray, Numpy, Pandas for faster performance
+- Dense data only, sparse data assimilation is done by some other approach such as 4D-var assimilation or PINNs (which may be practical once it can be trained faster)
 Aims:
 - novel use of SVMs
 - interpretability: partial dependence plots, Shapely values (SHAP), Local Interpretable Model-agnostic Explanations (LIME)
