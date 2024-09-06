@@ -1,0 +1,60 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		% Data preparation
+		\node[style=Label] (data preparation label) {Data Preparation};
+		\node[style=Process,anchor=north,yshift=-1em] (problem specification) at (data preparation label.south){Problem Specification};
+		\node[style=Decision,anchor=north,yshift=-1em] (generate data decision) at (problem specification.south) {Does data need\\to be generated?};
+		\node[style=Process,anchor=north,yshift=-1em,xshift=-6em] (generate random coefficients) at (generate data decision.south) {Generate random\\functions coefficients};
+		\node[style=Process,anchor=north,yshift=-1em] (compute parameters) at (generate random coefficients.south) {Compute parameters\\using desired PDE};
+		\node[style=Process,anchor=north,yshift=-1em] (evaluate function on domain) at (compute parameters.south) {Evaluate function\\values on grid};
+		\node[style=Process,anchor=north,yshift=-1em,xshift=6em] (retrieve dataset) at (generate data decision.south) {Retrieve dataset};
+		\node[style=Process,anchor=north,yshift=-1em] (compute dataset coefficients) at (retrieve dataset.south) {Compute basis\\coefficients};
+		\node[draw,dashed,inner sep=0.5em,fit={(data preparation label) (problem specification) (generate data decision) (generate random coefficients) (compute parameters) (evaluate function on domain) (retrieve dataset) (compute dataset coefficients)}] (data preparation) {};
+		% Data Transformation
+		\node[style=Label,anchor=north] (data transformation label) at ([yshift=-6em]data preparation.south) {Data Transformation};
+		\node[style=Process,anchor=north,xshift=-6em,yshift=-1em] (extract input output) at (data transformation label.south) {Extract input\\and output functions};
+		\node[style=Process,anchor=north,yshift=-1em] (basis transform) at (extract input output.south) {Transfrom functions\\into basis coefficients};
+		\node[style=Process,anchor=north,xshift=6em,yshift=-1em] (scale dataset) at (data transformation label.south){Scale inputs using \\training-fitted scaler};
+		\node[style=Process,anchor=north,yshift=-1em] (split dataset) at (scale dataset.south) {Split dataset into\\train, test, \& validation};
+		\node[draw,dashed,inner sep=0.5em,fit={(data transformation label) (extract input output) (basis transform) (split dataset) (scale dataset)}] (data transformation) {};
+		% Model Training
+		\node[style=Label,anchor=north] (model training label) at ([xshift=45em]data preparation label.north){Model Training};
+		\node[style=Process,anchor=north,yshift=-1em] (format training dataset) at (model training label.south) {Format data into\\real features and labels};
+		\node[style=Process,anchor=north,yshift=-1em] (compute training kernel) at (format training dataset.south) {Compute kernel matrix\\of input features};
+		\node[style=Process,anchor=north,yshift=-1em] (assemble LSSVR equation) at (compute training kernel.south) {Asseble LSSVR\\equation matrices};
+		\node[style=Process,anchor=north,yshift=-1em] (least squares multipliers) at (assemble LSSVR equation.south) {Compute $\vb{\alpha}$ and bias\\using least squares};
+		\node[draw,dashed,inner sep=0.5em,fit={(model training label) (format training dataset) (compute training kernel) (assemble LSSVR equation) (least squares multipliers)}] (model training) {};
+		% Model Evaluation
+		\node[style=Label,anchor=north] (model evaluation label) at ([yshift=-3em]model training.south){Model Evaluation};
+		\node[style=Process,anchor=north,yshift=-1em] (format evaluation inputs) at (model evaluation label.south) {Format inputs into\\real \& scaled features};
+		\node[style=Process,anchor=north,yshift=-1em] (compute evaluation kernel) at (format evaluation inputs.south) {Compute evaluation\\kernel matrix};
+		\node[style=Process,anchor=north,yshift=-1em] (evaluation predictions) at (compute evaluation kernel.south) {Multiply kernel matrix\\with $\vb{\alpha}$ and add bias};
+		\node[style=Process,anchor=north,yshift=-1em] (format evaluation outputs) at (evaluation predictions.south) {Format then evaluate\\outputs with bases};
+		\node[draw,dashed,inner sep=0.5em,fit={(model evaluation label) (format evaluation inputs) (compute evaluation kernel) (evaluation predictions) (format evaluation outputs)}] (model evaluation) {};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		% Data preparation
+		\draw [style=Single arrow] (problem specification) to (generate data decision);
+		\draw [style=Single arrow] (generate data decision.south east) -| node[right]{No} (retrieve dataset);
+		\draw [style=Single arrow] (retrieve dataset) to (compute dataset coefficients);
+		\draw [style=Single arrow] (generate data decision.south west) -| node[left]{Yes} (generate random coefficients);
+		\draw [style=Single arrow] (generate random coefficients) to (compute parameters);
+		\draw [style=Single arrow] (compute parameters) to (evaluate function on domain);
+		% Data transformation
+		\draw [style=Single arrow] (extract input output) to (basis transform);
+		\draw [style=Single arrow] (basis transform) to (split dataset);
+		\draw [style=Single arrow] (split dataset) to (scale dataset);
+		% Model training
+		\draw [style=Single arrow] (format training dataset) to (compute training kernel);
+		\draw [style=Single arrow] (compute training kernel) to (assemble LSSVR equation);
+		\draw [style=Single arrow] (assemble LSSVR equation) to (least squares multipliers);
+		% Model evaluation
+		\draw [style=Single arrow] (format evaluation inputs) to (compute evaluation kernel);
+		\draw [style=Single arrow] (compute evaluation kernel) to (evaluation predictions);
+		\draw [style=Single arrow] (evaluation predictions) to (format evaluation outputs);
+		% Large picture
+		\draw [style=Single arrow] (data preparation) to (data transformation);
+		\draw [style=Single arrow] (data transformation.east) -| ($(model training.west)!0.5!(data transformation.east)$) |- (model training.west);
+		\draw [style=Single arrow] (model training) to (model evaluation);
+	\end{pgfonlayer}
+\end{tikzpicture}

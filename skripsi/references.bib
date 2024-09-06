@@ -3600,3 +3600,43 @@
   abstract = {Abstract             NOAA global surface temperature (NOAAGlobalTemp) is NOAA’s operational global surface temperature product, which has been widely used in Earth’s climate assessment and monitoring. To improve the spatial interpolation of monthly land surface air temperatures (LSATs) in NOAAGlobalTemp from 1850 to 2020, a three-layer artificial neural network (ANN) system was designed. The ANN system was trained by repeatedly randomly selecting 90\% of the LSATs from ERA5 (1950–2019) and validating with the remaining 10\%. Validations show clear improvements of ANN over the original empirical orthogonal teleconnection (EOT) method: the global spatial correlation coefficient (SCC) increases from 65\% to 80\%, and the global root-mean-square difference (RMSD) decreases from 0.99° to 0.57°C during 1850–2020. The improvements of SCCs and RMSDs are larger in the Southern Hemisphere than in the Northern Hemisphere and are larger before the 1950s and where observations are sparse. The ANN system was finally fed in observed LSATs, and its output over the global land surface was compared with those from the EOT method. Comparisons demonstrate similar improvements by ANN over the EOT method: The global SCC increased from 78\% to 89\%, the global RMSD decreased from 0.93° to 0.68°C, and the LSAT variability quantified by the monthly standard deviation (STD) increases from 1.16° to 1.41°C during 1850–2020. While the SCC, RMSD, and STD at the monthly time scale have been improved, long-term trends remain largely unchanged because the low-frequency component of LSAT in ANN is identical to that in the EOT approach.                            Significance Statement               The spatial interpolation method of an artificial neural network has greatly improved the accuracy of land surface air temperature reconstruction, which reduces root-mean-square error and increases spatial coherence and variabilities over the global land surface from 1850 to 2020.},
   file = {C:\Users\ahmad\Zotero\storage\7PHLUFCQ\Huang et al. - 2022 - Improvements to the Land Surface Air Temperature Reconstruction in NOAAGlobalTemp An Artificial Neu.pdf}
 }
+
+@online{bouallegueAIFSECMWFDataDriven2024,
+  title = {{{AIFS}} - {{ECMWF}}'s {{Data-Driven Probabilistic Forecasting}}},
+  author = {Bouallegue, Zied Ben and Alexe, Mihai and Chantry, Matthew and Clare, Mariana and Dramsch, Jesper and Lang, Simon and Lessig, Christian and Magnusson, Linus and Prieto Nemesio, Ana and Pinault, Florian and Raoult, Baudouin and Tietsche, Steffen},
+  date = {2024-03-11},
+  doi = {10.5194/egusphere-egu24-17158},
+  url = {https://meetingorganizer.copernicus.org/EGU24/EGU24-17158.html},
+  urldate = {2024-08-24},
+  abstract = {In just two years, the idea of an operational data-driven system for medium-range weather forecasting has been transformed from dream to very real possibility. This has occurred through a series of publications from innovators, which have rapidly improved deterministic forecast skill. Our own evaluation confirms that these forecasts have comparable deterministic skill to NWP models across a range of variables. However, on medium-range timescales probabilistic forecasting, typically achieved through ensembles, is key for providing actionable insights to users. ECMWF is building on top of these recent works to develop a probabilistic forecasting system, AIFS. We will showcase results from our progress towards this system and outline our roadmap to operationalisation.}
+}
+
+@online{langAIFSECMWFDatadriven2024,
+  title = {{{AIFS}} -- {{ECMWF}}'s Data-Driven Forecasting System},
+  author = {Lang, Simon and Alexe, Mihai and Chantry, Matthew and Dramsch, Jesper and Pinault, Florian and Raoult, Baudouin and Clare, Mariana C. A. and Lessig, Christian and Maier-Gerber, Michael and Magnusson, Linus and Bouallègue, Zied Ben and Nemesio, Ana Prieto and Dueben, Peter D. and Brown, Andrew and Pappenberger, Florian and Rabier, Florence},
+  date = {2024-08-07},
+  eprint = {2406.01465},
+  eprinttype = {arXiv},
+  eprintclass = {physics},
+  url = {http://arxiv.org/abs/2406.01465},
+  urldate = {2024-08-24},
+  abstract = {Machine learning-based weather forecasting models have quickly emerged as a promising methodology for accurate medium-range global weather forecasting. Here, we introduce the Artificial Intelligence Forecasting System (AIFS), a data driven forecast model developed by the European Centre for Medium-Range Weather Forecasts (ECMWF). AIFS is based on a graph neural network (GNN) encoder and decoder, and a sliding window transformer processor, and is trained on ECMWF's ERA5 re-analysis and ECMWF's operational numerical weather prediction (NWP) analyses. It has a flexible and modular design and supports several levels of parallelism to enable training on high-resolution input data. AIFS forecast skill is assessed by comparing its forecasts to NWP analyses and direct observational data. We show that AIFS produces highly skilled forecasts for upper-air variables, surface weather parameters and tropical cyclone tracks. AIFS is run four times daily alongside ECMWF's physics-based NWP model and forecasts are available to the public under ECMWF's open data policy.},
+  pubstate = {prepublished},
+  keywords = {Physics - Atmospheric and Oceanic Physics},
+  file = {C\:\\Users\\ahmad\\Zotero\\storage\\CSK7PT3A\\Lang et al. - 2024 - AIFS -- ECMWF's data-driven forecasting system.pdf;C\:\\Users\\ahmad\\Zotero\\storage\\UBKVQN9X\\2406.html}
+}
+
+@online{wangFastPDEconstrainedOptimization2021,
+  title = {Fast {{PDE-constrained}} Optimization via Self-Supervised Operator Learning},
+  author = {Wang, Sifan and Bhouri, Mohamed Aziz and Perdikaris, Paris},
+  date = {2021-10-25},
+  eprint = {2110.13297},
+  eprinttype = {arXiv},
+  eprintclass = {cs, math},
+  url = {http://arxiv.org/abs/2110.13297},
+  urldate = {2024-09-01},
+  abstract = {Design and optimal control problems are among the fundamental, ubiquitous tasks we face in science and engineering. In both cases, we aim to represent and optimize an unknown (black-box) function that associates a performance/outcome to a set of controllable variables through an experiment. In cases where the experimental dynamics can be described by partial differential equations (PDEs), such problems can be mathematically translated into PDE-constrained optimization tasks, which quickly become intractable as the number of control variables and the cost of experiments increases. In this work we leverage physics-informed deep operator networks (DeepONets) -- a self-supervised framework for learning the solution operator of parametric PDEs -- to build fast and differentiable surrogates for rapidly solving PDE-constrained optimization problems, even in the absence of any paired input-output training data. The effectiveness of the proposed framework will be demonstrated across different applications involving continuous functions as control or design variables, including time-dependent optimal control of heat transfer, and drag minimization of obstacles in Stokes flow. In all cases, we observe that DeepONets can minimize high-dimensional cost functionals in a matter of seconds, yielding a significant speed up compared to traditional adjoint PDE solvers that are typically costly and limited to relatively low-dimensional control/design parametrizations.},
+  pubstate = {prepublished},
+  keywords = {Computer Science - Machine Learning,Mathematics - Optimization and Control},
+  file = {C\:\\Users\\ahmad\\Zotero\\storage\\6FB4EBPW\\Wang et al. - 2021 - Fast PDE-constrained optimization via self-supervised operator learning.pdf;C\:\\Users\\ahmad\\Zotero\\storage\\VY5JTDHV\\2110.html}
+}

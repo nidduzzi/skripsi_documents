@@ -1,83 +1,56 @@
-\chapter{METODOLOGI PENELITIAN}
-\label{sec:metodologi_penelitian}
+% !TEX root = ./skripsi.tex
+\chapter{Research Methodology}\label{sec:research_methodology}
 
-Secara umum, metode penelitian yang digunakan pada pekerjaan penelitian disampaikan pada bab ini. Judul bab tidak harus seperti yang dituliskan. Dalam kata lain bisa diubah sesuai kebutuhan.
+% Secara umum, metode penelitian yang digunakan pada pekerjaan penelitian disampaikan pada bab ini. Judul bab tidak harus seperti yang dituliskan. Dalam kata lain bisa diubah sesuai kebutuhan.
 
-\section{Computational Model}
-\noindent The proposed model derives inspiration from DeepONet, Neural Spectral methods, and Spectral Neural Operators. The method uses LSSVR to map between the input coefficients/functions and the solution coefficients. This mapping is the surrogate of the operator in the spectral domain. To exploit the nature of the problem, the kernel chosen has particular characteristics that makes it useful for the spectral/function domain. These are kernels such as the maximum distance between two functions or something that lies in the spectral domain favoring low/high frequencies depending on the particular problem.
-% \begin{mini}
-%   {W_b}{y=(W_b\cdot f+b_b)^\top\cdot(W_t\cdot v+b_t)+\xi
-% \end{mini}
+\section{Research Design}
+\noindent This study is carried out under the framework of a research design. In this section, this design will be laid out and explained. The design includes the process from the beginning to the end of the overall study. The research design is visually depicted in \lccref{fig:research_design_diagram}.
 
-\begin{mini!}|s|
-{\substack{\vb*{W_b},\vb*{W_t},\vb*{\xi}}}{\frac{1}{2}\Vert \vb*{W_b}\Vert_F^2 + \frac{1}{2}\Vert \vb*{W_t}\Vert_F^2 + \frac{c}{2}\sum_{i=1}^{N}\xi_i^2} {}{}
-\addConstraint{y_i}{=(\vb*{W_b} \vb*{f_i})^\top(\vb*{W_t} \vb*{v_i})+\xi_i,\quad}{i=1,\ldots,N}
-\end{mini!}
-Converting the optimization problem above to the lagrange formulation
-\begin{equation}
-  \begin{aligned}
-    L(\vb*{W_b},\vb*{W_t},\vb*{\xi};\vb*{\alpha})= {} & \frac{1}{2}\Vert \vb*{W_b}\Vert_F^2 + \frac{1}{2}\Vert \vb*{W_t}\Vert_F^2 +\frac{c}{2}\sum_{i=1}^{N}\xi_i^2 \\ &+ \sum_{i=1}^{N}\alpha_i(y_i-\xi_i-(\vb*{W_b} \vb*{f_i})^\top(\vb*{W_t} \vb*{v_i}))
-  \end{aligned}
-\end{equation}
-Taking partial derivatives with respect to 
-\begin{equation}
-  \begin{aligned}
-    \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{W_b}                               & = 0                                                                                \\
-    \frac{2}{2}W_b + 0 + 0 - \sum_{i=1}^{l}\alpha_i((W_t v_i+b_t)f_i^\top) & = 0                                                                                \\
-    W_b - \sum_{i=1}^{l}\alpha_i((W_t v_i+b_t)f_i^\top)                    & = 0                                                                                \\
-    W_b                                                                    & = \sum_{i=1}^{l}\alpha_i(W_t v_i f_i^\top+b_t f_i^\top)                            \\
-    W_b                                                                    & = \sum_{i=1}^{l}(\alpha_i W_t v_i f_i^\top)+ \sum_{i=1}^{l}(\alpha_i b_t f_i^\top) \\
-    W_b                                                                    & = W_t \sum_{i=1}^{l}(\alpha_i v_i f_i^\top)+ b_t \sum_{i=1}^{l}(\alpha_i f_i^\top) \\
-    W_b                                                                    & = W_t \sum_{i=1}^{l}(\alpha_i v_i f_i^\top)+ b_t \sum_{i=1}^{l}(\alpha_i f_i^\top) \\
-  \end{aligned}
-\end{equation}
-\begin{equation}
-  \begin{aligned}
-    \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{W_t}                                        & = 0                                                                                                                                                                                    \\
-    0 + \frac{2}{2}W_t + 0 - \sum_{i=1}^{l}\alpha_i((W_b f_i + b_b)v_i^\top)        & = 0                                                                                                                                                                                    \\
-    W_t - \sum_{i=1}^{l}\alpha_i((W_b f_i + b_b)v_i^\top)                           & = 0                                                                                                                                                                                    \\
-    W_t                                                                             & = \sum_{i=1}^{l}\alpha_i(W_b f_i v_i^\top + b_b v_i^\top)                                                                                                                              \\
-    W_t                                                                             & = \sum_{i=1}^{l}\alpha_i((\sum_{j=1}^{l}\alpha_j(W_t v_j f_j^\top + b_t f_j^\top)) f_i v_i^\top+b_b v_i^\top)                                                                          \\
-    W_t                                                                             & = \sum_{i=1}^{l}(\sum_{j=1}^{l}(\alpha_i\alpha_jW_t v_j f_j^\top f_i v_i^\top + \alpha_i\alpha_j b_t f_j^\top f_i v_i^\top) + \alpha_i b_b v_i^\top)                                   \\
-    W_t                                                                             & = \sum_{i=1}^{l}(\sum_{j=1}^{l}(\alpha_i\alpha_jW_t v_j f_j^\top f_i v_i^\top) + \sum_{j=1}^{l}(\alpha_i\alpha_j b_t f_j^\top f_i v_i^\top) + \alpha_i b_b v_i^\top)                   \\
-    W_t - \sum_{i=1}^{l}\sum_{j=1}^{l}\alpha_i\alpha_jW_t v_j f_j^\top f_i v_i^\top & = \sum_{i=1}^{l}(\sum_{j=1}^{l}(\alpha_i\alpha_j b_t f_j^\top f_i v_i^\top) + \alpha_i b_b v_i^\top)                                                                                   \\
-    W_t(I - \sum_{i=1}^{l}\sum_{j=1}^{l}\alpha_i\alpha_j v_j f_j^\top f_i v_i^\top) & = \sum_{i=1}^{l}(\sum_{j=1}^{l}(\alpha_i\alpha_j b_t f_j^\top f_i v_i^\top) + \alpha_i b_b v_i^\top)                                                                                   \\
-    W_t                                                                             & = \sum_{i=1}^{l}(\sum_{j=1}^{l}(\alpha_i\alpha_j b_t f_j^\top f_i v_i^\top) + \alpha_i b_b v_i^\top) (I - \sum_{i=1}^{l}\sum_{j=1}^{l}\alpha_i\alpha_j v_j f_j^\top f_i v_i^\top)^{-1} \\
-    W_t                                                                             & = \sum_{i=1}^{l}(\alpha_i(\sum_{j=1}^{l}(\alpha_j b_t f_j^\top f_i) + b_b)v_i^\top ) (I - \sum_{i=1}^{l}\sum_{j=1}^{l}\alpha_i\alpha_j v_j f_j^\top f_i v_i^\top)^{-1}                 \\
-  \end{aligned}
-\end{equation}
-\begin{equation}
-  \begin{aligned}
-    \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{b_b}        & = 0 \\
-    0 + 0 + 0 - \sum_{i=1}^{l}\alpha_i(W_t v_i+b_t) & = 0 \\
-    \sum_{i=1}^{l}\alpha_i(W_t v_i+b_t)             & = 0
-  \end{aligned}
-\end{equation}
-\begin{equation}
-  \begin{aligned}
-    \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{b_t}        & = 0 \\
-    0 + 0 + 0 - \sum_{i=1}^{l}\alpha_i(W_b f_i+b_b) & = 0 \\
-    \sum_{i=1}^{l}\alpha_i(W_b f_i+b_b)             & = 0
-  \end{aligned}
-\end{equation}
-\begin{equation}
-  \begin{aligned}
-    \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{\xi}                         & = 0        \\
-    0 + 0 + \frac{2c}{2}\sum_{i=1}^{l}\xi_i - \sum_{i=1}^{l}\alpha_i & = 0        \\
-    \sum_{i=1}^{l}c\xi_i - \alpha_i                                  & = 0        \\
-    c\xi_i                                                           & = \alpha_i \\
-  \end{aligned}
-\end{equation}
-\begin{equation}
-  \begin{aligned}
-    \pdv{L(W_b,b_b,W_t,b_t,\xi;\alpha)}{\alpha}                         & = 0 \\
-    0 + 0 + 0 + \sum_{i=1}^{l}y_i-\xi_i-(W_b f_i+b_b)^\top(W_t v_i+b_t) & = 0 \\
-    \sum_{i=1}^{l}y_i-\xi_i-(W_b f_i+b_b)^\top(W_t v_i+b_t)             & = 0
-  \end{aligned}
-\end{equation}
+\begin{figure}[h]
+  \centering
+  \tikzfig{figures/research_design_diagram}
+  \caption{Research design diagram}\label{fig:research_design_diagram}
+\end{figure}
+
+The study is carried out in 9 main phases. Each phase has a specific aim to accomplish such that the subsequent phases are able to proceed. Each phase is explained as follows:
+
+\begin{enumerate}
+  \item Problem Specification
+
+        The first phase of the study is dedicated to specifying and identifying the problem to be studied and will define the solution this study sets out to discover.
+
+  \item Literature Review
 
 
 
+  \item Design of Computational Model
+
+
+
+  \item Implementation of Computational Model
+
+
+
+  \item Planning of Experimental Scenarios
+
+
+
+  \item Data Generation and Retrieval
+
+
+
+  \item Data Preprocessing
+
+
+
+  \item Experiments
+
+
+
+  \item Analysis and Discussion
+
+
+\end{enumerate}
 
 \section{Sub Bab \texorpdfstring{$\alpha$}{α}}
 \noindent Misal kita mau masukin tabel, kita bisa juga.

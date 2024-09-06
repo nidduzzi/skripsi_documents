@@ -1,0 +1,105 @@
+%% Creator: Inkscape 1.3.2 (091e20e, 2023-11-25, custom), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'computational_model.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{841.5bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.46524064)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{computational_model.pdf}}%
+    \put(0.17914439,0.44741533){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Data Preparation\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{computational_model.pdf}}%
+    \put(0.08645276,0.04188948){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Evaluate function values on...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{computational_model.pdf}}%
+    \put(0.08645276,0.13101604){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Compute parameters using de...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{computational_model.pdf}}%
+    \put(0.27272727,0.13101604){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Compute basis coefficients\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{computational_model.pdf}}%
+    \put(0.27272727,0.2201426){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Retrieve Data\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{computational_model.pdf}}%
+    \put(0.08645276,0.2201426){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Generate random functions c...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{computational_model.pdf}}%
+    \put(0.17914439,0.39839572){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Problem Specification\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{computational_model.pdf}}%
+    \put(0.17914439,0.30926916){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Does data need...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=9]{computational_model.pdf}}%
+    \put(0.48663102,0.44741533){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Data Transformation\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=10]{computational_model.pdf}}%
+    \put(0.48663102,0.13101604){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Scale input functions based...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=11]{computational_model.pdf}}%
+    \put(0.48663102,0.2201426){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Split data into training, t...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=12]{computational_model.pdf}}%
+    \put(0.48663102,0.30926916){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Transform functions into ba...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=13]{computational_model.pdf}}%
+    \put(0.48663102,0.39839572){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Extract input and output fu...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=14]{computational_model.pdf}}%
+    \put(0.70053476,0.44741533){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Model Training\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=15]{computational_model.pdf}}%
+    \put(0.70053476,0.30926916){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Compute kernel matrix\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=16]{computational_model.pdf}}%
+    \put(0.70053476,0.2201426){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Assemble LSSVR equation mat...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=17]{computational_model.pdf}}%
+    \put(0.70053476,0.13101604){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Compute Lagrangian multipli...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=18]{computational_model.pdf}}%
+    \put(0.70053476,0.39839572){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Reassemble complex inputs a...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=19]{computational_model.pdf}}%
+    \put(0.9144385,0.44741533){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Model Evaluation\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=20]{computational_model.pdf}}%
+    \put(0.9144385,0.30926916){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Compute kernel matrix betwe...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=21]{computational_model.pdf}}%
+    \put(0.9144385,0.2201426){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Multiply kernel matrix with...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=22]{computational_model.pdf}}%
+    \put(0.9144385,0.13101604){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Rearrange output into compl...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=23]{computational_model.pdf}}%
+    \put(0.9144385,0.39839572){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Reasseble complex inputs an...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=24]{computational_model.pdf}}%
+    \put(0.9144385,0.04188948){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Evaluate approximated outpu...\end{tabular}}}}%
+  \end{picture}%
+\endgroup%

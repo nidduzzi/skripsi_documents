@@ -1,3 +1,4 @@
+% !TEX root = ./skripsi.tex
 \chapter{INTRODUCTION}
 \section{Background}\label{sec:background} %pelabelan ini opsional, biar bisa di klik kalo mengarahkan ke section tertentu.
 \noindent Partial differential equations (PDE) are a common tool widely used in the modern scientific understanding and many engineering processes. This is because many systems can be described by the way they change and often this can be more intuitive. As an example, think of someone heating up a large frying pan on a gas stove. To describe how the pan heats up when the center is right above the burner, one can say that the center would heat up first followed by its surroundings. Eventually the pan would not heat up any further. Also notice that the edges of the pan would always be cooler than the center. However, once a more complex setup is introduced such as an uneven heat source or more complex materials with different heat rates of transferring heat it becomes much harder to describe how the pan heats up. A more useful way to describe the system is using the heat equation. For a temperature function \(u\left(\vb{x},t\right)\) of spatial coordinates vector \(\vb{x}\) and time \(t\), the generalized heat equation is defined in \lccref{eq:heat_equation}.
@@ -104,8 +105,9 @@ In terms of weather forecasting, operator learning has been applied in terms of 
 \noindent This work is limited to the following:
 \begin{enumerate}
     \item Functions the model works with are only continuous functions.
-    \item Hardware used in this project is limited to the standard offering on \url{kaggle.com} as of \today.
-    \item The basis functions are limited to Fourier basis.
+    \item Hardware used in this project is limited to the standard offering on \url{kaggle.com} as of \today{}.
+    \item The basis functions are limited to Fourier basis. % TODO: change this if more basis functions are added
+    \item Modeled fields are compact or dense meaning not sparse. Sparse observations or other data are assimilated using other methods.
 \end{enumerate}
 
 \section{Sistematika Penulisan}
