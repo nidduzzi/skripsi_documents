@@ -1,0 +1,15 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=Process] (determine equations) {Determine Equations};
+		\node [style=Process,anchor=west,xshift=3em] (generate solutions) at (determine equations.east) {Generate Solution\\Coefficients};
+		\node [style=Process,anchor=north,yshift=-3em] (determine known parameters) at (generate solutions.south) {Deterimine Known\\Parameters};
+		\node [style=Process,anchor=north,yshift=-3em] (compute unknown parameters) at (determine equations.south) {Compute Unknown\\Parameters};
+		\node [style=Process,anchor=north,yshift=-3em] (add noise) at (compute unknown parameters.south) {Add Noise};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (determine equations) to (generate solutions);
+		\draw [style=Single arrow] (generate solutions) to (determine known parameters);
+		\draw [style=Single arrow] (determine known parameters) to (compute unknown parameters);
+		\draw [style=Single arrow] (compute unknown parameters) to (add noise);
+	\end{pgfonlayer}
+\end{tikzpicture}
