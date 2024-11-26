@@ -4,3 +4,4 @@
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QThe complex formulation of the Fourier series is presented in eq:fourier_series.\\E$"}
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QTo do this we first formulate both into separate Fourier series approximations \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q and \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q in eq:example_fourier_1,eq:example_fourier_2 respectively.\\E$"}
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\Q\\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q Next we take the derivative of eq:example_fourier_1 which result in eq:fourier_series_derivative.\\E$"}
+{"rule":"ENGLISH_WORD_REPEAT_BEGINNING_RULE","sentence":"^\\QIn this way, the code can be run quickly and fail immediately\\E$"}

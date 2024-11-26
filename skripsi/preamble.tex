@@ -2,42 +2,34 @@
 \geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=4cm,rmargin=3cm}
 \usepackage[pdftex,bookmarks=true,unicode=true,pdfusetitle,bookmarksnumbered=true,bookmarksopen=true,breaklinks=true,pdfborder={0 0 1},backref=none,colorlinks=false]{hyperref}
 \usepackage{bookmark}
-
-%%%% identitas (kalo file pdf nya di klik kanan, info..)
-\hypersetup{pdfauthor={\penulis},
-  pdfsubject={SKRIPSI},
-  pdftitle={\judul},
-  pdfkeywords={\keywords}}
-
-% \usepackage[htt]{hyphenat}
 \usepackage[none]{hyphenat}
 \sloppy
-% !TEX root = ./skripsi.tex
-%\raggedright		%fix justify
-%\hyphenpenalty=10000
-%\hbadness=10000 
 
 
 \usepackage{listing}
 \usepackage{graphicx}      %menghandle gambar
-\usepackage[inkscapelatex=false]{svg} 	%handle svg with \includesvg
+\usepackage[inkscapelatex=false]{svg}   %handle svg with \includesvg
+\usepackage{pgf}
+\usepackage{lmodern}
 \usepackage{tikzit}
 \input{figures/tikz_styles/skripsi.tikzstyles}
 \usepackage{adjustbox}
 \usepackage{tabularx}
 \usepackage{float}
-\usepackage[hang,nooneline,scriptsize,md]{subfigure}
 \usepackage{epsfig}
-\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{caption}
+\usepackage[list=true,listformat=simple]{subcaption}
+%%%% identitas (kalo file pdf nya di klik kanan, info..)
+\hypersetup{pdfauthor={\penulis},
+  pdfsubject={SKRIPSI},
+  pdftitle={\judul},
+pdfkeywords={\keywords}}
 \usepackage[titletoc]{appendix}
 
 \usepackage[utf8]{inputenc}
 \usepackage[backend=biber, style=apa]{biblatex} %TODO change style to apa or other style, backref=true
 \addbibresource{references.bib}
-%\usepackage{cite}          % buat cite pake BibTex
-%\bibliographystyle{apalike}
-% \usepackage[bahasa]{babel} %plugin bahasa 
-\usepackage[american]{babel} %plugin english  
+\usepackage[american]{babel} %plugin english
 \usepackage{csquotes}
 \usepackage{xpatch}
 
@@ -50,6 +42,7 @@
 \usepackage{listings}
 \usepackage{relsize}
 \usepackage{physics}
+\usepackage{siunitx}
 \usepackage{optidef}  % for writing optimization problems easier
 \usepackage{algpseudocode}
 \usepackage{algorithm}
@@ -76,7 +69,7 @@
   % \vskip-5em
   \filcenter
   \LARGE\MakeUppercase \chaptertitlename\
-  \LARGE\thechapter}
+\LARGE\thechapter}
 {0mm}
 {\filcenter}
 \titleformat*{\section}{\bfseries\large}
@@ -84,7 +77,7 @@
 \titlespacing*{\chapter}{0pt}{-1.5\baselineskip}{1em}
 
 %menambahkan titik titik di daftar isi, gambar, tabel
-\usepackage[subfigure]{tocloft}
+\usepackage{tocloft}
 \renewcommand{\cftpartleader}{\dotfill}
 \renewcommand{\cftpartafterpnum}{\cftparfillskip}
 \renewcommand{\cftchapleader}{\dotfill}
@@ -98,19 +91,19 @@
 \usepackage[onehalfspacing]{setspace}      %buat kombinasi spacing
 \usepackage{indentfirst}
 %\setlength{\parindent}{0.6cm}
-\usepackage{parskip} 	%safely change the space inserted between paragraphs
+\usepackage{parskip}   %safely change the space inserted between paragraphs
 
 \pagestyle{plain}
 \setlength{\parindent}{20pt}
 
-%tambah "bab" x di daftar isi 
-\renewcommand*\cftchappresnum{\MakeUppercase{bab}~}
-\renewcommand\chaptername{BAB}
-\settowidth{\cftchapnumwidth}{\cftchappresnum}
-\renewcommand{\cftchapaftersnumb}{\quad}
-\addtocontents{toc}{
-  %\renewcommand\protect*\protect\cftchappresnum{\MakeUppercase{\chaptername}~}}
-  \protect\renewcommand*\protect\cftchappresnum{\MakeUppercase{\chaptername}~}}
+%tambah "bab" x di daftar isi
+% \renewcommand*\cftchappresnum{\MakeUppercase{bab}~}
+% \renewcommand\chaptername{BAB}
+% \settowidth{\cftchapnumwidth}{\cftchappresnum}
+% \renewcommand{\cftchapaftersnumb}{\quad}
+% \addtocontents{toc}{
+%\renewcommand\protect*\protect\cftchappresnum{\MakeUppercase{\chaptername}~}}
+% \protect\renewcommand*\protect\cftchappresnum{\MakeUppercase{\chaptername}~}}
 
 %Penomoran Bab berupa bilangan romawi
 \renewcommand{\thechapter}{\Roman{chapter}}%
@@ -128,60 +121,60 @@
 %tambah "gambar" dan "table" di daftar gambar dan daftar tabel
 \usepackage{chngcntr}
 %\counterwithout{figure}{chapter}
-\renewcommand{\cftfigpresnum}{\bfseries Gambar\ }
-\renewcommand{\cfttabpresnum}{\bfseries Tabel\ }
-\newlength{\mylenf}
-\settowidth{\mylenf}{\cftfigpresnum}
-\setlength{\cftfignumwidth}{\dimexpr\mylenf+2em}
-\settowidth{\mylenf}{\cfttabpresnum}
-\setlength{\cfttabnumwidth}{\dimexpr\mylenf+2em}
-\makeatletter
+% \renewcommand{\cftfigpresnum}{\bfseries Gambar\ }
+% \renewcommand{\cfttabpresnum}{\bfseries Tabel\ }
+% \newlength{\mylenf}
+% \settowidth{\mylenf}{\cftfigpresnum}
+% \setlength{\cftfignumwidth}{\dimexpr\mylenf+2em}
+% \settowidth{\mylenf}{\cfttabpresnum}
+% \setlength{\cfttabnumwidth}{\dimexpr\mylenf+2em}
+% \makeatletter
 
 %bikin listoftable tanpa judul, gara2 aneh
 %\counterwithout{table}{chapter}
-\newcommand\daftartabel{%
-  \phantomsection
-  \@starttoc{lof}%
-  \bigskip
-  \@starttoc{lot}}
-\makeatother
+% \newcommand\daftartabel{%
+%   \phantomsection
+%   \@starttoc{lof}%
+%   \bigskip
+%   \@starttoc{lot}}
+% \makeatother
 
 
 
-%ilangin judul bibli 
-\makeatletter
-\renewenvironment{thebibliography}[1]{%
-  \section*{\refname}%
-  \@mkboth{\MakeUppercase\refname}{\MakeUppercase\refname}%
-  \list{\@biblabel{\@arabic\c@enumiv}}%
-  {\settowidth\labelwidth{\@biblabel{#1}}%
-    \leftmargin\labelwidth
-    \advance\leftmargin\labelsep
-    \@openbib@code
-    \usecounter{enumiv}%
-    \let\p@enumiv\@empty
-    \renewcommand\theenumiv{\@arabic\c@enumiv}}%
-  \sloppy
-  \clubpenalty4000
-  \@clubpenalty \clubpenalty
-  \widowpenalty4000%
-  \sfcode`\.\@m}
-{\def\@noitemerr
-  {\@latex@warning{Empty `thebibliography' environment}}%
-  \endlist}
-\makeatother
+%ilangin judul bibli
+% \makeatletter
+% \renewenvironment{thebibliography}[1]{%
+%   \section*{\refname}%
+%   \@mkboth{\MakeUppercase\refname}{\MakeUppercase\refname}%
+%   \list{\@biblabel{\@arabic\c@enumiv}}%
+%   {\settowidth\labelwidth{\@biblabel{#1}}%
+%     \leftmargin\labelwidth
+%     \advance\leftmargin\labelsep
+%     \@openbib@code
+%     \usecounter{enumiv}%
+%     \let\p@enumiv\@empty
+%     \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+%   \sloppy
+%   \clubpenalty4000
+%   \@clubpenalty \clubpenalty
+%   \widowpenalty4000%
+%   \sfcode`\.\@m}
+% {\def\@noitemerr
+%   {\@latex@warning{Empty `thebibliography' environment}}%
+%   \endlist}
+% \makeatother
 
 
 %lampiran
-\makeatletter
-\newcommand\appendix@chapter[1]{%
-  \refstepcounter{chapter}%
-  \orig@chapter*{LAMPIRAN \@Alph\c@chapter \\  #1}\vspace{1.5em}%
-  \addcontentsline{toc}{chapter}{LAMPIRAN \@Alph\c@chapter: #1}%
-}
-\let\orig@chapter\chapter
-\g@addto@macro\appendix{\let\chapter\appendix@chapter}
-\makeatother
+% \makeatletter
+% \newcommand\appendix@chapter[1]{%
+%   \refstepcounter{chapter}%
+%   \orig@chapter*{LAMPIRAN \@Alph\c@chapter \\  #1}\vspace{1.5em}%
+%   \addcontentsline{toc}{chapter}{LAMPIRAN \@Alph\c@chapter: #1}%
+% }
+% \let\orig@chapter\chapter
+% \g@addto@macro\appendix{\let\chapter\appendix@chapter}
+% \makeatother
 
 
 

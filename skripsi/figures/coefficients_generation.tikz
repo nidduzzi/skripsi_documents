@@ -1,0 +1,14 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		% Random number generation
+        \node{\(c_k=rand()+rand()i\)}
+        % Random complex number generation
+        % Real function coefficients
+        % Compute output function coefficients
+        % Compute function values
+        % add noise
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		% Data preparation
+	\end{pgfonlayer}
+\end{tikzpicture}
