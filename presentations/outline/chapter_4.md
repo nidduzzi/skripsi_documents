@@ -28,3 +28,17 @@
         1. compute kernel matrix between support vectors and input functions to evaluate.
         2. Matrix multiply with Lagrangian basis and add bias to compute predicted output coeffecients
     3. The predicted coefficients are rearranged to complex form if needed and then used with the chosen basis to evaluate the approximated output function at desired coordinates
+
+## Implementation Process
+
+### Analysis
+
+### Design
+
+### Implementation
+
+### Testing
+
+## Case Studies
+
+## Results

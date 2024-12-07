@@ -46,7 +46,7 @@ Derive the KKT system
 \end{equation}
 
 After eliminating $W$ and $\vb*{e}$, with $\vb{1}_{n} = \langle 1,\dots,1\rangle$, $\vb{y} = \lbrack y_1, \dots, y_n \rbrack $, and ${\alpha} = \lbrack \alpha_1, \dots, \alpha_n \rbrack $ the solution is as follows in block matrix notation
-\begin{equation} \label{eq:lssvrSolution}
+\begin{equation} \label{eq:lssvr_solution}
   \begin{bmatrix}
     0          & \vb{1}_{n}^{\intercal} \\
     \vb{1}_{n} & \Omega + \frac{I}{C}
@@ -62,59 +62,64 @@ After eliminating $W$ and $\vb*{e}$, with $\vb{1}_{n} = \langle 1,\dots,1\rangle
   \end{bmatrix}
 \end{equation}
 
-The solution in \cref{eq:lssvrSolution}
+The solution in \cref{eq:lssvr_solution}
 
 \begin{algorithm}[H]
-  \caption{LSSVR Training}\label{alg1:cap}
+  \caption{LSSVR Training}\label{alg:lssvr_training}
   \begin{algorithmic}[1]
-    \Require $\vb{X}, \vb{y}, \gamma$
-    \Ensure $\vb{\alpha}, b$
-    \State $\Omega \gets [[]]$ \Comment{Construct matrix of inner products in high dimensional space}
+    \Procedure{SolveLSSVR}{$\vb{X}, \vb{y}, \gamma $}
+    \State{\(\Omega \gets [[]]\)}
+    \Comment{Construct matrix of inner products in high dimensional space}
 
-    \For{$k=0 \to n$}
-    \For{$l=0 \to n$}
-    \State$\Omega_{k,l}\gets K(\vb{X}_k,\vb{X}_l)$
-    \EndFor
-    \EndFor
-    \State $\vb{H} \gets \Omega + \frac{\vb{I}}{\gamma}$
+    \For{\(k=0 \to n\)}
+    \For{\(l=0 \to n\)}
+    \State{\(\Omega_{k,l}\gets K(\vb{X}_k,\vb{X}_l)\)}
+    \EndFor{}
+    \EndFor{}
+    \State{\(\vb{H} \gets \Omega + \frac{\vb{I}}{\gamma}\)}
     % \State $\vb{1} \gets [1,1,...,1]$
-    \State $\vb{A} \gets [[]]$ \Comment{Construct left hand side matrix}
-    \State $\vb{A}_{0,0} \gets 0$
-    \For{$k=0 \to n$}
-    \State $\vb{A}_{k+1,0} \gets 1$
-    \State $\vb{A}_{0,k+1} \gets 1$
-    \EndFor
-    \For{$k=0 \to n$}
-    \For{$l=0 \to n$}
-    \State $\vb{A}_{k+1,l+1} \gets \vb{H}_{k,l}$
-    \EndFor
-    \EndFor
-    \State $\vb{B}\gets []$ \Comment{Construct left hand side of the equation}
-    \State $\vb{B}_0 \gets 0$
-    \For{$k=0 \to n$}
-    \State $\vb{B}_{k+1} \gets \vb{y}_{k}$
-    \EndFor
-    \State $\vb{A}^{\dagger} \gets pseudoInverse(\vb{A})$ \Comment{Compute solution using pseudo inverse}
-    \State $\vb{S} \gets \vb{A}^{\dagger}\vb{B}$
-    \State $b \gets \vb{S}_{0}$
-    \For{$k=0 \to n$}
-    \State $\vb{\alpha}_{k} \gets \vb{S}_{k+1}$
-    \EndFor
+    \State{\(\vb{A} \gets [[]]\)}
+    \Comment{Construct left-hand side matrix}
+    \State{\(\vb{A}_{0,0} \gets 0\)}
+    \For{\(k=0 \to n\)}
+    \State{\(\vb{A}_{k+1,0} \gets 1\)}
+    \State{\(\vb{A}_{0,k+1} \gets 1\)}
+    \EndFor{}
+    \For{\(k=0 \to n\)}
+    \For{\(l=0 \to n\)}
+    \State{\(\vb{A}_{k+1,l+1} \gets \vb{H}_{k,l}\)}
+    \EndFor{}
+    \EndFor{}
+    \State{\(\vb{B}\gets []\)}
+    \Comment{Construct left-hand side of the equation}
+    \State{\(\vb{B}_0 \gets 0\)}
+    \For{\(k=0 \to n\)}
+    \State{\(\vb{B}_{k+1} \gets \vb{y}_{k}\)}
+    \EndFor{}
+    \State{\(\vb{A}^{\dagger} \gets pseudoInverse(\vb{A})\)}
+    \Comment{Compute solution using pseudo inverse}
+    \State{\(\vb{S} \gets \vb{A}^{\dagger}\vb{B}\)}
+    \State{\(b \gets \vb{S}_{0}\)}
+    \For{\(k=0 \to n\)}
+    \State{\(\vb{\alpha}_{k} \gets \vb{S}_{k+1}\)}
+    \EndFor{}
+    \State{\textbf{return}\(\vb{\alpha}, b\)}
+    \EndProcedure{}
   \end{algorithmic}
 \end{algorithm}
 
-The basic psuedocode from the LSSVM Equation for function regression is defined in \nameref{alg1:cap} for a training set of length $n$, features $\vb{X}$, and labels $\vb{y}$. Training the LSSVM means computing the values of langrange multipliers $\vb{\alpha}$ and bias $b$. $K$ is the kernel function used to compute the inner products in high dimensional space, here we asume the RBF kernel. $\vb{A}$ is a matrix of size $n+1$ by $n+1$. $\vb{H}$ is a matrix of size $n$ by $n$. $\vb{I}$ is the identity. $\vb{B}$ is a vector of size $n+1$. $\vb{S}$ is a vector of size $n+1$.
+The basic pseudocode from the LSSVM Equation for function regression is defined in \lccref{alg:lssvr_training} for a training set of length $n$, features $\vb{X}$, and labels $\vb{y}$. Training the LSSVM means computing the values of langrange multipliers $\vb{\alpha}$ and bias $b$. $K$ is the kernel function used to compute the inner products in high dimensional space, here we assume the RBF kernel. $\vb{A}$ is a matrix of size $n+1$ by $n+1$. $\vb{H}$ is a matrix of size $n$ by $n$. $\vb{I}$ is the identity. $\vb{B}$ is a vector of size $n+1$. $\vb{S}$ is a vector of size $n+1$.
 
-After training the model can be used for prediction of unseen points. The psuedocode for prediction is shown in \nameref{alg2:cap} for prediction features $\vb{U}$. The trained model uses the learned multipliers of training points $\vb{\alpha}$, the training points themselves $\vb{X}$, and the bias $b$.
+After training the model can be used for prediction of unseen features. The pseudocode for prediction is shown in \lccref{alg:lssvr_prediction} for prediction features $\vb{U}$ with \(p \) samples. The trained model uses the training features themselves $\vb{X}$ with \(n \) samples, the learned multipliers of training points $\vb{\alpha}$, and the bias $b$.
 
 \begin{algorithm}[H]
-  \caption{LSSVR Prediction}\label{alg2:cap}
+  \caption{LSSVR Prediction}\label{alg:lssvr_prediction}
   \begin{algorithmic}[1]
     \Require $\vb{U}, \vb{\alpha}, \vb{X}, b$
     \Ensure $\vb{v}$
     \State $\Omega \gets [[]]$ \Comment{Construct matrix of inner products in high dimensional space}
 
-    \For{$k=0 \to m$}
+    \For{$k=0 \to p$}
     \For{$l=0 \to n$}
     \State$\Omega_{k,l}\gets K(\vb{U}_{k},\vb{X}_l)$
     \EndFor
