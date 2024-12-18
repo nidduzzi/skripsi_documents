@@ -31,6 +31,8 @@
 		\node[style=Process,anchor=north,yshift=-1em] (evaluation predictions) at (compute evaluation kernel.south) {Multiply kernel matrix\\with $\vb{\alpha}$ and add bias};
 		\node[style=Process,anchor=north,yshift=-1em] (format evaluation outputs) at (evaluation predictions.south) {Format then evaluate\\outputs with bases};
 		\node[draw,dashed,inner sep=0.5em,fit={(model evaluation label) (format evaluation inputs) (compute evaluation kernel) (evaluation predictions) (format evaluation outputs)}] (model evaluation) {};
+		% Analysis & interpretation
+		\node[style=Process,anchor=north,yshift=-1em] (analysis and interpretation) at (model evaluation.south) {Analysis and\\interptetation};
 	\end{pgfonlayer}
 	\begin{pgfonlayer}{edgelayer}
 		% Data preparation
@@ -56,5 +58,6 @@
 		\draw [style=Single arrow] (data preparation) to (data transformation);
 		\draw [style=Single arrow] (data transformation.east) -| ($(model training.west)!0.5!(data transformation.east)$) |- (model training.west);
 		\draw [style=Single arrow] (model training) to (model evaluation);
+		\draw [style=Single arrow] (model evaluation) to (analysis and interpretation);
 	\end{pgfonlayer}
 \end{tikzpicture}

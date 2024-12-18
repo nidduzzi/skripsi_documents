@@ -64,9 +64,8 @@ In terms of weather forecasting, operator learning has been applied in terms of 
 \noindent The problems this work sets out to solve based on \lccref{sec:background} are:
 \begin{enumerate}
     \item What is the formulation a computational model for operator regression and therefore solving PDEs in the spectral domain using support vector machines?
-    \item How does the number of basis functions and model parameters impact the model performance?
+    \item Can the model learn the relationships represented by PDEs? And how does it perform on different problems?
     \item How can one interpret the learned model?
-    \item Can the model learn to forecast the weather effectively? % TODO: how to integrate physics into the LSSVM formulation?
 \end{enumerate}
 
 % Bagian ini menjadi salah satu bagian penting dalam Pendahuluan. Setelah paparan Latar Belakang, maka masalah yang diangkat pada pekerjaan penelitian perlu dirumuskan dengan baik. Perumusan ini sebaiknya dibahasakan tidak dalam bentuk kalimat pertanyaan, melainkan kalimat aktif, dan dapat memuat lebih dari satu rumusan.
@@ -78,9 +77,8 @@ In terms of weather forecasting, operator learning has been applied in terms of 
 \noindent Based on the stated problems in \lccref{sec:problem_statement}, this study aims to acomplish the following:
 \begin{enumerate}
     \item The design and implementation of a computational model that maps coefficients in the spectral domain using Least Squares Support Vector Regression (LSSVR).
-    \item Hyperparameter optimization of the model.
+    \item Proof of the model's learning ability using three different problems.
     \item Interpretation the model results and why some predictions turn out the way they do.
-    \item Comparison of SpectralSVR with SNO, DeepONet, FNO, and FDM on 4 problems
 \end{enumerate}
 % Bagian ini secara tegas menuliskan tujuan pekerjaan penelitian TA, yang dapat memuat lebih dari satu. Pemilihan kata kerja pada Tujuan ini sangat penting karena menggambarkan arah fokus dari jalinan upaya yang dilakukan.
 
@@ -88,15 +86,14 @@ In terms of weather forecasting, operator learning has been applied in terms of 
 \noindent In achieving the aims of this study the following contributions are made:
 \begin{enumerate}
     \item A novel use LSSVR which has a convex objective to learn solution operators of partial differential equations and operators in general.
-    \item Comparison of non-uniform Fourier transform for arbitrary spatial sampling with interpolated grid point values.
-    \item Interpretation of trained model.
+    \item Interpretation of machine learning model trained on operator data.
 \end{enumerate}
 
 \section{Limitations}
 \noindent This work is limited to the following:
 \begin{enumerate}
     \item Functions the model works with are only continuous functions.
-    \item The basis functions are limited to Fourier basis. % TODO: change this if more basis functions are added
+    \item The basis functions are limited to Fourier basis.
     \item Modeled fields are compact or dense meaning not sparse. Sparse observations or other data are assimilated using other methods.
 \end{enumerate}
 

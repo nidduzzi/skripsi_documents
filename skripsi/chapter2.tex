@@ -3,12 +3,17 @@
 
 \noindent Bab ini mengulas secara rinci konsep-konsep dasar yang berkaitan dengn pekerjaan penelitian TA dan deskripsi studi pustaka yang dilakukan. Judul bab tidak harus seperti yang dituliskan, melainkan dapat lebih fleksibel yang mencerminkan isi paparan pada bab ini. Demikian halnya dengan judul sub bab.
 
-\section{Fourier Transform and Series}
+\section{Fourier Transform and Series}\label{sec:fourier_discussion}
 \noindent
 
 Complex numbers are numbers consisting of real and imaginary components. Complex numbers are written as in \lccref{eq:complex_number} with \(a \) and \(b \) being the real and imaginary components respectively. The imaginary component is multiplied by the imaginary unit \(i=\sqrt{-1}\).
 \begin{align}
   c = a + bi \label{eq:complex_number} \\
+\end{align}
+\autocite{DiscreteFourierTransform}
+\begin{align}
+  c_k=\sum_{n=0}^{N-1} f_n e^{-i2\pi kn/N} \label{eq:discrete_fourier_transform}\\
+  f_n=\sum_{k=0}^{N-1} c_k e^{i2\pi kn/N} \label{eq:inverse_discrete_fourier_transform}
 \end{align}
 
 \section{Least Squares Support Vector Machine}
@@ -280,49 +285,49 @@ Prediction
 \end{equation}
 Where $\vb{1}_{m}$ is a vector of 1s with the length of $U$.
 
-\section{Sub Bab B}
-\noindent Suatu penelitian tidak dapat lepas dari capaian pengetahuan dan pemahaman yang sudah dipublikasikan. Deskripsi tentang capaian ini menjadi penting karena selain menunjukkan tingkat pemahaman mahasiswa, juga mengetahui tempat pekerjaan penelitian TA dalam konstelasi capaian tersebut. Studi pustaka dan paparan hasilnya dapat memperkaya wawasan tentang topik yang diangkat pada penelitian TA.
+% \section{Sub Bab B}
+% \noindent Suatu penelitian tidak dapat lepas dari capaian pengetahuan dan pemahaman yang sudah dipublikasikan. Deskripsi tentang capaian ini menjadi penting karena selain menunjukkan tingkat pemahaman mahasiswa, juga mengetahui tempat pekerjaan penelitian TA dalam konstelasi capaian tersebut. Studi pustaka dan paparan hasilnya dapat memperkaya wawasan tentang topik yang diangkat pada penelitian TA.
 
-\section{Membuat Persamaan}
-\noindent Secara prinsip, suatu persamaan menyatu dalam kalimat. Letak persamaan dapat berada di awal, tengah, atau akhir kalimat. Dengan demikian, pada akhir persamaan harus diberikan tanda baca, misalnya koma, titik koma, atau titik, yang menekankan kehadiran persamaan dalam kalimat. Tidak semua persamaan harus diberi nomor. Persamaan yang dirujuk pada naskah TA saja yang harus diberi nomor. Kode awal penomoran ini adalah nomor urut bab, termasuk untuk persamaan pada Lampiran, dengan urutan alfabet kapital.
+% \section{Membuat Persamaan}
+% \noindent Secara prinsip, suatu persamaan menyatu dalam kalimat. Letak persamaan dapat berada di awal, tengah, atau akhir kalimat. Dengan demikian, pada akhir persamaan harus diberikan tanda baca, misalnya koma, titik koma, atau titik, yang menekankan kehadiran persamaan dalam kalimat. Tidak semua persamaan harus diberi nomor. Persamaan yang dirujuk pada naskah TA saja yang harus diberi nomor. Kode awal penomoran ini adalah nomor urut bab, termasuk untuk persamaan pada Lampiran, dengan urutan alfabet kapital.
 
-Setiap notasi harus unik atau tunggal, sehingga arti setiap notasi adalah unik atau tunggal juga. Arti satu notasi harus dituliskan segera ketika notasi tersebut muncul, dan tidak diulang lagi setelahnya.
+% Setiap notasi harus unik atau tunggal, sehingga arti setiap notasi adalah unik atau tunggal juga. Arti satu notasi harus dituliskan segera ketika notasi tersebut muncul, dan tidak diulang lagi setelahnya.
 
-\subsection{Contoh Persamaan Sederhana}
-Persamaan (\ref{II.1}) mendeskripsikan dinamika fungsi gelombang $\psi(\vec{r},t)$ di bawah pengaruh potensial $V(\vec{r})$ dan dituliskan sebagai berikut:
-\begin{equation}\label{II.1}
-  i\hslash\frac{\partial \psi}{\partial t} = -\frac{\hslash^2}{2 m}\Vec{\nabla}^2 \psi + V(\vec{r})\psi,
-\end{equation}
-dengan $m$ adalah massa partikel dan $\hslash$ merupakan konstanta Planck tereduksi.
+% \subsection{Contoh Persamaan Sederhana}
+% Persamaan (\ref{II.1}) mendeskripsikan dinamika fungsi gelombang $\psi(\vec{r},t)$ di bawah pengaruh potensial $V(\vec{r})$ dan dituliskan sebagai berikut:
+% \begin{equation}\label{II.1}
+%   i\hslash\frac{\partial \psi}{\partial t} = -\frac{\hslash^2}{2 m}\Vec{\nabla}^2 \psi + V(\vec{r})\psi,
+% \end{equation}
+% dengan $m$ adalah massa partikel dan $\hslash$ merupakan konstanta Planck tereduksi.
 
-Di akhir persamaan (\ref{II.1}) diberi koma karena berada ditengah kalimat. Untuk merujuk ke persamaan yang telah ditulis, gunakan perintah \verb|\ref{}|.
+% Di akhir persamaan (\ref{II.1}) diberi koma karena berada ditengah kalimat. Untuk merujuk ke persamaan yang telah ditulis, gunakan perintah \verb|\ref{}|.
 
-Untuk menuliskan beberapa set persamaan yang masih terhubung, gunakan \verb|\subequations{}|. Misal kita punya persamaan diferensial terkopel, kita bisa tuliskan
-\begin{subequations}
-  \begin{align}
-    \frac{dy}{dt} & = -x , \\
-    \frac{dx}{dt} & = -y .
-  \end{align}
-\end{subequations}
-Kalau perlu matriks, kita bisa tulis seperti berikut.
-\begin{equation}
-  \sigma_x =
-  \begin{pmatrix}
-    0 & 1 \\
-    1 & 0
-  \end{pmatrix},\quad
-  \sigma_y =
-  \begin{pmatrix}
-    0 & -i \\
-    i & 0
-  \end{pmatrix}, \quad
-  \sigma_z =
-  \begin{pmatrix}
-    1 & 0  \\
-    0 & -1
-  \end{pmatrix}
-\end{equation}
+% Untuk menuliskan beberapa set persamaan yang masih terhubung, gunakan \verb|\subequations{}|. Misal kita punya persamaan diferensial terkopel, kita bisa tuliskan
+% \begin{subequations}
+%   \begin{align}
+%     \frac{dy}{dt} & = -x , \\
+%     \frac{dx}{dt} & = -y .
+%   \end{align}
+% \end{subequations}
+% Kalau perlu matriks, kita bisa tulis seperti berikut.
+% \begin{equation}
+%   \sigma_x =
+%   \begin{pmatrix}
+%     0 & 1 \\
+%     1 & 0
+%   \end{pmatrix},\quad
+%   \sigma_y =
+%   \begin{pmatrix}
+%     0 & -i \\
+%     i & 0
+%   \end{pmatrix}, \quad
+%   \sigma_z =
+%   \begin{pmatrix}
+%     1 & 0  \\
+%     0 & -1
+%   \end{pmatrix}
+% \end{equation}
 
 
-\section{Referensi dan Citation}
+% \section{Referensi dan Citation}
 % \noindent Sitasi dapat dimasukkan ke dalam Tugas Akhir seperti ini \cite{Fujita1996}. Untuk sitasi dengan beberapa sumber, dapat dituliskan juga \cite{hohen1964,Kim2006}. Atau untuk tiga sumber berarti \cite{kongkanand2006,kresse1999,Leibb1993}.
