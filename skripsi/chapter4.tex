@@ -8,18 +8,18 @@
 Using the subset of Fourier functions has several benefits which has motivated the choice. First these functions are characterized purely by their coefficients \(c_k\), meaning there is no need to store discretized values which potentially saves space and computation. The second benefit is that other functions such as polynomials can be approximated by them using the Fourier transform. This means that despite limiting the set of functions to Fourier functions, the behavior of PDEs with other sets of functions can be approximated to a certain extent. The final benefit is the mature ecosystem around these functions which include fast algorithms for the Fourier transform and even numerical approaches for solving known PDEs like the previously mentioned spectral method. In summary the generated data consists of features and labels which are Fourier functions implicitly defining the relationship enforced by a PDE and scenario. After establishing the kind of functions to be used in dataset generation, the process can proceed. There are 4 steps involved in the data generation:% TODO: add reference to second chapter for spectral method, fourier transform, and other external concepts.
 \begin{enumerate}
   \item Scenario and PDE Determination:
-    The first step of data generation is determining the scenario related to the PDE or governing equations. First, the PDE to be modeled is determined based on the goals of the dataset. Then, one or more of the parameters is chosen to predict the solution. The chosen parameters will be called the input functions and the solution will be called output functions from here on. The second part of the scenario is the domain or more simply the physical space occupied by the system to be modeled. The domain will be used to compute the function values in relation to the physical space from coefficients of Fourier functions.
+        The first step of data generation is determining the scenario related to the PDE or governing equations. First, the PDE to be modeled is determined based on the goals of the dataset. Then, one or more of the parameters is chosen to predict the solution. The chosen parameters will be called the input functions and the solution will be called output functions from here on. The second part of the scenario is the domain or more simply the physical space occupied by the system to be modeled. The domain will be used to compute the function values in relation to the physical space from coefficients of Fourier functions.
   \item Parameter Determination:
-    The second step is determining all parameters other than that input parameter based on the scenario and governing equation. These parameters may be coefficients such as material properties like density or viscosity, or forcing terms which model external influence on the system like a heat source in the case of the heat equation. Depending on the parameters, solutions of PDEs may behave very differently, such as the appearance of discontinuities in the solution to low viscosity Burgers' equation. Because of this, the choice of parameters is guided by what the dataset seeks to do.
+        The second step is determining all parameters other than that input parameter based on the scenario and governing equation. These parameters may be coefficients such as material properties like density or viscosity, or forcing terms which model external influence on the system like a heat source in the case of the heat equation. Depending on the parameters, solutions of PDEs may behave very differently, such as the appearance of discontinuities in the solution to low viscosity Burgers' equation. Because of this, the choice of parameters is guided by what the dataset seeks to do.
   \item Random Coefficient Generation:
-    The third step of data generation is randomly generating the solutions for the chosen equation. Generating random functions in the space of Fourier functions exploits the fact that the coefficients characterize the function completely. By randomly assigning coefficients \(c_k\), many functions can be generated randomly with very little cost. Since the coefficients need to be complex numbers as in \lccref{eq:complex_number}, both real and imaginary components are generated independently by assigning a random value to each component for each wave number \(k\). They are then put together again into complex numbers.
+        The third step of data generation is randomly generating the solutions for the chosen equation. Generating random functions in the space of Fourier functions exploits the fact that the coefficients characterize the function completely. By randomly assigning coefficients \(c_k\), many functions can be generated randomly with very little cost. Since the coefficients need to be complex numbers as in \lccref{eq:complex_number}, both real and imaginary components are generated independently by assigning a random value to each component for each wave number \(k\). They are then put together again into complex numbers.
 
-    Since only real functions are of interest in this study, the generation cost can be approximately halved. This is because for real functions the coefficients for negative wave numbers \(k\) are complex conjugate of the positive wave numbers. This means that once the positive coefficients are generated, one only needs to compute their complex conjugate and concatenate the result with the coefficients of positive wave numbers. For dimensions higher than one, a simpler approach is used. The coefficients are generated for all wave numbers including the negative ones. The inverse Fourier transform is computed and this results in complex functions. The real components of these functions are kept and the Fourier transform is applied to get the coefficients of the real functions. Finally, these generated coefficients then be used with the basis functions as input functions.
-    % TODO: add diagram for generating real functions, the mirroring process too
+        Since only real functions are of interest in this study, the generation cost can be approximately halved. This is because for real functions the coefficients for negative wave numbers \(k\) are complex conjugate of the positive wave numbers. This means that once the positive coefficients are generated, one only needs to compute their complex conjugate and concatenate the result with the coefficients of positive wave numbers. For dimensions higher than one, a simpler approach is used. The coefficients are generated for all wave numbers including the negative ones. The inverse Fourier transform is computed and this results in complex functions. The real components of these functions are kept and the Fourier transform is applied to get the coefficients of the real functions. Finally, these generated coefficients then be used with the basis functions as input functions.
+        % TODO: add diagram for generating real functions, the mirroring process too
   \item Forcing Term Computation:
-    Finally, in order to ensure that the generated solution and chosen parameters satisfy the equation, the forcing term is computed as the residual of the equation of interest with the parameters that was previously determined. This computation is done using the spectral method.
+        Finally, in order to ensure that the generated solution and chosen parameters satisfy the equation, the forcing term is computed as the residual of the equation of interest with the parameters that was previously determined. This computation is done using the spectral method.
   \item Function Value and Noise Computation:
-    The generated solution and forcing functions are labeled as input and output functions. The values of both functions in the domain can then be computed using the scenario determined in the first step. Once all coefficients are generated, the function values are computed with an inverse Fourier transform. The real component of the function values are retained, and the imaginary component are zeroed out. Noise is added to the function values here as needed. The processed function values are then converted back into coefficients using a Fourier transform. This processing is necessary to ensure that the coefficients are only describing the real function.
+        The generated solution and forcing functions are labeled as input and output functions. The values of both functions in the domain can then be computed using the scenario determined in the first step. Once all coefficients are generated, the function values are computed with an inverse Fourier transform. The real component of the function values are retained, and the imaginary component are zeroed out. Noise is added to the function values here as needed. The processed function values are then converted back into coefficients using a Fourier transform. This processing is necessary to ensure that the coefficients are only describing the real function.
 
 \end{enumerate}
 
@@ -29,9 +29,9 @@ These four steps are the general processes involved in generating datasets for t
 \noindent The first dataset is a simple one dimensional derivative. This was chosen as a simple proof of concept of the ability to solve a differential equation. The equation is related to many real-world problems such as acceleration and speed. One can imagine a train in an ideal world where acceleration is directly translated into speed. When the train accelerates at time \(t \) by some amount \(a \), we can expect the train to have some speed \(u \). In this ideal world, the relationship between speed and acceleration can be modeled with a simple differential \lccref{eq:derivative}. This scenario is found in many real systems albeit often with many more details such as different components of acceleration from friction, drag, gravity, and other factors.
 As previously mentioned in \lccref{sec:data_generation}, both velocity \(u \) and acceleration \(a \) are modeled with Fourier series in \lccrefs{eq:fourier_speed,eq:fourier_acceleration} respectively.
 \begin{align}
-  \dv{u\left( t \right)}{t} & = a\left( t \right) \label{eq:derivative}                                                           \\
-  u\left( t \right)           & = \sum_{k} \hat{u}_k e^{2\pi ikt} \label{eq:fourier_speed}        \\
-  a\left( t \right)           & = \sum_{k} \hat{a}_k e^{2\pi ikt} \label{eq:fourier_acceleration}
+  \dv{u\left( t \right)}{t} & = a\left( t \right) \label{eq:derivative}                         \\
+  u\left( t \right)         & = \sum_{k} \hat{u}_k e^{2\pi ikt} \label{eq:fourier_speed}        \\
+  a\left( t \right)         & = \sum_{k} \hat{a}_k e^{2\pi ikt} \label{eq:fourier_acceleration}
 \end{align}
 The domain of the scenario is a two-hour time window. This number was chosen because it is around the ideal length of travel time on high speed rail in comparison to air travel and car travel \autocite{givoniDevelopmentImpactModern2006,wangEfficiencySpatialEquity2019,wrro2236}. This is the first step in generating this dataset.
 
@@ -82,12 +82,12 @@ The domain of we consider here is based on an exact solution of the equation. Th
 \end{equation}
 Continuing to the second step, the parameters involved in \lccref{eq:forced_viscous_burgers} are the viscosity \(\nu \) and the forcing term \(f \). Since the forcing term is dependent on the solution in this step, the only parameter to determine is the viscosity. We choose three constant viscosity values which are 0.1, 0.01, and 0.0. These values are chosen so that a variety of behaviors are represented in the dataset from viscous to inviscid flow.
 
-After this, in the third step, the solution functions \(u \) are generated with 20 modes in time and 20 in space and 500 unique function samples for each viscosity value. In total 1500 unique solution functions are generated.
+After this, in the third step, the solution functions \(u \) are generated with 25 modes in time and 25 in space and 40 unique function samples for each viscosity value. In total 120 unique solution functions are generated. To ensure the same solutions are generated every time, the random number generator uses a new instance of the generator with the same seed number. This results in the solutions being the same for all viscosity and other parameters of the equation are adapted to this.
 
 As for the forcing term, it is computed using \lccref{eq:forced_viscous_burgers}. The solution field \(u\) and forcing term \(f\) are modeled with Fourier series in \lccrefs{eq:fourier_field,eq:fourier_force} where \(k\) is a vector of spatial and temporal wave number such that \(k_t\) is the temporal wave number and \(k_x\) is the spatial wave number.
 \begin{align}
-  u\left(x, t \right)           & = \sum_{k_{x}} \sum_{k_{t}} \hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:fourier_field}        \\
-  f\left(x, t \right)           & = \sum_{k_{x}}\sum_{k_{t}} \hat{f}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:fourier_force}
+  u\left(x, t \right) & = \sum_{k_{x}} \sum_{k_{t}} \hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:fourier_field} \\
+  f\left(x, t \right) & = \sum_{k_{x}}\sum_{k_{t}} \hat{f}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:fourier_force}
 \end{align}
 Substituting the terms in \lccref{eq:forced_viscous_burgers} with the respective Fourier series, we get the equation \lccref{eq:forced_viscous_burgers_fourier_substitution}. A problem one notices is the nonlinear term \(u\pdv{u}{x}\). A naive approach would multiply all wave numbers terms with each other.
 \begin{align}
@@ -97,16 +97,61 @@ This is computationally expensive operation with \(N^2\) multiplications \autoci
 \begin{equation}
   \begin{split}
     \sum_{k_{x}} \sum_{k_{t}} \hat{f}_k e^{2\pi i(k_{x}x+k_{t}t)} =
-    & \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{t}) \hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)} \\
-    & + \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{x})\hat{uu}_k e^{2\pi i(k_{x}x+k_{t}t)} \\
-    & - \nu\sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{x})^2\hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:forced_viscous_burgers_fourier_substitution}
+     & \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{t}) \hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)}                                                              \\
+     & + \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{x})\hat{uu}_k e^{2\pi i(k_{x}x+k_{t}t)}                                                            \\
+     & - \nu\sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{x})^2\hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:forced_viscous_burgers_fourier_substitution}
   \end{split}
 \end{equation}
 \begin{align}
   \sum_{k_{x}} \sum_{k_{t}} \hat{f}_k & = \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{t}) \hat{u}_k + (2\pi i k_{x})\hat{uu}_k - \nu(2\pi i k_{x})^2\hat{u}_k \label{eq:forced_viscous_burgers_fourier} \\
-  \hat{f}_k & = (2\pi i k_{t}) \hat{u}_k + (2\pi i k_{x})\hat{uu}_k - \nu(2\pi i k_{x})^2\hat{u}_k \label{eq:forced_viscous_burgers_coeff}
+  \hat{f}_k                           & = (2\pi i k_{t}) \hat{u}_k + (2\pi i k_{x})\hat{uu}_k - \nu(2\pi i k_{x})^2\hat{u}_k \label{eq:forced_viscous_burgers_coeff}
 \end{align}
-After simplifying the equation, we get the coefficients as in \lccref{eq:forced_viscous_burgers_coeff}. Using this equation, the exact forcing term corresponding to the randomly generated solution can be computed with relatively low cost. Finally, the function values of both the solutions and forcing terms are perturbed by adding Gaussian noise with a mean of zero and standard deviation of 10\% of the function value standard deviation to the values of the inverse transform. The perturbed coefficients are then recomputed from the sum and the final perturbed functions are obtained.
+After simplifying the equation, we get the coefficients as in \lccref{eq:forced_viscous_burgers_coeff}. Using this equation, the exact forcing term corresponding to the randomly generated solution can be computed with relatively low cost. Finally, the function values of both the solutions and forcing terms are perturbed by adding Gaussian noise with a mean of zero and standard deviation of 5\% of the function value standard deviation to the values of the inverse transform. The perturbed coefficients are then recomputed from the sum and the final perturbed functions are obtained.
+
+An example of the solution and forcing term pairs that has been generated is shown in \lccref{fig:burgers_data}. Using the same seed we can see that the solution functions of the same sample are the same for the most part. However, with the forcing terms, we see much larger amplitudes for higher frequencies for larger viscosity values. This is inline with \lccref{eq:forced_viscous_burgers_coeff}. The squared multiplier gets large much more quickly for higher frequencies due to the squaring operation. The since this effect is controlled by the viscosity via multiplication, the higher the viscosity, the larger the high frequency amplitudes of the forcing term. This in other words mean that more viscous fluids require quadratically more force to affect the solution in the same way with lower viscosities.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_solution_0.0.pgf}
+    \end{adjustbox}
+    \caption{Solution function for \(\nu=0\).}\label{fig:burgers_solution_0.0}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_forcing_0.0.pgf}
+    \end{adjustbox}
+    \caption{Forcing function for \(\nu=0\).}\label{fig:burgers_forcing_0.0}
+  \end{subfigure}
+  % \\[-0.7\baselineskip]
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_solution_0.01.pgf}
+    \end{adjustbox}
+    \caption{Solution function for \(\nu=0.01\).}\label{fig:burgers_solution_0.01}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_forcing_0.01.pgf}
+    \end{adjustbox}
+    \caption{Forcing function for \(\nu=0.01\).}\label{fig:burgers_forcing_0.01}
+  \end{subfigure}
+  % \\[-0.7\baselineskip]
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_solution_0.1.pgf}
+    \end{adjustbox}
+    \caption{Solution function for \(\nu=0.1\).}\label{fig:burgers_solution_0.1}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_forcing_0.1.pgf}
+    \end{adjustbox}
+    \caption{Forcing function for \(\nu=0.1\).}\label{fig:burgers_forcing_0.1}
+  \end{subfigure}
+  \caption{Example sample pairs of solution and forcing terms for the Burgers' equation dataset.}\label{fig:burgers_data}
+\end{figure}
 
 \section{Data Retrieval}\label{sec:data_retrieval}
 \noindent The second data acquisition approach retrieves data of a from an external source. This approach downloads the external data to a local machine. In this study, the specific dataset that will be used is the ERA5 dataset from the European Center for Medium-range Weather Forecast (ECMWF). Specifically, the ERA5 dataset is a reanalysis which means it combines observational data from all over the world in order to present a more complete picture of the weather system. This combination process, named 4D variational data assimilation, takes into account the physics known to be involved in the system. As an example weather station data which take measurements such as wind speed, humidity, and temperature of the immediate surroundings of the weather station is very limited in giving a broader picture of weather over a larger area. Even technologies like earth observations satellites are limited to what they can observe at any single point in time as most cannot see the entirety of the earth's surface at once. The ERA5 dataset specifically, assimilates previous forecasts with observational data every 12 hours. The ERA5 reanalysis is available at the following url (\url{https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels}).
@@ -158,17 +203,18 @@ The computational model is divided into four large phases. The processes within 
 The second type of dataset is retrieved from an external source. The data source is first identified, in our case it is the WeatherBench 2 collection of datasets. The specific dataset from the collection of different dataset versions is first determined. The dataset is available in the \emph{Zarr} format. And then, we determine the filters for the portions of the dataset we are interested in. Once the dataset and filters are determined, the retrieval process starts by accessing the dataset using the \emph{Xarray} library \autocite{hoyer2017xarray,hoyerXarray2024}. The filters are applied as in .... % TODO: add figure for code of the filtering process and local save process
 Finally, the filtered version is stored locally. The local dataset is also stored in the \emph{Zarr} format.
 
-\subsection{Data Transformation}
-\noindent The second phase of the computational model transforms the data that has been prepared into a form that can be used with the proposed model. In this study, there are two ways a dataset can be used. The first and simplest way is to predict the solution function from the forcing term for a given set of PDE parameters. In this case, the input function is the forcing term. In other words, the input function is the predictor or independent variable that will be used to predict the solution function. As such, the output function is the solution function. The antiderivative dataset is used in this way. The derivative, which represents the acceleration function, is used to predict the velocity function. Which means that the input function is the acceleration function and the output function is the velocity function. The second use of a dataset depends on whether it can be interpreted as a mapping of a previous function to the next function. In other words, a series of functions related to the previous function as a sum of the previous function and a perturbation. A commonly used form of this are time series. Generally, a time series can be represented as \lccref{eq:time_step_function}. This function describes the evolution of function \(f\) as a sum of some initial state \(f^0\) and perturbation which is its rate of change \(\dv{f}{t}\) at a point in time close to the current time multiplied by the time step \(\delta t\).
+\subsection{Data Transformation}\label{sec:data_transformation}
+\noindent The second phase of the computational model transforms the data that has been prepared into a form that can be used with the proposed model. In this study, there are two ways a dataset can be used. The first and simplest way is to predict the solution function from the forcing term for a given set of PDE parameters. In this case, the input function is the forcing term. In other words, the input function is the predictor or independent variable that will be used to predict the solution function. As such, the output function is the solution function. The antiderivative dataset is used in this way. The derivative, which represents the acceleration function, is used to predict the velocity function. Which means that the input function is the acceleration function and the output function is the velocity function.
+
+The second use of a dataset depends on whether it can be interpreted as a mapping of a previous function to the next function. In other words, a series of functions related to the previous function as a sum of the previous function and a perturbation. A commonly used form of this are time series. Generally, a time series can be represented as \lccref{eq:time_step_function}. This function describes the evolution of function \(f\) as a sum of some initial state \(f^0\) and perturbation which is its rate of change \(\dv{f}{t}\) at a point in time close to the current time multiplied by the time step \(\delta t\). This is the first order Taylor polynomial. Adding more terms with higher order derivatives can be done to increase the accuracy. This describes the same process that is used in the finite differences method.
 \begin{equation}
-  f^{t+1} = f^{t} + \delta t \times \dv{f}{t} \label{eq:time_step_function}
+  f^{t+1} = f^{t} + \delta t \times \dv{f}{t} + \dots \label{eq:time_step_function}
 \end{equation}
-In this case the previous function and any other independent variables like the forcing term involved in the time derivative \(\dv{f}{t}\) is used to predict the perturbation which is the time derivative itself. It would mean that each sample function in the data would need to at least have two dimensions. This is because one dimension represents the evolution of the function over time, while the other dimensions define the spatial domain where the function's values are computed at each time step. This condition is true for both the Burgers' equation dataset and the WeatherBench 2 collection of ERA5 datasets. First, the Burgers' equation dataset, while is also able to be used in the first way as a mapping between the forcing term and the solution, one of the traditional ways of solving it is using the method of lines in conjunction with another method such as the finite differences method or the spectral method. In both of these, the Burgers' equation is formulated as an initial value problem, using the finite differences to computing the time derivative. % TODO: add figures and citation for this, or if this is avaliable in a different place in the thesis a refference to that.
-The method of lines approach in one of its forms is equal to \lccref{eq:time_step_function} \autocite{schiesserNumericalMethodLines2012,sadikuSimpleIntroductionMethod2000}. As such the Burgers' equation dataset can also be used in this way. In this case, algebraic manipulation of \lccref{eq:forced_viscous_burgers} results in the time derivative of the solution as in \lccref{eq:forced_viscous_burgers_time_derivative}.
+In this case the previous function and any other independent variables like the forcing term involved in the right-hand side of the equation is used to predict the difference between the future state and the current state. It would mean that each sample function in the data would need to at least have two dimensions. This is because one dimension represents the evolution of the function over time, while the other dimensions define the spatial domain where the function's values are computed at each time step. This condition is true for both the Burgers' equation dataset and the WeatherBench 2 collection of ERA5 datasets. First, the Burgers' equation dataset, while is also able to be used in the first way as a mapping between the forcing term and the solution, one of the traditional ways of solving it is using the method of lines. This entails solving the dimensions other that time with methods such as the finite differences method or the spectral method. The time dimension is then separately solved using the finite differences method such as the form shown in \lccref{eq:time_step_function} \autocite{schiesserNumericalMethodLines2012,sadikuSimpleIntroductionMethod2000}. This is the form that the Burgers' equation dataset will be used in. In this case, algebraic manipulation of \lccref{eq:forced_viscous_burgers} results in the time derivative of the solution as in \lccref{eq:forced_viscous_burgers_time_derivative}.
 \begin{align}
   \pdv{u}{t} = f - u\pdv{u}{x} + \nu\pdv[2]{u}{x} \label{eq:forced_viscous_burgers_time_derivative}
 \end{align}
-As can be seen, the time derivative is expressed in terms of the solution function, the forcing term and any other partial derivatives. Because of this, it means we can train the model to learn the relationship between the solution function combined with the forcing term and the time derivative. Putting this together with \lccref{eq:time_step_function}, it is possible to predict the solution function in a future time based on the current solution function and forcing term. The input functions in this case are both the value of the solution function and the forcing term at the current time step. The output function is the time derivative which is computed by rearranging \lccref{eq:time_step_function} resulting in \lccref{eq:time_derivative_time_step_function}.
+The most important component of the right-hand side of the equation, the time derivative, is expressed in terms of the solution function, the forcing term and any other partial derivatives. Because of this, it means we can train the model to learn the relationship between the solution function combined with the forcing term and the time derivative. Putting this together with \lccref{eq:time_step_function}, it is possible to predict the solution function in a future time based on the current solution function and forcing term. The input functions in this case are both the value of the solution function and the forcing term at the current time step. The output function is the time derivative which is computed by rearranging \lccref{eq:time_step_function} resulting in \lccref{eq:time_derivative_time_step_function}.
 \begin{equation}
   \dv{f}{t} = \frac{f^{t+1} - f^{t}}{\delta t} \label{eq:time_derivative_time_step_function}
 \end{equation}
@@ -195,12 +241,12 @@ The training can proceed to solve \lccref{eq:lssvr_solution}. As the original LS
     \vb{1}_{n} & \Omega + \frac{I}{C}
   \end{bmatrix}
   \begin{bmatrix}
-    b_0           & \cdots & b_m \\
-    \vb{\alpha}_0 & \cdots & \vb{\alpha}_m\\
+    b_0           & \cdots & b_m           \\
+    \vb{\alpha}_0 & \cdots & \vb{\alpha}_m \\
   \end{bmatrix}
   =
   \begin{bmatrix}
-    0        & \cdots & 0 \\
+    0        & \cdots & 0        \\
     \vb{y}_0 & \cdots & \vb{y}_m \\
   \end{bmatrix}
 \end{equation}
@@ -244,21 +290,21 @@ In addition, the software product is developed within certain limitations. The l
 \begin{enumerate}
   \item Utilities
 
-    \noindent This module provides basic tools that are used across the entire library. The utilities this module needs to provide include scaling, conversion between real and complex representations of matrices, resizing coefficient tensors, and adaptors for or the traditional ordinary differential equation solvers. Scaling functionality is used for inputs into the support vector machines. And as previously mentioned, since LSSVR only works with real numbers, the tools for converting between complex and their real number representations is also necessary. Another useful tool for working with basis coefficients is a way to resize the coefficients in terms of how many basis functions is desired. An example of the usage is downsizing Fourier coefficients from 12 to 8 modes. The last utility mentioned here provides the ability to solve ordinary differential equations. This utility is useful for generating data for certain types of PDEs such as the Burgers' equation.
+        \noindent This module provides basic tools that are used across the entire library. The utilities this module needs to provide include scaling, conversion between real and complex representations of matrices, resizing coefficient tensors, and adaptors for or the traditional ordinary differential equation solvers. Scaling functionality is used for inputs into the support vector machines. And as previously mentioned, since LSSVR only works with real numbers, the tools for converting between complex and their real number representations is also necessary. Another useful tool for working with basis coefficients is a way to resize the coefficients in terms of how many basis functions is desired. An example of the usage is downsizing Fourier coefficients from 12 to 8 modes. The last utility mentioned here provides the ability to solve ordinary differential equations. This utility is useful for generating data for certain types of PDEs such as the Burgers' equation.
 
   \item Basis Functions
 
-    \noindent As the proposed model will learn the relationships defined by PDEs within the spectral domain, a large proportion of the computation will also concern the use of the basis functions themselves. The module will define the functionality and data structure that is expected to be used when working with basis functions in this library. First and foremost, the central function of this module is to store and facilitate the connection between the coefficients in the spectral domain and their values in the physical domain. This is dependent on the basis functions used. For the Fourier basis that we use in this study, this means that the transformations are the discrete Fourier transform and the discrete inverse Fourier transform. Other than this core functionality, information on the characteristics of the coefficients such as the number of modes, in other words basis functions, should also be provided by this module. In addition, other functionality included in this module are visualization of coefficients in physical space, generation of random functions, time dependent \& complex/real coefficients, noise perturbation of functions, and differential operators.
+        \noindent As the proposed model will learn the relationships defined by PDEs within the spectral domain, a large proportion of the computation will also concern the use of the basis functions themselves. The module will define the functionality and data structure that is expected to be used when working with basis functions in this library. First and foremost, the central function of this module is to store and facilitate the connection between the coefficients in the spectral domain and their values in the physical domain. This is dependent on the basis functions used. For the Fourier basis that we use in this study, this means that the transformations are the discrete Fourier transform and the discrete inverse Fourier transform. Other than this core functionality, information on the characteristics of the coefficients such as the number of modes, in other words basis functions, should also be provided by this module. In addition, other functionality included in this module are visualization of coefficients in physical space, generation of random functions, time dependent \& complex/real coefficients, noise perturbation of functions, and differential operators.
 
   \item Model
 
-    \noindent The proposed SpectralSVR model is implemented in this module. As the proposed model essentially wraps a support vector regression model in such a way that it can process coefficients, this module will house the SpectralSVR wrapper itself and the LSSVR variant of support vector regression that is used in this study. The SpectralSVR wrapper must provide three core pieces of functionality. First, it must translate complex input and output samples into their real representations. This applies to both training and evaluation. Second, in addition to predicting the coefficients during evaluation, the wrapper should also be able to predict the function values themselves for any given set of point coordinates. This is important for quick evaluations of a predicted function at an arbitrary point. The third functionality is inverse input function search for a given output. This is useful for inverse problems where the parameters are unknown, but the solution is partially known. Aside from the core functionality, a complementary functionality is testing for the learned model.
+        \noindent The proposed SpectralSVR model is implemented in this module. As the proposed model essentially wraps a support vector regression model in such a way that it can process coefficients, this module will house the SpectralSVR wrapper itself and the LSSVR variant of support vector regression that is used in this study. The SpectralSVR wrapper must provide three core pieces of functionality. First, it must translate complex input and output samples into their real representations. This applies to both training and evaluation. Second, in addition to predicting the coefficients during evaluation, the wrapper should also be able to predict the function values themselves for any given set of point coordinates. This is important for quick evaluations of a predicted function at an arbitrary point. The third functionality is inverse input function search for a given output. This is useful for inverse problems where the parameters are unknown, but the solution is partially known. Aside from the core functionality, a complementary functionality is testing for the learned model.
 
-    The model module also implements the LSSVR model. This implementation provides two main functionalities. The first is training the LSSVR model with some given model hyperparameters such as the regularization constant and kernel. The second functionality is the evaluation of the learned model. Both functionalities allow for multiple output regression. This is required to learn the mappings for many coefficients at once. Other functionality provided by the implementation include interpretability functions and model serialization for saving and loading the learned model to disk.
+        The model module also implements the LSSVR model. This implementation provides two main functionalities. The first is training the LSSVR model with some given model hyperparameters such as the regularization constant and kernel. The second functionality is the evaluation of the learned model. Both functionalities allow for multiple output regression. This is required to learn the mappings for many coefficients at once. Other functionality provided by the implementation include interpretability functions and model serialization for saving and loading the learned model to disk.
 
   \item Problems
 
-    \noindent This module provides the functionality concerned with generating data. Two out of the three datasets in this study are generated with this module. In general this module provides two pieces of functionality. The first is generation of the data itself. This functionality generates at least two sets of functions that are related to each other by the chosen PDE\@. The generation is based on at least two parameters which are the number of samples to generate and the number of modes or basis functions to generate the coefficients for. The second functionality provided by this module is the residual based on the chosen PDE\@. This is useful to verify if any set of functions comply with the PDE\@. For example, the residual may be used to verify the generated data. Another use is to grade the predictions by the learned model.
+        \noindent This module provides the functionality concerned with generating data. Two out of the three datasets in this study are generated with this module. In general this module provides two pieces of functionality. The first is generation of the data itself. This functionality generates at least two sets of functions that are related to each other by the chosen PDE\@. The generation is based on at least two parameters which are the number of samples to generate and the number of modes or basis functions to generate the coefficients for. The second functionality provided by this module is the residual based on the chosen PDE\@. This is useful to verify if any set of functions comply with the PDE\@. For example, the residual may be used to verify the generated data. Another use is to grade the predictions by the learned model.
 
 \end{enumerate}
 
@@ -313,12 +359,12 @@ In the following, we will discuss the implementation of each module and how the 
 \noindent The utilities module provide common tools that are used when working with the developed software. First, because the basis function used in this study is the Fourier basis, a large proportion of concern is the storage of Fourier basis coefficients. The Fourier series representation that is used in this study is the complex representation as show in \lccref{eq:fourier_series}. However, as previously mentioned, least squares support vector machines is constructed to work with real numbers. In order for LSSVR to learn the relationship between complex numbers, a representation of complex numbers in terms of real numbers is necessary. Since sample features and labels for LSSVR need to be flattened into one dimension which result in a matrix with rows of samples, the representation of complex numbers using real numbers can be done after features and labels have been flattened. An example of such a matrix of two samples with four features each can be seen in \lccref{eq:complex_matrix}. To represent the complex number features as real numbers, once can simply split a single complex number into two real numbers. When this is done to the entire matrix of complex numbers, the result is \lccref{eq:complex_matrix_real_rep}.
 \begin{align}
   \begin{bmatrix}
-    -1.03+0i & -0.52+0.39i & -0.54+0i & -0.52-0.39i\\
-    -0.85+0i & -0.39+0.19i &  0.87+0i & -0.39-0.19i
-  \end{bmatrix}\label{eq:complex_matrix}\\
+    -1.03+0i & -0.52+0.39i & -0.54+0i & -0.52-0.39i \\
+    -0.85+0i & -0.39+0.19i & 0.87+0i  & -0.39-0.19i
+  \end{bmatrix}\label{eq:complex_matrix} \\
   \begin{bmatrix}
-    -1.03 & 0 & -0.52 & 0.39 & -0.54 & 0 & -0.52 & -0.39\\
-    -0.85 & 0 & -0.39 & 0.19 &  0.87 & 0 & -0.39 & -0.19
+    -1.03 & 0 & -0.52 & 0.39 & -0.54 & 0 & -0.52 & -0.39 \\
+    -0.85 & 0 & -0.39 & 0.19 & 0.87  & 0 & -0.39 & -0.19
   \end{bmatrix}\label{eq:complex_matrix_real_rep}
 \end{align}
 There are several ways to do this in Pytorch, such as extracting the real and imaginary element components into separate matrices and then interleaving the columns to create the real representation. However, a more performant version can be made by using built-in functions of the library that directly allows views of complex valued tensors as real tensors and vice versa. The \verb|view_as_real| and \verb|view_as_complex| functions allow the conversion between real and complex representations by representing complex valued tensors by adding a dimension of size two for each component of complex numbers. The resulting implementation can be seen in \lccref{fig:complex_matrix_conversion_implementation}.
@@ -1373,17 +1419,17 @@ The spectral residual of the Burgers' equation which is used in the method of ma
   \begin{tabular}{lm{0.2\linewidth}m{0.5\linewidth}l}
     % \toprule
     \toprule
-    No & Process & Test Target & Test Result       \\
+    No & Process                         & Test Target                                                                                                   & Test Result \\
     \midrule
-    1  & Transform & Transform invertible with inverse transform & Achieved     \\\addlinespace[0.5em]
-    2  & Evaluation & Transform coefficient evaluation close to original values & Achieved \\\addlinespace[0.5em]
-    3  & Plot & Plotting function is run successfully & Achieved  \\\addlinespace[0.5em]
-    4  & Perturb & Perturb function is run successfully & Achieved     \\\addlinespace[0.5em]
-    5  & Operations & Operation functions is run successfully & Achieved     \\\addlinespace[0.5em]
-    6  & Complex Coefficients Conversion & Conversion between real and complex coefficient representation is invertible for odd and even number of modes & Achieved     \\\addlinespace[0.5em]
-    7  & SpectralSVR Train & Training function is run successfully & Achieved     \\\addlinespace[0.5em]
-    8  & SpectralSVR Prediction & Coefficient prediction error within tolerable range & Achieved     \\\addlinespace[0.5em]
-    9  & SpectralSVR Prediction & Function value prediction error within tolerable range & Achieved     \\
+    1  & Transform                       & Transform invertible with inverse transform                                                                   & Achieved    \\\addlinespace[0.5em]
+    2  & Evaluation                      & Transform coefficient evaluation close to original values                                                     & Achieved    \\\addlinespace[0.5em]
+    3  & Plot                            & Plotting function is run successfully                                                                         & Achieved    \\\addlinespace[0.5em]
+    4  & Perturb                         & Perturb function is run successfully                                                                          & Achieved    \\\addlinespace[0.5em]
+    5  & Operations                      & Operation functions is run successfully                                                                       & Achieved    \\\addlinespace[0.5em]
+    6  & Complex Coefficients Conversion & Conversion between real and complex coefficient representation is invertible for odd and even number of modes & Achieved    \\\addlinespace[0.5em]
+    7  & SpectralSVR Train               & Training function is run successfully                                                                         & Achieved    \\\addlinespace[0.5em]
+    8  & SpectralSVR Prediction          & Coefficient prediction error within tolerable range                                                           & Achieved    \\\addlinespace[0.5em]
+    9  & SpectralSVR Prediction          & Function value prediction error within tolerable range                                                        & Achieved    \\
     \bottomrule
   \end{tabular}
   \caption{Testing results of the SpectralSVR Library implementation using black box method.} \label{table:impl_test_result}
@@ -1397,26 +1443,26 @@ The spectral residual of the Burgers' equation which is used in the method of ma
   \centering
   \begin{tabularx}{\textwidth}{ L{0.75} *{3}{L{1.09}} } % compute these using approx barycentric coords (x + 3y = 4, x = 0.8y)
     \toprule
-    Configuration & Scenario 1 & Scenario 2 & Scenario 3       \\
+    Configuration                    & Scenario 1                                          & Scenario 2                                                          & Scenario 3                                 \\
     \midrule
-    Data Source & Synthetic (computed from equations) & Synthetic (computed from equations) with three viscosity values & ERA5 dataset \\\addlinespace[0.5em]
-    Data Augmentations & Perturbations of three different noise levels & Perturbation of 10\% the mean standard deviation of function values &  \\\addlinespace[0.5em]
-    Data Sample Size & 5000 unique functions for each noise level & 500 unique functions for each viscosity value & 7000 time steps \\\addlinespace[0.5em]
-    Number of Modes &  &  &  \\\addlinespace[0.5em]
-    Scaling & Standard scaling & Standard scaling & Standard scaling\\\addlinespace[0.5em]
-    Dataset Split & 80\% Training and 20\% Testing for each noise level & 80\% Training and 20\% Testing for each viscosity value & 80\% Training and 20\% Testing \\\addlinespace[0.5em]
-    Regularization Parameter (\(C\)) & 1.0 & 1.0 & 1.0 \\\addlinespace[0.5em]
-    Kernel & RBF (\(\sigma = features \times X.var()\)) & RBF (\(\sigma = features \times X.var()\)) & RBF (\(\sigma = features \times X.var()\)) \\\addlinespace[0.5em]
-    Additional Tests & Exact solutions & Exact solutions &  \\\addlinespace[0.5em]
-    Interpretation & p-matrix and correlation image & p-matrix and correlation image & p-matrix and correlation image \\
+    Data Source                      & Synthetic (computed from equations)                 & Synthetic (computed from equations) with three viscosity values     & ERA5 dataset                               \\\addlinespace[0.5em]
+    Data Augmentations               & Perturbations of three different noise levels       & Perturbation of 10\% the mean standard deviation of function values &                                            \\\addlinespace[0.5em]
+    Data Sample Size                 & 5000 unique functions for each noise level          & 500 unique functions for each viscosity value                       & 7000 time steps                            \\\addlinespace[0.5em]
+    Number of Modes                  &                                                     &                                                                     &                                            \\\addlinespace[0.5em]
+    Scaling                          & Standard scaling                                    & Standard scaling                                                    & Standard scaling                           \\\addlinespace[0.5em]
+    Dataset Split                    & 80\% Training and 20\% Testing for each noise level & 80\% Training and 20\% Testing for each viscosity value             & 80\% Training and 20\% Testing             \\\addlinespace[0.5em]
+    Regularization Parameter (\(C\)) & 1.0                                                 & 1.0                                                                 & 1.0                                        \\\addlinespace[0.5em]
+    Kernel                           & RBF (\(\sigma = features \times X.var()\))          & RBF (\(\sigma = features \times X.var()\))                          & RBF (\(\sigma = features \times X.var()\)) \\\addlinespace[0.5em]
+    Additional Tests                 & Exact solutions                                     & Exact solutions                                                     &                                            \\\addlinespace[0.5em]
+    Interpretation                   & p-matrix and correlation image                      & p-matrix and correlation image                                      & p-matrix and correlation image             \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
 Each scenario serves a different purpose. The first scenario is constructed to establish whether the model can learn any relationships at all in data that implicitly defines differential equations. This scenario is a proof of concept of whether the model is capable of accurately learning the relationship between derivatives and their anti-derivatives. As the simplest case, it provides a foundation for understanding the model and its behavior. The 5\% noise model is then used to predict the antiderivative of a cosine function with a period of one as shown in \lccref{eq:sine_derivative}. The exact solution is known as \lccref{eq:sine_function} \autocite{abramowitzHandbookMathematicalFunctions1972}. The second goal of this scenario is to determine how noise affects the model's predictions. This is especially important for the inverse problem because of how sensitive the derivative is to changes in the antiderivative. To further solidify how the model fares for inverse problems, this scenario will also assess the performance of a trained model for a very simple inverse problem setup to determine the derivatives of the testing subset from the antiderivatives. This setup will utilize the model as a surrogate forward solver and optimize for a loss function using the inverse function of the SpectralSVR class as described in \lccref{sec:impl_model}.
 \begin{align}
-  f(x) &= 2\pi cos\left(2\pi x\right)\label{eq:sine_derivative}\\
-  f(x) &= sin\left(2\pi x\right)\label{eq:sine_function}
+  f(x) & = 2\pi cos\left(2\pi x\right)\label{eq:sine_derivative} \\
+  f(x) & = sin\left(2\pi x\right)\label{eq:sine_function}
 \end{align}
 
 The second scenario extends the goal of the first scenario by examining the model and its behavior when learning a nonlinear PDE\@. The data subsets with different viscosity values are intended to allow us to learn more about how this will affect the performance on the exact solutions which may contain discontinuities for lower viscosity numbers. The model will learn to predict future states of systems governed by the Burgers' equation from past states. The model trained for a viscosity value of 0.01 will be used to predict \lccref{eq:burgers_exact_solution} from initial conditions at time equals zero and the corresponding forcing term of a constant value of zero.
@@ -1434,11 +1480,11 @@ The model interpretations are displays of the correlation image and the p-matrix
   \centering
   \begin{tabular}{lrrrrrrrrr}
     \toprule
-    Noise level & Sigma & MSE & RMSE & MAE & R2 & sMAPE \\
+    Noise level & Sigma & MSE   & RMSE & MAE  & R2   & sMAPE \\
     \midrule
-    5\% & 10.00 & 0.85 & 0.92 & 0.56 & 0.96 & 0.31 \\
-    10\% & 10.00 & 2.07 & 1.44 & 0.93 & 0.91 & 0.46 \\
-    50\% & 10.00 & 15.56 & 3.94 & 3.04 & 0.50 & 1.04 \\
+    5\%         & 10.00 & 0.85  & 0.92 & 0.56 & 0.96 & 0.31  \\
+    10\%        & 10.00 & 2.07  & 1.44 & 0.93 & 0.91 & 0.46  \\
+    50\%        & 10.00 & 15.56 & 3.94 & 3.04 & 0.50 & 1.04  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1454,11 +1500,11 @@ The higher noise levels shows that the model is still relatively accurate. Looki
   \centering
   \begin{tabular}{lrrrrrrrr}
     \toprule
-    Noise level & MSE & RMSE & MAE & R2 & sMAPE \\
+    Noise level & MSE  & RMSE & MAE  & R2   & sMAPE \\
     \midrule
-    5\% & 0.78 & 0.89 & 0.51 & 0.96 & 0.28 \\
-    10\% & 1.82 & 1.35 & 0.81 & 0.92 & 0.41 \\
-    50\% & 9.34 & 3.06 & 2.25 & 0.62 & 0.91 \\
+    5\%         & 0.78 & 0.89 & 0.51 & 0.96 & 0.28  \\
+    10\%        & 1.82 & 1.35 & 0.81 & 0.92 & 0.41  \\
+    50\%        & 9.34 & 3.06 & 2.25 & 0.62 & 0.91  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1469,11 +1515,11 @@ The function values are also evaluated and the values of the metrics between the
   \centering
   \begin{tabular}{lrrrrrrrr}
     \toprule
-    Noise level & MSE & RMSE & MAE & R2 & sMAPE \\
+    Noise level & MSE  & RMSE & MAE  & R2   & sMAPE \\
     \midrule
-    5\% & 0.03 & 0.18 & 0.15 & 0.97 & 0.39 \\
-    10\% & 0.08 & 0.29 & 0.23 & 0.92 & 0.55 \\
-    50\% & 0.62 & 0.79 & 0.63 & 0.49 & 1.04 \\
+    5\%         & 0.03 & 0.18 & 0.15 & 0.97 & 0.39  \\
+    10\%        & 0.08 & 0.29 & 0.23 & 0.92 & 0.55  \\
+    50\%        & 0.62 & 0.79 & 0.63 & 0.49 & 1.04  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1484,11 +1530,11 @@ For the metrics between the predictions and the noise-free version of the target
   \centering
   \begin{tabular}{lrrrrrrr}
     \toprule
-    Noise level  & MSE & RMSE & MAE & R2 & sMAPE \\
+    Noise level & MSE  & RMSE & MAE  & R2   & sMAPE \\
     \midrule
-    5\% & 0.03 & 0.18 & 0.14 & 0.97 & 0.38 \\
-    10\% & 0.07 & 0.27 & 0.22 & 0.92 & 0.53 \\
-    50\% & 0.37 & 0.61 & 0.49 & 0.62 & 0.94 \\
+    5\%         & 0.03 & 0.18 & 0.14 & 0.97 & 0.38  \\
+    10\%        & 0.07 & 0.27 & 0.22 & 0.92 & 0.53  \\
+    50\%        & 0.37 & 0.61 & 0.49 & 0.62 & 0.94  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1500,11 +1546,11 @@ The next part of this scenario is the results from predicting the exact solution
   \centering
   \begin{tabular}{lrrrr}
     \toprule
-    Noise level & MSE & RMSE & MAE & sMAPE \\
+    Noise level & MSE   & RMSE & MAE  & sMAPE \\
     \midrule
-    5\% & 0.12 & 0.35 & 0.20 & 1.26 \\
-    10\% & 0.75 & 0.87 & 0.30 & 1.26 \\
-    50\% & 10.35 & 3.22 & 0.82 & 1.39 \\
+    5\%         & 0.12  & 0.35 & 0.20 & 1.26  \\
+    10\%        & 0.75  & 0.87 & 0.30 & 1.26  \\
+    50\%        & 10.35 & 3.22 & 0.82 & 1.39  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1514,11 +1560,11 @@ The next part of this scenario is the results from predicting the exact solution
   \centering
   \begin{tabular}{lrrrr}
     \toprule
-    Noise level & MSE & RMSE & MAE & sMAPE \\
+    Noise level & MSE  & RMSE & MAE  & sMAPE \\
     \midrule
-    5\% & 0.01 & 0.07 & 0.06 & 0.24 \\
-    10\% & 0.03 & 0.17 & 0.15 & 0.37 \\
-    50\% & 0.41 & 0.64 & 0.57 & 1.66 \\
+    5\%         & 0.01 & 0.07 & 0.06 & 0.24  \\
+    10\%        & 0.03 & 0.17 & 0.15 & 0.37  \\
+    50\%        & 0.41 & 0.64 & 0.57 & 1.66  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1549,11 +1595,11 @@ For inverse problems, we simply use the same testing set with the labels now use
   \centering
   \begin{tabular}{lrrrrr}
     \toprule
-    Noise level & MSE & RMSE & MAE & R2 & sMAPE \\
+    Noise level & MSE      & RMSE   & MAE    & R2    & sMAPE \\
     \midrule
-    5\% & 1739.56 & 41.71 & 26.44 & 0.91 & 0.36 \\
-    10\% & 3485.10 & 59.03 & 42.19 & 0.76 & 0.52 \\
-    50\% & 49319.73 & 222.08 & 174.48 & -0.19 & 1.05 \\
+    5\%         & 1739.56  & 41.71  & 26.44  & 0.91  & 0.36  \\
+    10\%        & 3485.10  & 59.03  & 42.19  & 0.76  & 0.52  \\
+    50\%        & 49319.73 & 222.08 & 174.48 & -0.19 & 1.05  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1605,7 +1651,81 @@ Next, we have the correlation image and p-matrix for the model of each noise lev
 The final observation we make is how for all the p-matrices the pronounced contribution of the input wave number to their corresponding output wave number. This means that the majority of contributions to each output coefficients come from the corresponding input coefficients of the same wave number. Our knowledge on how the simple derivative equation for Fourier series relate the coefficients of the derivative function and the antiderivative function aligns with the contributions shown by the p-matrices. This confirms that the model is indeed learning the relations that is defined by the derivative equation.
 
 \subsection{Scenario 2}
-\noindent The second scenario results are presented in two parts which are the coefficient predictions and function value predictions. 
+\noindent The second scenario results are presented in two parts which are the coefficient predictions and function value predictions. The functions are first preprocessed in order to format them into current and next values in time as discussed in \lccref{sec:data_transformation}. The coefficient value predictions are shown in \lccref{table:scenario_2_spectral_metrics}. The RBF kernel parameter computed from the data is once again the same for all versions of the dataset with a value of 10. The testing metrics show that the performance of the model vary with the viscosity value \(\nu \). Starting with the inviscid Burgers' equation, with \(\nu=0\), the model performs relatively well and close to the best result with \(\nu=0.01\). The function value evaluated from the predictions is shown in \lccref{table:scenario_2_function_metrics}. The metrics across the board shows that the function value relative metrics are worse compared to the coefficients. Comparing the absolute metrics for the same table, we see the same general trend that the higher viscosity show the model performing worse.
+
+\begin{table}[H]
+  \caption{Performance metrics of coefficient prediction of next time step in scenario 2 by noise level.}\label{table:scenario_2_spectral_metrics}
+  \centering
+  \begin{tabular}{lrrrrr}
+    \toprule
+    \(\nu\) & MSE  & RMSE & MAE  & R2   & sMAPE \\
+    \midrule
+    0.0     & 0.01 & 0.09 & 0.06 & 0.87 & 0.60  \\
+    0.01    & 0.01 & 0.08 & 0.06 & 0.90 & 0.56  \\
+    0.1     & 0.03 & 0.17 & 0.13 & 0.49 & 1.09  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \caption{Performance metrics of function values evaluated from coefficient prediction of next time step in scenario 2 by noise level.}\label{table:scenario_2_function_metrics}
+  \centering
+  \begin{tabular}{lrrrrr}
+    \toprule
+    \(\nu\) & MSE      & RMSE & MAE  & R2   & sMAPE \\
+    \midrule
+    0.0     & 6.36e-04 & 0.03 & 0.02 & 0.85 & 0.66  \\
+    0.01    & 5.19e-04 & 0.02 & 0.02 & 0.88 & 0.62  \\
+    0.1     & 2.28e-03 & 0.05 & 0.04 & 0.45 & 1.13  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The correlation image and p-matrix for each viscosity can be seen in \lccref{fig:scenario_2_interpretation}. Analyzing the correlation images first, we see that some columns are sorted in correlation to how the samples are sorted based on the real component of the 4th output wave number. For the inviscid equation, this correlation is the strongest with multiple columns exhibiting the correlation. The highest and visually most sorted values are from the forcing term portion of the inputs. A weaker correlation is still present of the viscosity of \(\nu=0.01\). However, once we get to the highest viscosity case, we see a seemingly random arrangement of the correlation image values. This observation and the lower scores can both be explained by the level of temporal discretization. This is the same issue we encounter when we use some traditional methods for higher viscosity values with the same time step for lower viscosity values \autocite{kassamFourthOrderTimeSteppingStiff2005,seydaogluNumericalSolutionBurgers2016}. The issue arises in stiff differential equations. This term describes the presence of a rapidly varying component. We can see that the larger amplitudes of high frequency components in the forcing term to represent the rapidly varying components as shown in \lccrefs{fig:burgers_forcing_0.0,fig:burgers_forcing_0.01,fig:burgers_forcing_0.1}. Traditionally, stiff equations would require specific solvers purpose built to efficiently solve the problem. Otherwise, as with our method, the solving process would require much finer time steps.
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_ci_0.0.pgf}
+    \end{adjustbox}
+    \caption{Correlation image \(\nu=0.0\).}\label{fig:sc2_ci_0.0}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_pm_0.0.pgf}
+    \end{adjustbox}
+    \caption{The p-matrix for \(\nu=0.0\).}\label{fig:sc2_pm_0.0}
+  \end{subfigure}
+  % \\[-0.7\baselineskip]
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_ci_0.01.pgf}
+    \end{adjustbox}
+    \caption{Correlation image \(\nu=0.01\).}\label{fig:sc2_ci_0.01}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_pm_0.01.pgf}
+    \end{adjustbox}
+    \caption{The p-matrix for \(\nu=0.01\).}\label{fig:sc2_pm_0.01}
+  \end{subfigure}
+  % \\[-0.7\baselineskip]
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_ci_0.1.pgf}
+    \end{adjustbox}
+    \caption{Correlation image \(\nu=0.1\).}\label{fig:sc2_ci_0.1}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_pm_0.1.pgf}
+    \end{adjustbox}
+    \caption{The p-matrix for \(\nu=0.1\).}\label{fig:sc2_pm_0.1}
+  \end{subfigure}
+  \caption{Correlation image (left column) and p-matrix (right column) for each model trained on a different noise level (row). The correlation image was sorted same order the values of the real component of wave number \(k=4\) were sorted in descending order.}\label{fig:scenario_2_interpretation}
+\end{figure}
+
+The p-matrix shows the difference in contributions of both input functions. For the inviscid equation, the contributions mainly come from the forcing term. The current solution contributes a smaller amount in comparison. There is similarity with the antiderivative p-matrices in this case. The contributions to each output wave number mainly come from input coefficients with the same wave number. However, there is a noticeable contribution from other wave numbers too unlike the antiderivative case. For higher viscosity values, notice that the contribution of the previous solution increases. The increase is more pronounced for higher frequencies. This aligns with the quadratic scaling from the wave number on the coefficients \autocite{canutoSpectralMethodsEvolution2007}. The p-matrix for lower viscosity values show more structured contribution of other wave numbers in comparison to the higher wave numbers. This structure comes in the form of a grid pattern. For the real components of the output, the contribution of other wave numbers oscillate between higher and lower values depending on whether the input component is real or not. The imaginary output components on the other hand have a more constant contribution across the input components. The contribution once again become more pronounced the higher the absolute value of the wave number.
 
 \subsection{Scenario 3}
 \noindent
