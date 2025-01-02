@@ -64,7 +64,7 @@ The study is carried out in 9 main phases. Each phase has a specific aim to acco
 
 Data retrieval is the other option which in this case is used to retrieve data for weather prediction. Based on the scenario the data is to be used for, relevant subsets of the dataset is retrieved to a working machine. This study specifically uses a dataset provided by the European Center for Medium Range Weather Forecast (ECMWF) named ERA5 hourly data on single levels from 1940 to present \autocite{c3sERA5HourlyData2018}. The first step is selecting a geographical area to study, time period, NetCDF4 data format, and variables such as temperature at 2 meters above the surface. Then the second step is specifications are then used to request the data through the climate data store application programming interface. The downloaded data is then parsed using the Xarray library and preprocessed.
 
-\section{Computational Model Implementation Method}\label{sec:development method}
+\section{Computational Model Implementation Method}\label{sec:development_method}
 \noindent Implementation of the computational model follows an iterative development model. This model basically consists of repeated cycles or iterations of software development. Each cycle is loosely based on the waterfall development model, namely the processes of requirement gathering, analysis \& design, implementation, and testing. This iterative property is crucial for this study because all the requirements cannot be known beforehand. This model minimizes the risk in developing complex software with partially known initial requirements. A diagram of the model can be seen in \lccref{fig:iterative_development_diagram}.
 
 \begin{figure}[H]

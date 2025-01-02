@@ -51,19 +51,19 @@ In the final step, using randomly generated values of \(\hat{a}_k\), the corresp
   \centering
   \begin{subfigure}{\linewidth}
     \begin{adjustbox}{width=\linewidth}
-      \input{figures/clean_perturbed_solution_0.pgf}
+      \input{figures/antiderivative_clean_perturbed_solution.pgf}
     \end{adjustbox}
     \caption{}\label{fig:antiderivative_noise_levels}
   \end{subfigure}
   \begin{subfigure}{\linewidth}
     \begin{adjustbox}{width=\linewidth}
-      \input{figures/antiderivative_clean_0.pgf}
+      \input{figures/antiderivative_clean.pgf}
     \end{adjustbox}
     \caption{}\label{fig:antiderivative}
   \end{subfigure}
   \begin{subfigure}{\linewidth}
     \begin{adjustbox}{width=\linewidth}
-      \input{figures/derivative_clean_0.pgf}
+      \input{figures/antiderivative_derivative_clean.pgf}
     \end{adjustbox}
     \caption{}\label{fig:derivative}
   \end{subfigure}
@@ -82,9 +82,9 @@ The domain of we consider here is based on an exact solution of the equation. Th
 \end{equation}
 Continuing to the second step, the parameters involved in \lccref{eq:forced_viscous_burgers} are the viscosity \(\nu \) and the forcing term \(f \). Since the forcing term is dependent on the solution in this step, the only parameter to determine is the viscosity. We choose three constant viscosity values which are 0.1, 0.01, and 0.0. These values are chosen so that a variety of behaviors are represented in the dataset from viscous to inviscid flow.
 
-After this, in the third step, the solution functions \(u \) are generated with 25 modes in time and 25 in space and 40 unique function samples for each viscosity value. In total 120 unique solution functions are generated. To ensure the same solutions are generated every time, the random number generator uses a new instance of the generator with the same seed number. This results in the solutions being the same for all viscosity and other parameters of the equation are adapted to this.
+After this, in the third step, the solution functions \(u \) are generated with 8 modes in time and 8 in space and 500 unique function samples for each viscosity value. Since we don't factor the viscosity in at this point, for ease of comparison, we ensure the same solutions are generated every time by using a new instance of the generator with the same seed number each time. This results in the solutions being the same for all viscosity and other parameters of the equation are adapted to this.
 
-As for the forcing term, it is computed using \lccref{eq:forced_viscous_burgers}. The solution field \(u\) and forcing term \(f\) are modeled with Fourier series in \lccrefs{eq:fourier_field,eq:fourier_force} where \(k\) is a vector of spatial and temporal wave number such that \(k_t\) is the temporal wave number and \(k_x\) is the spatial wave number.
+Next we account for the different viscosity values in this stage. The forcing term is computed using \lccref{eq:forced_viscous_burgers}. The solution field \(u\) and forcing term \(f\) are modeled with Fourier series in \lccrefs{eq:fourier_field,eq:fourier_force} where \(k\) is a vector of spatial and temporal wave number such that \(k_t\) is the temporal wave number and \(k_x\) is the spatial wave number.
 \begin{align}
   u\left(x, t \right) & = \sum_{k_{x}} \sum_{k_{t}} \hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:fourier_field} \\
   f\left(x, t \right) & = \sum_{k_{x}}\sum_{k_{t}} \hat{f}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:fourier_force}
@@ -97,18 +97,18 @@ This is computationally expensive operation with \(N^2\) multiplications \autoci
 \begin{equation}
   \begin{split}
     \sum_{k_{x}} \sum_{k_{t}} \hat{f}_k e^{2\pi i(k_{x}x+k_{t}t)} =
-     & \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{t}) \hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)}                                                              \\
-     & + \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{x})\hat{uu}_k e^{2\pi i(k_{x}x+k_{t}t)}                                                            \\
-     & - \nu\sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{x})^2\hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:forced_viscous_burgers_fourier_substitution}
+     & \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{t}) \hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)}                                                                \\
+     & + \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{x})\hat{uu}_k e^{2\pi i(k_{x}x+k_{t}t)}                                                              \\
+     & - \nu\sum_{k_{x}} \sum_{k_{t}} {(2\pi i k_{x})}^2\hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:forced_viscous_burgers_fourier_substitution}
   \end{split}
 \end{equation}
 \begin{align}
-  \sum_{k_{x}} \sum_{k_{t}} \hat{f}_k & = \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{t}) \hat{u}_k + (2\pi i k_{x})\hat{uu}_k - \nu(2\pi i k_{x})^2\hat{u}_k \label{eq:forced_viscous_burgers_fourier} \\
-  \hat{f}_k                           & = (2\pi i k_{t}) \hat{u}_k + (2\pi i k_{x})\hat{uu}_k - \nu(2\pi i k_{x})^2\hat{u}_k \label{eq:forced_viscous_burgers_coeff}
+  \sum_{k_{x}} \sum_{k_{t}} \hat{f}_k & = \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{t}) \hat{u}_k + (2\pi i k_{x})\hat{uu}_k - \nu{(2\pi i k_{x})}^2\hat{u}_k \label{eq:forced_viscous_burgers_fourier} \\
+  \hat{f}_k                           & = (2\pi i k_{t}) \hat{u}_k + (2\pi i k_{x})\hat{uu}_k - \nu{(2\pi i k_{x})}^2\hat{u}_k \label{eq:forced_viscous_burgers_coeff}
 \end{align}
-After simplifying the equation, we get the coefficients as in \lccref{eq:forced_viscous_burgers_coeff}. Using this equation, the exact forcing term corresponding to the randomly generated solution can be computed with relatively low cost. Finally, the function values of both the solutions and forcing terms are perturbed by adding Gaussian noise with a mean of zero and standard deviation of 5\% of the function value standard deviation to the values of the inverse transform. The perturbed coefficients are then recomputed from the sum and the final perturbed functions are obtained.
+After simplifying the equation, we get the coefficients as in \lccref{eq:forced_viscous_burgers_coeff}. Using this equation, the exact forcing term corresponding to the randomly generated solution can be computed with relatively low cost. Finally, the function values of both the solutions and forcing terms are perturbed by adding Gaussian noise with a mean of zero and standard deviation of 10\% of the function value standard deviation to the values of the inverse transform. The perturbed coefficients are then recomputed from the sum and the final perturbed functions are obtained.
 
-An example of the solution and forcing term pairs that has been generated is shown in \lccref{fig:burgers_data}. Using the same seed we can see that the solution functions of the same sample are the same for the most part. However, with the forcing terms, we see much larger amplitudes for higher frequencies for larger viscosity values. This is inline with \lccref{eq:forced_viscous_burgers_coeff}. The squared multiplier gets large much more quickly for higher frequencies due to the squaring operation. The since this effect is controlled by the viscosity via multiplication, the higher the viscosity, the larger the high frequency amplitudes of the forcing term. This in other words mean that more viscous fluids require quadratically more force to affect the solution in the same way with lower viscosities.
+An example of the solution and forcing term pairs that has been generated is shown in \lccref{fig:burgers_data}. Using the same seed we can see that the solution functions of the same sample are the same. However, with the forcing terms, we see much larger amplitudes for higher frequencies for larger viscosity values. This is inline with \lccref{eq:forced_viscous_burgers_coeff}. The squared multiplier gets large much more quickly for higher frequencies due to the squaring operation. The since this effect is controlled by the viscosity via multiplication, the higher the viscosity, the larger the high frequency amplitudes of the forcing term. This, in other words, means that more viscous fluids require a stronger forcing term to affect the solution in the same way with as fluids with a lower viscosity.
 
 \begin{figure}[H]
   \centering
@@ -154,9 +154,9 @@ An example of the solution and forcing term pairs that has been generated is sho
 \end{figure}
 
 \section{Data Retrieval}\label{sec:data_retrieval}
-\noindent The second data acquisition approach retrieves data of a from an external source. This approach downloads the external data to a local machine. In this study, the specific dataset that will be used is the ERA5 dataset from the European Center for Medium-range Weather Forecast (ECMWF). Specifically, the ERA5 dataset is a reanalysis which means it combines observational data from all over the world in order to present a more complete picture of the weather system. This combination process, named 4D variational data assimilation, takes into account the physics known to be involved in the system. As an example weather station data which take measurements such as wind speed, humidity, and temperature of the immediate surroundings of the weather station is very limited in giving a broader picture of weather over a larger area. Even technologies like earth observations satellites are limited to what they can observe at any single point in time as most cannot see the entirety of the earth's surface at once. The ERA5 dataset specifically, assimilates previous forecasts with observational data every 12 hours. The ERA5 reanalysis is available at the following url (\url{https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels}).
+\noindent The second data acquisition approach retrieves data of a from an external source. This approach downloads the external data to a local machine. In this study, the specific dataset that will be used is the ERA5 dataset from the European Center for Medium-range Weather Forecast (ECMWF). Specifically, the ERA5 dataset is a reanalysis which means it combines observational data from all over the world in order to present a more complete picture of the weather system. This combination process, named 4D variational data assimilation, takes into account the physics known to be involved in the system. As an example weather station data which take measurements such as wind speed, humidity, and temperature of the immediate surroundings of the weather station is very limited in giving a broader picture of weather over a larger area. Even technologies like earth observations satellites are limited to what they can observe at any single point in time as most cannot see the entirety of the earth's surface at once. The ERA5 dataset specifically, assimilates previous forecasts with observational data every 12 hours. The ERA5 reanalysis is available at the following URL (\url{https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels}).
 
-The original dataset made available by ECMWF has a grid size of \ang{0.25} by \ang{0.25} in latitude and longitude for atmospheric data. Data of oceanic waves are also available at a coarser grid size of \ang{0.5} by \ang{0.5}. However, we will use a cloud optimized version called WeatherBench2 that is easier to retrieve \autocite{raspWeatherBench2Benchmark2023}. This is because the data is available in several more grid sizes such as \ang{1.5}. In addition, the data can be readily downloaded to a local machine without waiting for further processing on the server. The guide for working with the dataset is available at (\url{https://weatherbench2.readthedocs.io/en/latest/data-guide.html}). In our specific case, we use the version labeled \verb|1959-2023_01_10-6h-64x32_equiangular_conservative.zarr|. This dataset spans from year 1959 to 2023 with a grid size of \ang{5.625} or resolution of 64 by 32 which spans from \ang{-87.19} to \ang{87.19} in latitude and \ang{0.0} to \ang{354.4} in longitude. The dataset is also downsampled to 6 hour intervals that starts at midnight UTC January 1959 1\textsuperscript{st} and ends at 18:00 UTC January 10\textsuperscript{th} 2023.
+The original dataset made available by ECMWF has a grid size of \ang{0.25} by \ang{0.25} in latitude and longitude for atmospheric data. Data of oceanic waves are also available at a coarser grid size of \ang{0.5} by \ang{0.5}. However, we will use a cloud optimized version called WeatherBench2 that is easier to retrieve \autocite{raspWeatherBench2Benchmark2023}. This is because the data is available in several more grid sizes such as \ang{1.5}. In addition, the data can be readily downloaded to a local machine without waiting for further processing on the server. The guide for working with the dataset is available at (\url{https://weatherbench2.readthedocs.io/en/latest/data-guide.html}). In our specific case, we use the version labeled \verb|1959-2023_01_10-6h-64x32_equiangular_conservative.zarr|. This dataset spans from year 1959 to 2023 with a grid size of \ang{5.625} or resolution of 64 by 32 which spans from \ang{-87.19} to \ang{87.19} in latitude and \ang{0.0} to \ang{354.4} in longitude. The dataset is also resampled down to 6-hour intervals that starts at midnight UTC January 1959 1\textsuperscript{st} and ends at 18:00 UTC January 10\textsuperscript{th} 2023.
 
 While the original data provided by ECMWF is available in NetCDF or GRIB, the WeatherBench2 version is provided using the Zarr format in a Google Cloud Storage Bucket. This setup allows the use of libraries that support the Zarr format to access the dataset remotely. The particular library we use is called \emph{Xarray} version \verb|2024.9.0| \autocite{hoyer2017xarray,hoyerXarray2024}. Accessing the remote dataset is done as shown in \lccref{fig:access_remote_zarr}. In order to ensure access is granted, the storage option token is set to anon so that the method uses the anonymous only public access mode of authentication \autocite{GCSFSGCSFs2023122post1+1g8e500c6dirty}.
 
@@ -169,10 +169,10 @@ While the original data provided by ECMWF is available in NetCDF or GRIB, the We
       storage_options = {"token": "anon"},
   )
   \end{lstlisting}
-  \caption{Example of using Xarray to access a publicly accessible Zarr dataset hosted on Google Cloud Storage Bucket.} \label{fig:access_remote_zarr}
+  \caption{Example of using Xarray to access a publicly accessible Zarr dataset hosted on Google Cloud Storage Bucket.}\label{fig:access_remote_zarr}
 \end{figure}
 
-The dataset includes 62 variables with some variables also spanning 13 discrete vertical levels in the atmosphere. For our use, we will only be using the 2-meter temperature of the atmosphere. This is the air temperature 2 meters above the surface be it land, sea, or inland water. This variable is in units of kelvin. The values of this variable is obtained by interpolating between the model values at the surface and the lowest model vertical level. We also limit the time range to .... An example of the data that was retrieved can be seen in .
+The dataset includes 62 variables with some variables also spanning 13 discrete vertical levels in the atmosphere. For our use, we will only be using the 2-meter temperature of the atmosphere. This is the air temperature 2 meters above the surface be it land, sea, or inland water. This variable is in units of kelvin. The values of this variable is obtained by interpolating between the model values at the surface and the lowest model vertical level. We also limit the time range to ... An example of the data that was retrieved can be seen in .
 % TODO: talk about selecting the time here
 % ECMWF description
 % - Role
@@ -206,7 +206,7 @@ Finally, the filtered version is stored locally. The local dataset is also store
 \subsection{Data Transformation}\label{sec:data_transformation}
 \noindent The second phase of the computational model transforms the data that has been prepared into a form that can be used with the proposed model. In this study, there are two ways a dataset can be used. The first and simplest way is to predict the solution function from the forcing term for a given set of PDE parameters. In this case, the input function is the forcing term. In other words, the input function is the predictor or independent variable that will be used to predict the solution function. As such, the output function is the solution function. The antiderivative dataset is used in this way. The derivative, which represents the acceleration function, is used to predict the velocity function. Which means that the input function is the acceleration function and the output function is the velocity function.
 
-The second use of a dataset depends on whether it can be interpreted as a mapping of a previous function to the next function. In other words, a series of functions related to the previous function as a sum of the previous function and a perturbation. A commonly used form of this are time series. Generally, a time series can be represented as \lccref{eq:time_step_function}. This function describes the evolution of function \(f\) as a sum of some initial state \(f^0\) and perturbation which is its rate of change \(\dv{f}{t}\) at a point in time close to the current time multiplied by the time step \(\delta t\). This is the first order Taylor polynomial. Adding more terms with higher order derivatives can be done to increase the accuracy. This describes the same process that is used in the finite differences method.
+The second use of a dataset depends on whether it can be interpreted as a mapping of a previous function to the next function. In other words, a series of functions related to the previous function as a sum of the previous function and a perturbation. A commonly used form of this are time series. Generally, a time series can be represented as \lccref{eq:time_step_function}. This function describes the evolution of function \(f\) as a sum of some initial state \(f^0\) and perturbation which is its rate of change \(\dv{f}{t}\) at a point in time close to the current time multiplied by the time step \(\delta t\). This is the first order Taylor polynomial. Adding more terms with higher order derivatives can be done to increase the accuracy. This describes the same process that is used in the finite difference method.
 \begin{equation}
   f^{t+1} = f^{t} + \delta t \times \dv{f}{t} + \dots \label{eq:time_step_function}
 \end{equation}
@@ -259,7 +259,7 @@ Third, using the inputs \(\vb{X}\), outputs \(\vb{y}\), predetermined regulariza
 Next, the selection of hyperparameters is done to optimize the model further. As previously mentioned, the hyperparameters are the regularization constant \(C \) and kernel functions including the kernel function parameters.
 
 \subsection{Model Evaluation}
-\noindent The fourth phase of the computational model is the evaluation of the learned model. This phase starts with formatting the inputs. If the inputs aren't scaled yet, then it is scaled using the scaler fitted on the training set. This is the case for new data such as new measurements or an analytical solution of the learned PDE\@. Once the inputs that is to be evaluated is scaled in the same way as the training inputs, the model can predict the corresponding outputs.
+\noindent The fourth phase of the computational model is the evaluation of the learned model. This phase starts with formatting the inputs. If the inputs aren't scaled yet, then it is scaled using the scaling function fitted on the training set. This is the case for new data such as new measurements or an analytical solution of the learned PDE\@. Once the inputs that is to be evaluated is scaled in the same way as the training inputs, the model can predict the corresponding outputs.
 
 The procedure to compute the predicted outputs follows \lccref{alg:lssvr_prediction}. This leads to the second process which is computing the kernel matrix between the training input features \(\vb{X}\) and the evaluation input features \(\vb{U}\). The matrix is constructed as the kernel value between each evaluation sample feature and every training sample feature. For \(p \) evaluation samples and \(n \) training samples, this results in a kernel matrix \(\Omega \) with a shape of \(p \) rows and \(n \) columns.
 
@@ -282,10 +282,10 @@ In addition, the software product is developed within certain limitations. The l
 \begin{enumerate}
   \item The operating and implementation language of the library is Python.
   \item The library is to be used in user code
-  \item The library depends on other libraries including the following core dependencies Pytorch, Numpy, Xarray, Zarr, Pandas, and tqdm.
+  \item The library depends on other libraries including the following core dependencies PyTorch, NumPy, Xarray, Zarr, Pandas, and tqdm.
 \end{enumerate}
 
-\subsection{Design} \label{sec:implementation_design}
+\subsection{Design}\label{sec:implementation_design}
 \noindent In this subsection, the architectural design of the software product is explained. The architecture consists of modules with similar concerns. This was chosen because of the intuition built by the use of other libraries with a similar architecture. The broad aim of modeling PDEs with LSSVR and basis functions coefficients can be separated into smaller concerns of data, model, and basis functions. Each of these concerns are addressed by a corresponding module. The explanation of each module are as follows:
 \begin{enumerate}
   \item Utilities
@@ -312,7 +312,7 @@ The design presented here is the product of multiple iterations that started wit
 
 \subsection{Implementation}
 
-\noindent The design in \lccref{sec:implementation_design} is implemented within the same iterative loop. As such, the feedback from tests is immediate, and any fixes can be implemented quickly. The implementation is done using the Python language and a number of Python libraries. To facilitate the management of dependencies, the implementation makes use of the package management tool Poetry \autocite{eustacePoetryPythonPackaging2024}. In addition, the Python version is managed using the tool pyenv. The implementation process starts with installation of the required dependencies. The dependencies are specified in the \verb|pyproject.toml| as shown in \lccref{fig:poetry_add_deps}.
+\noindent The design in \lccref{sec:implementation_design} is implemented within the same iterative loop. As such, the feedback from tests is immediate, and any fixes can be implemented quickly. The implementation is done using the Python language and a number of Python libraries. To facilitate the management of dependencies, the implementation makes use of the package management tool Poetry \autocite{eustacePoetryPythonPackaging2024}. In addition, the Python version is managed using the tool PyEnv. The implementation process starts with installation of the required dependencies. The dependencies are specified in the \verb|pyproject.toml| as shown in \lccref{fig:poetry_add_deps}.
 
 \begin{figure}[H]
   \centering
@@ -352,7 +352,7 @@ build-backend = "poetry.core.masonry.api"
 
 After ensuring that the correct version of python is being used with pyenv, the dependencies specified in the \verb|pyproject.toml| file can be installed using the shell command \verb|poetry install|. At the end of each iteration, the dependencies are subject to change depending on whether any new ones are needed or old dependencies can be removed.
 
-In the following, we will discuss the implementation of each module and how the phases of computational model relates to each implemented functionality. The base data structure that is used in the implementation is the Pytorch Tensor \autocite{Ansel_PyTorch_2_Faster_2024}. Tensors are a generalization of scalars and array-like structures such as vectors and matrices. This is essential since many computations that is done in the proposed model are based on matrices and higher dimensional arrays. Pytorch Tensors allow the elements to be of different data types such as floating point numbers of different precision or even complex numbers. In addition to basic operations for working with the Tensors such as matrix multiplications, Pytorch also provides many algorithms for use when working with Tensors such as linear equation solvers or the Fast Fourier Transform. Another reason for choosing to use Pytorch is the ability to parallelize computation using specialized processors such as GPUs. Lastly, Pytorch is widely used in the machine learning community which reflects on its reliability, wealth of community knowledge and support, and active development.
+In the following, we will discuss the implementation of each module and how the phases of computational model relates to each implemented functionality. The base data structure that is used in the implementation is the PyTorch Tensor \autocite{Ansel_PyTorch_2_Faster_2024}. Tensors are a generalization of scalars and array-like structures such as vectors and matrices. This is essential since many computations that is done in the proposed model are based on matrices and higher dimensional arrays. PyTorch Tensors allow the elements to be of different data types such as floating point numbers of different precision or even complex numbers. In addition to basic operations for working with the Tensors such as matrix multiplications, PyTorch also provides many algorithms for use when working with Tensors such as linear equation solvers or the Fast Fourier Transform. Another reason for choosing to use PyTorch is the ability to parallelize computation using specialized processors such as GPUs. Lastly, PyTorch is widely used in the machine learning community which reflects on its reliability, wealth of community knowledge and support, and active development.
 
 \subsubsection{Utilities}
 
@@ -367,7 +367,7 @@ In the following, we will discuss the implementation of each module and how the 
     -0.85 & 0 & -0.39 & 0.19 & 0.87  & 0 & -0.39 & -0.19
   \end{bmatrix}\label{eq:complex_matrix_real_rep}
 \end{align}
-There are several ways to do this in Pytorch, such as extracting the real and imaginary element components into separate matrices and then interleaving the columns to create the real representation. However, a more performant version can be made by using built-in functions of the library that directly allows views of complex valued tensors as real tensors and vice versa. The \verb|view_as_real| and \verb|view_as_complex| functions allow the conversion between real and complex representations by representing complex valued tensors by adding a dimension of size two for each component of complex numbers. The resulting implementation can be seen in \lccref{fig:complex_matrix_conversion_implementation}.
+There are several ways to do this in PyTorch, such as extracting the real and imaginary element components into separate matrices and then interleaving the columns to create the real representation. However, a more performant version can be made by using built-in functions of the library that directly allows views of complex valued tensors as real tensors and vice versa. The \verb|view_as_real| and \verb|view_as_complex| functions allow the conversion between real and complex representations by representing complex valued tensors by adding a dimension of size two for each component of complex numbers. The resulting implementation can be seen in \lccref{fig:complex_matrix_conversion_implementation}.
 \begin{figure}[H]
   \centering
   \begin{lstlisting}[language=Python]
@@ -382,9 +382,9 @@ def to_complex_coeff(x: torch.Tensor) -> torch.Tensor:
   \caption{Utility function to convert between complex matrices and the real representations.}\label{fig:complex_matrix_conversion_implementation}
 \end{figure}
 
-Another important utility used on inputs for the proposed SpectralSVR is a scaler. This utility has been implemented in a variety of ways and using different tools. However, as the standard scaling is not provided by Pytorch, we have also implemented our own version. The scaler accepts Pytorch tensors or tuples of tensors of real or complex elements. First, the scaler is implemented as a class that is instantiated. The scaler is then fitted onto the reference data to obtain the standard deviation and mean of each feature. This information is stored as properties of the class. Any complex tensors are converted into their real representations using the functions in \lccref{fig:complex_matrix_conversion_implementation}. Once the scaler instance is fitted, any set of tensors with the same number of features (columns) and element type (complex or real) can be roughly transformed into a standard deviation of one and mean of zero for every feature. This is done by subtracting the fitted mean of each feature from the elements in the column and then dividing with the feature's standard deviation. The implementation also provides a method to retrieve a scaler fitted on a subset of the original tuple of tensors. Serialization for saving to and loading from disk is also implemented. This is done simply by using the Pytorch save and load functions on the scaler instance itself. For some use cases, an inverse scaling operation to the original standard deviation and mean is also essential. The implementation is simply the reverse of the transformation process where the elements are multiplied by the standard deviation and the mean is the added.
+Another important utility used on inputs for the proposed SpectralSVR is a scaling function. This utility has been implemented in a variety of ways and using different tools. However, as the standard scaling is not provided by PyTorch, we have also implemented our own version. The scaling function accepts PyTorch tensors or tuples of tensors of real or complex elements. First, the scaling function is implemented as a class that is instantiated. The scaling function is then fitted onto the reference data to obtain the standard deviation and mean of each feature. This information is stored as properties of the class. Any complex tensors are converted into their real representations using the functions in \lccref{fig:complex_matrix_conversion_implementation}. Once the scaling function instance is fitted, any set of tensors with the same number of features (columns) and element type (complex or real) can be roughly transformed into a standard deviation of one and mean of zero for every feature. This is done by subtracting the fitted mean of each feature from the elements in the column and then dividing with the feature's standard deviation. The implementation also provides a method to retrieve a scaling function fitted on a subset of the original tuple of tensors. Serialization for saving to and loading from disk is also implemented. This is done simply by using the PyTorch save and load functions on the scaling function instance itself. For some use cases, an inverse scaling operation to the original standard deviation and mean is also essential. The implementation is simply the reverse of the transformation process where the elements are multiplied by the standard deviation and the mean is the added.
 
-Another group of utility in the module is concerned with managing the number of modes a tensor of coefficients has. First, a function called \verb|resize_modes| accepts a tensor of coefficients and the target number of modes in each dimension. The first dimension is always assumed to represent the different samples. Because of this the target modes will only affect the dimensions after the first. The wave numbers are also assumed to be symmetric about zero such that the highest absolute values of the wave number is in the middle of each dimension. The wave number decreases symmetrically as you move towards the edges of the dimension and reaching the lowest absolute wave number at the edges. This is done to ensure compatibility with the way existing libraries such as Pytorch works with tensors of Fourier coefficients. Because of this, shrinking a tensor of coefficients along a dimension means removing the center of the tensor along that dimension. And expanding to a target number of modes that is larger means that the tensor is padded with zeros in the center along the desired dimension. In addition, the remaining coefficients may be rescaled in order to balance the effect of adding or removing coefficients. The implementation is presented in \lccrefs{fig:coefficient_shrink_impl,fig:coefficient_expand_impl}.
+Another group of utility in the module is concerned with managing the number of modes a tensor of coefficients has. First, a function called \verb|resize_modes| accepts a tensor of coefficients and the target number of modes in each dimension. The first dimension is always assumed to represent the different samples. Because of this the target modes will only affect the dimensions after the first. The wave numbers are also assumed to be symmetric about zero such that the highest absolute values of the wave number is in the middle of each dimension. The wave number decreases symmetrically as you move towards the edges of the dimension and reaching the lowest absolute wave number at the edges. This is done to ensure compatibility with the way existing libraries such as PyTorch works with tensors of Fourier coefficients. Because of this, shrinking a tensor of coefficients along a dimension means removing the center of the tensor along that dimension. And expanding to a target number of modes that is larger means that the tensor is padded with zeros in the center along the desired dimension. In addition, the remaining coefficients may be rescaled in order to balance the effect of adding or removing coefficients. The implementation is presented in \lccrefs{fig:coefficient_shrink_impl,fig:coefficient_expand_impl}.
 
 \begin{figure}[H]
   \centering
@@ -469,7 +469,7 @@ Next, the second way to manage the size of a tensor along a dimension is to inte
     # (1 - scaler) * ynt + scaler * ynt1
     x_interp = torch.lerp(x_floor, x_ceil, index_scaler.to(x))
   \end{lstlisting}
-  \caption{Example of interpolating for indices (floating point indices) between the available ones (intiger indices).}\label{fig:coefficient_interpolation_impl}
+  \caption{Example of interpolating for indices (floating point indices) between the available ones (integer indices).}\label{fig:coefficient_interpolation_impl}
 \end{figure}
 
 Finally, this module also provides the types and reexports implementations of ordinary differential equation solvers from the torchdiffeq library \autocite{Chen_torchdiffeq_2021}. The implementation can be seen in \lccref{fig:solver_impl}.
@@ -667,14 +667,14 @@ The Fourier transform along each dimension is done by flattening every other dim
   \caption{Implementation of the one dimensional Fourier Transform.}\label{fig:1d_fourier_transform_impl}
 \end{figure}
 
-The one dimensional Fourier transform itself is implemented as a raw transform function. This function accepts input of a matrix of values to transform, a parameter to indicate the type of transformation (inverse transform or forward transform), the evaluation boundary and number of grid points, whether the evaluation should assume the function is periodic, the size of the function domain, and if the Fast Fourier Transform is allowed to be used. The evaluation boundaries, actual function domain size, whether the function can be assumed to be periodic, and if FFTs is allowed to be used together determine the Discrete Fourier Transform algorithm that is used. The FFT algorithm is used if the folowing are all true: the evaluation starts at zero and ends with the same value as the period, the function can be assumed to be periodic, and FFT is allowed. Otherwise, the transform is computed naively using \lccrefs{eq:discrete_fourier_transform,eq:inverse_discrete_fourier_transform}. The naive approach allows for evaluating function values of coefficients at various grid sizes and evaluation boundaries. This is useful for being able to evaluate at resolutions other than that of the original discretized function or coefficients. One use for this is plotting the function at different parts or resolutions. The relationship with the physical domain means that the boundaries of the domain is important. This is because the function values that will be used may only be valid within certain boundaries. Because of this, the information of physical domain bounds must also be stored. This is done by storing the span of the function in each dimension. The implementation we have gone with doesn't store any other information than the span in each dimension. Because of this, the information would need to be stored outside the Basis class instance and any outputs or operations with the classes will need to take this into account. The implementation of the one dimensional Fourier transform is presented in \lccref{fig:1d_fourier_transform_impl}.
+The one dimensional Fourier transform itself is implemented as a raw transform function. This function accepts input of a matrix of values to transform, a parameter to indicate the type of transformation (inverse transform or forward transform), the evaluation boundary and number of grid points, whether the evaluation should assume the function is periodic, the size of the function domain, and if the Fast Fourier Transform is allowed to be used. The evaluation boundaries, actual function domain size, whether the function can be assumed to be periodic, and if FFTs is allowed to be used together determine the Discrete Fourier Transform algorithm that is used. The FFT algorithm is used if the following are all true: the evaluation starts at zero and ends with the same value as the period, the function can be assumed to be periodic, and FFT is allowed. Otherwise, the transform is computed naively using \lccrefs{eq:discrete_fourier_transform,eq:inverse_discrete_fourier_transform}. The naive approach allows for evaluating function values of coefficients at various grid sizes and evaluation boundaries. This is useful for being able to evaluate at resolutions other than that of the original discretized function or coefficients. One use for this is plotting the function at different parts or resolutions. The relationship with the physical domain means that the boundaries of the domain is important. This is because the function values that will be used may only be valid within certain boundaries. Because of this, the information of physical domain bounds must also be stored. This is done by storing the span of the function in each dimension. The implementation we have gone with doesn't store any other information than the span in each dimension. Because of this, the information would need to be stored outside the Basis class instance and any outputs or operations with the classes will need to take this into account. The implementation of the one dimensional Fourier transform is presented in \lccref{fig:1d_fourier_transform_impl}.
 
-The secondary set of functionality provided by the basis classes are mathematical operators on the functions the coefficients represent. There are four operators implemented, which are the addition, subtraction, derivative, and antiderivative operators. These four operations can be further categorized into arithmetic and calculus operations. The arithmetic operations, which are addition and subtraction, are implemented by following how the actual mathematical operations would be carried out on two functions which are Fourier series as shown in \lccref{eq:fourier_series_addition}. For subtraction, the plus sign is simply replaced with the minues sign.
+The secondary set of functionality provided by the basis classes are mathematical operators on the functions the coefficients represent. There are four operators implemented, which are the addition, subtraction, derivative, and antiderivative operators. These four operations can be further categorized into arithmetic and calculus operations. The arithmetic operations, which are addition and subtraction, are implemented by following how the actual mathematical operations would be carried out on two functions which are Fourier series as shown in \lccref{eq:fourier_series_addition}. For subtraction, the plus sign is simply replaced with the minus sign.
 \begin{align}
   \sum_{k} \hat{u}_k e^{2\pi ikx} + \sum_{k} \hat{f}_k e^{2\pi ikx} =
   \sum_{k} \left(\hat{u}_k + \hat{f}_k\right) e^{2\pi ikx} \label{eq:fourier_series_addition}
 \end{align}
-The implementation leverages the operator overloading in Python classes. For addition, the overload should be done to the \verb|__add__| function. This function adds the current instance to another object which is the other basis instance for our use case. We also want the operation to return an independent instance without any references to the previous instances. To do this, all properties are coppied into a new instance. This is then used to perform the arithmetic operation. The implementation in \lccref{fig:basis_addition_impl} demonstrates the addition operation. For subtraction, a similar implementation is done using the \verb|__sub__| function and switching the plus sign with the minus sign.
+The implementation leverages the operator overloading in Python classes. In addition, the overload should be done to the \verb|__add__| function. This function adds the current instance to another object which is the other basis instance for our use case. We also want the operation to return an independent instance without any references to the previous instances. To do this, all properties are copied into a new instance. This is then used to perform the arithmetic operation. The implementation in \lccref{fig:basis_addition_impl} demonstrates the addition operation. For subtraction, a similar implementation is done using the \verb|__sub__| function and switching the plus sign with the minus sign.
 
 \begin{figure}[H]
   \centering
@@ -783,9 +783,9 @@ Other convenience functionality also provided include plotting, function value p
 
 \subsubsection{Model}\label{sec:impl_model}
 
-\noindent The SpectralSVR model is implemented in this module. There are two components in this module. First, there is the implementation of least-squares support vector regression (LSSVR) using Pytorch. This implementation is a reimplementation and modification of an LSSVR implementation using scikit-learn by \textcite{florencioLssvr2020}. The modifications are mainly concerned with using Pytorch in place of scikit-learn. Other modifications are concerned with the performance side of things, which are computing the kernel matrix in batches to avoid memory spikes and the ability to compute on hardware accelerators supported by Pytorch such as GPUs. The LSSVR implementation starts with the constructor which accepts model hyperparameters which include the regularization parameter, kernel function and any kernel parameters, verbosity level, kernel matrix computation batch size, and device to perform computations on. The recieved parameters are then stored as properties of the class instance. For the kernel specifically, it will be initialized with the correct default parameters when the fitting function is called. This is because if the kernel of choice is the radial basis function, the default scaling parameter needs to be computed from the training features as the square root of the sum of feature variance values.
+\noindent The SpectralSVR model is implemented in this module. There are two components in this module. First, there is the implementation of least-squares support vector regression (LSSVR) using PyTorch. This implementation is a reimplementation and modification of an LSSVR implementation using scikit-learn by \textcite{florencioLssvr2020}. The modifications are mainly concerned with using PyTorch in place of scikit-learn. Other modifications are concerned with the performance side of things, which are computing the kernel matrix in batches to avoid memory spikes and the ability to compute on hardware accelerators supported by PyTorch such as GPUs. The LSSVR implementation starts with the constructor which accepts model hyperparameters which include the regularization parameter, kernel function and any kernel parameters, verbosity level, kernel matrix computation batch size, and device to perform computations on. The received parameters are then stored as properties of the class instance. For the kernel specifically, it will be initialized with the correct default parameters when the fitting function is called. This is because if the kernel of choice is the radial basis function, the default scaling parameter needs to be computed from the training features as the square root of the sum of feature variance values.
 
-The optimization function that fits the model to the training data solves \lccref{eq:lssvr_solution}. This function is shown in \lccref{fig:lssvr_fit_function_impl}. The first half of the function sets up the left and right hand side matrices. The left hand side matrix is constructed in part with the kernel matrix. The kernel function used is batched to reduce the peak memory footprint. These matrices are then used in the second half to compute the solution using the least squares solver function from Pytorch called lstq. Finally, the result is split into the biases and Lagrange multipliers which are then returned as a tuple. The optimizing function is wrapped in a more user-friendly function which allows the use of numpy arrays in addition to the Pytorch Tensor used in the optimizing function. The wrapper function is named fit. It conforms the inputs provided by the user into the expected types and matrix shapes of rows for samples and columns for input features or output targets. The processed inputs and outputs are also stored as support vectors for use during prediction. The fit function returns the class instance once training is done. This is for method chaining purposes for ease of use when using the fit function in a chain with other functions we will discuss next, such as the prediction function.
+The optimization function that fits the model to the training data solves \lccref{eq:lssvr_solution}. This function is shown in \lccref{fig:lssvr_fit_function_impl}. The first half of the function sets up the left and right hand side matrices. The left hand side matrix is constructed in part with the kernel matrix. The kernel function used is batched to reduce the peak memory footprint. These matrices are then used in the second half to compute the solution using the least squares solver function from PyTorch called lstq. Finally, the result is split into the biases and Lagrange multipliers which are then returned as a tuple. The optimizing function is wrapped in a more user-friendly function which allows the use of NumPy arrays in addition to the PyTorch Tensor used in the optimizing function. The wrapper function is named fit. It conforms the inputs provided by the user into the expected types and matrix shapes of rows for samples and columns for input features or output targets. The processed inputs and outputs are also stored as support vectors for use during prediction. The fit function returns the class instance once training is done. This is for method chaining purposes for ease of use when using the fit function in a chain with other functions we will discuss next, such as the prediction function.
 
 \begin{figure}[H]
   \centering
@@ -1030,7 +1030,7 @@ The final core piece of functionality the SpectralSVR class provides is the inve
   \caption{Implementation of SpectralSVR inverse coeff function (parameter estimation).}\label{fig:spectralsvr_inverse_impl}
 \end{figure}
 
-The SpectralSVR class also provides a convenience function for testing the performance of the learned model. This function is shown in \lccref{fig:spectralsvr_test_impl}. The function arguments are the testing inputs, expected testing outputs, and a resolution for evaluation of function values. The first step is to convert the testing input into real representations and then predicting the output function. The predicted output are then compared to the testing outputs using many metrics including RMSE, MSE, MAE, R2, SMAPE, RSE, RRSE, and the number of Nan values present in the predicted output. The same comparison process is carried out again for the function values which are evaluated at the specified resolution. Finally, the function returns the metric values as a nested tuple for both the coefficients predictions and the function value predictions.
+The SpectralSVR class also provides a convenience function for testing the performance of the learned model. This function is shown in \lccref{fig:spectralsvr_test_impl}. The function arguments are the testing inputs, expected testing outputs, and a resolution for evaluation of function values. The first step is to convert the testing input into real representations and then predicting the output function. The predicted output are then compared to the testing outputs using many metrics including RMSE, MSE, MAE, R2, SMAPE, RRSE, and the number of Nan values present in the predicted output. The same comparison process is carried out again for the function values which are evaluated at the specified resolution. Finally, the function returns the metric values as a nested tuple for both the coefficients predictions and the function value predictions.
 
 \begin{figure}[H]
   \centering
@@ -1074,7 +1074,7 @@ The SpectralSVR class also provides a convenience function for testing the perfo
 
 \subsubsection{Problems}
 
-\noindent The final module implements the PDEs that will serve as problems the proposed modules will solve. The implementation is mainly responsible for generating datasets from the PDEs and computing the PDE residuals. This implementation is focused on the two synthetic datasets which are the antiderivative problem and the Burgers' equation problem. The problem base class is implemented as an abstract class that the specific problems will subclass. The base class requires any subclass to implement three methods. First, the data generation method which receives specifications such as what basis functions to use, how many function samples to create, how many modes are needed for each sample, and a Pytorch generator that will be used in generating the random basis coefficients. Other arguments more specific to each problem will be implemented by the specific subclass. This function is then expected to return a tuple of Basis instances. The second and third functions are the spectral and function value residuals for the PDE of each subclass, respectively. These three functions make up the functionality that is offered by all Problem subclasses. The implementation of the Problem subclass can be seen in \lccref{fig:problem_impl}.
+\noindent The final module implements the PDEs that will serve as problems the proposed modules will solve. The implementation is mainly responsible for generating datasets from the PDEs and computing the PDE residuals. This implementation is focused on the two synthetic datasets which are the antiderivative problem and the Burgers' equation problem. The problem base class is implemented as an abstract class that the specific problems will subclass. The base class requires any subclass to implement three methods. First, the data generation method which receives specifications such as what basis functions to use, how many function samples to create, how many modes are needed for each sample, and a PyTorch generator that will be used in generating the random basis coefficients. Other arguments more specific to each problem will be implemented by the specific subclass. This function is then expected to return a tuple of Basis instances. The second and third functions are the spectral and function value residuals for the PDE of each subclass, respectively. These three functions make up the functionality that is offered by all Problem subclasses. The implementation of the Problem subclass can be seen in \lccref{fig:problem_impl}.
 
 \begin{figure}[H]
   \centering
@@ -1191,7 +1191,7 @@ The residual functions are similarly easy to implement as shown in \lccref{fig:a
   \caption{Implementation of Antiderivative residual functions.}\label{fig:antiderivative_residual_impl}
 \end{figure}
 
-For the Burgers' equation, the problem subclass for this PDE implemented a generate function with two generation paths. But before discussing the specifics of the two paths, the function has some extra arguments and preprocessing of those arguments. This time the function asks for the kind of functions the initial condition and the forcing term needs to be, whether they are random or constant. The combination of the kind of functions the initial conditions and forcing terms are will determine the path of generation that the function will take. The function also requires the viscosity parameter nu which is 0.01 by default. The domain also needs to be specified with a default value of 0 to 1 with 200 grid points for both space and time. The solver which is used for one of the generation procedures is also an argument with a default of the implicit adams solver from torchdiffeq \autocite{Chen_torchdiffeq_2021}. Finally, whether the output basis coefficients are time dependent or not is passed in as an argument alongside with the Pytorch generator. The implementation of this portion of the function can be seen in \lccref{fig:burgers_generate_impl}.
+For the Burgers' equation, the problem subclass for this PDE implemented a generate function with two generation paths. But before discussing the specifics of the two paths, the function has some extra arguments and preprocessing of those arguments. This time the function asks for the kind of functions the initial condition and the forcing term needs to be, whether they are random or constant. The combination of the kind of functions the initial conditions and forcing terms are will determine the path of generation that the function will take. The function also requires the viscosity parameter nu which is 0.01 by default. The domain also needs to be specified with a default value of 0 to 1 with 200 grid points for both space and time. The solver which is used for one of the generation procedures is also an argument with a default of the implicit Adams solver from torchdiffeq \autocite{Chen_torchdiffeq_2021}. Finally, whether the output basis coefficients are time dependent or not is passed in as an argument alongside with the PyTorch generator. The implementation of this portion of the function can be seen in \lccref{fig:burgers_generate_impl}.
 
 \begin{figure}[H]
   \centering
@@ -1376,7 +1376,7 @@ The second case is when at least one of the initial condition or forcing term is
   \caption{Implementation of Burgers generate function method of lines.}\label{fig:burgers_generate_mol_impl}
 \end{figure}
 
-The spectral residual of the Burgers' equation which is used in the method of manufactured solution generation approach is implemented as shown in \lccref{fig:burgers_spectral_residual_impl}. As with the right hand side function, we use the psuedospectral approach for computing the convolution term to avoid large computational expenses for higher number of modes. The function value residual is also implemented in a similar manner to the antiderivative version. The derivatives are computed with the Pytorch gradient function. And then using \lccref{eq:forced_viscous_burgers}, the residual is computed by subtracting the forcing term from both sides.
+The spectral residual of the Burgers' equation which is used in the method of manufactured solution generation approach is implemented as shown in \lccref{fig:burgers_spectral_residual_impl}. As with the right-hand side function, we use the psuedospectral approach for computing the convolution term to avoid large computational expenses for higher number of modes. The function value residual is also implemented similarly to the antiderivative version. The derivatives are computed with the PyTorch gradient function. And then using \lccref{eq:forced_viscous_burgers}, the residual is computed by subtracting the forcing term from both sides.
 
 \begin{figure}[H]
   \centering
@@ -1412,7 +1412,7 @@ The spectral residual of the Burgers' equation which is used in the method of ma
 \end{figure}
 
 \subsection{Testing}
-\noindent The implementation is followed by tests of the functionality core to this study. The testing is done using the pytest library. The testing method used is a black box approach. The tests are written in a separate \verb|tests| directory. Each module is tested by a separate file. The tests are done to ensure compliance of the implementation to the requirements of the software. The final results are presented in \lccref{table:impl_test_result}. Each version and iteration of the development must ensure that the tests are passed before any changes are committed to the Github repository.
+\noindent The implementation is followed by tests of the functionality core to this study. The testing is done using the PyTest library. The testing method used is a black box approach. The tests are written in a separate \verb|tests| directory. Each module is tested by a separate file. The tests are done to ensure compliance of the implementation to the requirements of the software. The final results are presented in \lccref{table:impl_test_result}. Each version and iteration of the development must ensure that the tests are passed before any changes are committed to the GitHub repository.
 
 \begin{table}[H]
   \centering
@@ -1432,16 +1432,16 @@ The spectral residual of the Burgers' equation which is used in the method of ma
     9  & SpectralSVR Prediction          & Function value prediction error within tolerable range                                                        & Achieved    \\
     \bottomrule
   \end{tabular}
-  \caption{Testing results of the SpectralSVR Library implementation using black box method.} \label{table:impl_test_result}
+  \caption{Testing results of the SpectralSVR Library implementation using black box method.}\label{table:impl_test_result}
 \end{table}
 
 \section{Experimental Scenarios}\label{sec:experimental_scenarios}
-\noindent To achieve the goals of this study, as outlined in \lccref{sec:aims}, we lay out three experimental scenarios. These scenarios represent different experimental configurations that will be applied to our implementation of the SpectralSVR library. A table of the configurations for each scenario can be seen in \lccref{table:experimental_scenarios}.
+\noindent To achieve the goals of this study, as outlined in \lccref{sec:aims}, we present three experimental scenarios. These scenarios represent different experimental configurations that will be applied to our implementation of the SpectralSVR library. A table of the configurations for each scenario can be seen in \lccref{table:experimental_scenarios}.
 
 \begin{table}[H]
-  \caption{The configuration of experimental scenarios in this study.} \label{table:experimental_scenarios}
+  \caption{The configuration of experimental scenarios in this study.}\label{table:experimental_scenarios}
   \centering
-  \begin{tabularx}{\textwidth}{ L{0.75} *{3}{L{1.09}} } % compute these using approx barycentric coords (x + 3y = 4, x = 0.8y)
+  \begin{tabularx}{\textwidth}{L{0.75}*{3}{L{1.09}}} % compute these using approx barycentric coords (x + 3y = 4, x = 0.8y)
     \toprule
     Configuration                    & Scenario 1                                          & Scenario 2                                                          & Scenario 3                                 \\
     \midrule
@@ -1461,11 +1461,11 @@ The spectral residual of the Burgers' equation which is used in the method of ma
 
 Each scenario serves a different purpose. The first scenario is constructed to establish whether the model can learn any relationships at all in data that implicitly defines differential equations. This scenario is a proof of concept of whether the model is capable of accurately learning the relationship between derivatives and their anti-derivatives. As the simplest case, it provides a foundation for understanding the model and its behavior. The 5\% noise model is then used to predict the antiderivative of a cosine function with a period of one as shown in \lccref{eq:sine_derivative}. The exact solution is known as \lccref{eq:sine_function} \autocite{abramowitzHandbookMathematicalFunctions1972}. The second goal of this scenario is to determine how noise affects the model's predictions. This is especially important for the inverse problem because of how sensitive the derivative is to changes in the antiderivative. To further solidify how the model fares for inverse problems, this scenario will also assess the performance of a trained model for a very simple inverse problem setup to determine the derivatives of the testing subset from the antiderivatives. This setup will utilize the model as a surrogate forward solver and optimize for a loss function using the inverse function of the SpectralSVR class as described in \lccref{sec:impl_model}.
 \begin{align}
-  f(x) & = 2\pi cos\left(2\pi x\right)\label{eq:sine_derivative} \\
-  f(x) & = sin\left(2\pi x\right)\label{eq:sine_function}
+  f(x) & = 2\pi \cos\left(2\pi x\right)\label{eq:sine_derivative} \\
+  f(x) & = \sin\left(2\pi x\right)\label{eq:sine_function}
 \end{align}
 
-The second scenario extends the goal of the first scenario by examining the model and its behavior when learning a nonlinear PDE\@. The data subsets with different viscosity values are intended to allow us to learn more about how this will affect the performance on the exact solutions which may contain discontinuities for lower viscosity numbers. The model will learn to predict future states of systems governed by the Burgers' equation from past states. The model trained for a viscosity value of 0.01 will be used to predict \lccref{eq:burgers_exact_solution} from initial conditions at time equals zero and the corresponding forcing term of a constant value of zero.
+The second scenario extends the goal of the first scenario by examining the model and its behavior when learning a nonlinear PDE\@. The data subsets with different viscosity values are intended to allow us to learn more about how this will affect the performance on the exact solutions for lower viscosity numbers. The model will learn to predict future states of systems governed by the Burgers' equation from past states. The model for each viscosity will be used to predict \lccref{eq:burgers_exact_solution} from initial conditions at time equals zero and the corresponding forcing term of a constant value of zero. The exact equation prediction will be done using a rollout method. The initial condition along with the initial forcing term will be given to the model to predict the solution at the first time step. The model will then use the predicted solution with the forcing term at the first time step to predict the solution at the second time step. This is repeated until the stopping condition of time \(t=10\). The forcing term for the exact solution is a constant zero. Along with the rollout of the exact solution, we also perform roll out on one of the test solution.
 
 The third scenario is designed to demonstrate the modeling capability of SpectralSVR on a more practical problem of weather prediction. The earth weather system is a complex collection of processes. Using the ERA5 dataset, the model will be used to predict future states of the atmosphere from previous states. Specifically, the model will learn to predict the temperature 2 meters above the surface. That means that other than the time and spatial resolution not being the highest, the model will also learn from partial information of the relationships defined by the equation since no other variables will be included. This choice was made as an analog for situation with unknown PDEs and therefore unknown variables. With these situations, there is no guarantee that the variables measured have any relation with the system. These three scenarios together address the last two aims of this study.
 
@@ -1474,26 +1474,28 @@ The third scenario is designed to demonstrate the modeling capability of Spectra
 The model interpretations are displays of the correlation image and the p-matrix. The function values and coefficients themselves will also be plotted depending on the number of dimensions.
 
 \subsection{Scenario 1}
-\noindent The first scenario results are presented in four parts. The first is the coefficient prediction metrics which is shown in \lccref{table:scenario_1_spectral_metrics}. The table shows the noise level, the corresponding kernel scaling factor sigma, and the performance metrics themselves.
+\noindent The first scenario results are presented in four parts. The first is the coefficient prediction metrics which is shown in \lccref{table:scenario_1_spectral_metrics}. The table shows the noise level and the performance metrics.
 \begin{table}[H]
   \caption{Performance metrics of coefficient prediction in scenario 1 by noise level.}\label{table:scenario_1_spectral_metrics}
   \centering
   \begin{tabular}{lrrrrrrrrr}
     \toprule
-    Noise level & Sigma & MSE   & RMSE & MAE  & R2   & sMAPE \\
+    Noise level & MSE   & RMSE & MAE  & R2   & sMAPE \\
     \midrule
-    5\%         & 10.00 & 0.85  & 0.92 & 0.56 & 0.96 & 0.31  \\
-    10\%        & 10.00 & 2.07  & 1.44 & 0.93 & 0.91 & 0.46  \\
-    50\%        & 10.00 & 15.56 & 3.94 & 3.04 & 0.50 & 1.04  \\
+    5\%         & 0.86  & 0.93 & 0.57 & 0.96 & 0.31  \\
+    10\%        & 2.06  & 1.43 & 0.93 & 0.91 & 0.46  \\
+    50\%        & 15.59 & 3.95 & 3.04 & 0.50 & 1.04  \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The scenario is implemented as a Jupyter notebook which imports relevant libraries and our SpectralSVR library. The notebook starts with creating the data with the Antiderivative problem subclass. All random processes use the same Pytorch Generator instance with a seed of 42. The data is then augmented by perturbing the function values to create three versions with the noise levels mentioned in the scenario. Looping through each version, the training and testing subsets are randomly sampled to result in 80\% and 20\% of the original dataset respectively. Then the scaler is fitted on the training subset inputs. And then, both the training and testing inputs are transformed using the fitted scaler. Next, an instance of SpectralSVR is trained and tested. Finally, the metrics are stored and the next noise level is processed. Next the 5\% noise model is used to predict the antiderivative of a sine function.
+The scenario is implemented as a Jupyter notebook which imports relevant libraries and our SpectralSVR library. The notebook starts with creating the data with the Antiderivative problem subclass. All random processes use the same PyTorch Generator instance with a seed of 42. The data is then augmented by perturbing the function values to create three versions with the noise levels mentioned in the scenario. Looping through each version, the training and testing subsets are randomly sampled to result in 80\% and 20\% of the original dataset respectively. Then the scaling function is fitted on the training subset inputs. And then, both the training and testing inputs are transformed using the fitted scaling function. Next, an instance of SpectralSVR is trained and tested. Finally, the metrics are stored and the next noise level is processed. Next the 5\% noise model is used to predict the antiderivative of a sine function.
+
+The kernel scaling hyperparameter sigma has the same value of 10 for all noise levels. This is because the inputs are all scaled to approximately have a standard deviation of one. The value itself is from the number of features which comes out to 100 total inputs to the LSSVR\@.
 
 \Cref{table:scenario_1_spectral_metrics} shows that the model is able to generalize from the training data and learn the simple linear antiderivative operator. Focusing on the coefficient of determination (R2) scores, we can see that the model is off by 0.04 to the perfect score of 1.0 for the lowest noise level.  While increasing noise levels does degrade the performance, this is partly due to the target values also having been perturbed. This fact can be seen if we look at how predictions from the very same trained models on noisy inputs are compared to the noise-free versions of the antiderivative functions which is shown in \lccref{table:scenario_1_clean_spectral_metrics}. The metrics show that the model predictions are slightly closer to the unperturbed function coefficients compared to the perturbed versions. This can be seen as the influence of the independent synthetic measurement noise in the perturbed targets being removed from the testing metrics.
 
-The higher noise levels shows that the model is still relatively accurate. Looking at the R2 score for the 50\% noise level, the model is more accurate than a baseline mean value model. The R2 score of 0.5 means that the model predictions has roughly half the error the baseline would produce. Another observation is that the kernel scaling hyperparameter sigma has the same value the same for all noise levels since the inputs are all scaled to approximately have a standard deviation of one. The value itself is from the number of features which comes out to 100 total inputs to the LSSVR\@.
+The higher noise levels shows that the model is still relatively accurate. Looking at the R2 score for the 50\% noise level, the model is more accurate than a baseline mean value model. The R2 score of 0.5 means that the model predictions has roughly half the error the baseline would produce.
 
 \begin{table}[H]
   \caption{Performance metrics of coefficient prediction compared to unperturbed targets in scenario 1 by noise level.}\label{table:scenario_1_clean_spectral_metrics}
@@ -1502,9 +1504,9 @@ The higher noise levels shows that the model is still relatively accurate. Looki
     \toprule
     Noise level & MSE  & RMSE & MAE  & R2   & sMAPE \\
     \midrule
-    5\%         & 0.78 & 0.89 & 0.51 & 0.96 & 0.28  \\
-    10\%        & 1.82 & 1.35 & 0.81 & 0.92 & 0.41  \\
-    50\%        & 9.34 & 3.06 & 2.25 & 0.62 & 0.91  \\
+    5\%         & 0.79 & 0.89 & 0.51 & 0.96 & 0.28  \\
+    10\%        & 1.80 & 1.34 & 0.80 & 0.92 & 0.40  \\
+    50\%        & 9.30 & 3.05 & 2.23 & 0.62 & 0.90  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1519,7 +1521,7 @@ The function values are also evaluated and the values of the metrics between the
     \midrule
     5\%         & 0.03 & 0.18 & 0.15 & 0.97 & 0.39  \\
     10\%        & 0.08 & 0.29 & 0.23 & 0.92 & 0.55  \\
-    50\%        & 0.62 & 0.79 & 0.63 & 0.49 & 1.04  \\
+    50\%        & 0.62 & 0.79 & 0.63 & 0.49 & 1.05  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1533,7 +1535,7 @@ For the metrics between the predictions and the noise-free version of the target
     Noise level & MSE  & RMSE & MAE  & R2   & sMAPE \\
     \midrule
     5\%         & 0.03 & 0.18 & 0.14 & 0.97 & 0.38  \\
-    10\%        & 0.07 & 0.27 & 0.22 & 0.92 & 0.53  \\
+    10\%        & 0.07 & 0.27 & 0.21 & 0.93 & 0.53  \\
     50\%        & 0.37 & 0.61 & 0.49 & 0.62 & 0.94  \\
     \bottomrule
   \end{tabular}
@@ -1548,9 +1550,9 @@ The next part of this scenario is the results from predicting the exact solution
     \toprule
     Noise level & MSE   & RMSE & MAE  & sMAPE \\
     \midrule
-    5\%         & 0.12  & 0.35 & 0.20 & 1.26  \\
-    10\%        & 0.75  & 0.87 & 0.30 & 1.26  \\
-    50\%        & 10.35 & 3.22 & 0.82 & 1.39  \\
+    5\%         & 0.09  & 0.29 & 0.16 & 1.18  \\
+    10\%        & 0.80  & 0.89 & 0.31 & 1.23  \\
+    50\%        & 10.33 & 3.21 & 0.83 & 1.44  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1562,33 +1564,33 @@ The next part of this scenario is the results from predicting the exact solution
     \toprule
     Noise level & MSE  & RMSE & MAE  & sMAPE \\
     \midrule
-    5\%         & 0.01 & 0.07 & 0.06 & 0.24  \\
-    10\%        & 0.03 & 0.17 & 0.15 & 0.37  \\
-    50\%        & 0.41 & 0.64 & 0.57 & 1.66  \\
+    5\%         & 0.00 & 0.06 & 0.05 & 0.23  \\
+    10\%        & 0.03 & 0.18 & 0.15 & 0.36  \\
+    50\%        & 0.41 & 0.64 & 0.58 & 1.65  \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The predictions of the exact equation is shown in \lccref{fig:exact_antiderivative}. Visually, we can see that as the noise level increases, the model predictions become worse. Another observation is how the higher the noise level, the more the predicted functions become closer to zero. This is explained by the double penalty phenomenon \autocite{lledoScaledependentVerificationPrecipitation2023}. The loss function used for LSSVR penalizes the model for predicting a non-zero value that turns out to be wrong compared to predicting a zero value. This results in a model with predictions that are close to the mean of the training data.
+The predictions of the exact equation is shown in \lccref{fig:antiderivative_exact}. Visually, we can see that as the noise level increases, the model predictions become worse. Another observation is how the higher the noise level, the more the predicted functions become closer to zero. This is explained by the double penalty phenomenon \autocite{lledoScaledependentVerificationPrecipitation2023}. The loss function used for LSSVR penalizes the model for predicting a non-zero value that turns out to be wrong compared to predicting a zero value. This results in a model with predictions that are close to the mean of the training data.
 
 \begin{figure}[H]
   \centering
   \begin{subfigure}{\linewidth}
     \begin{adjustbox}{width=\linewidth}
-      \input{figures/exact_antiderivative_label.pgf}
+      \input{figures/antiderivative_exact_input.pgf}
     \end{adjustbox}
-    \caption{}\label{fig:exact_antiderivative_label}
+    \caption{}\label{fig:antiderivative_exact_input}
   \end{subfigure}
   \begin{subfigure}{\linewidth}
     \begin{adjustbox}{width=\linewidth}
-      \input{figures/exact_antiderivative_prediction.pgf}
+      \input{figures/antiderivative_exact_prediction.pgf}
     \end{adjustbox}
-    \caption{}\label{fig:exact_antiderivative_prediction}
+    \caption{}\label{fig:antiderivative_exact_prediction}
   \end{subfigure}
-  \caption{(\subref{fig:exact_antiderivative_label}) The perturbed exact input function values from \lccref{eq:sine_derivative}. (\subref{fig:exact_antiderivative_prediction}) Prediction of antiderivative from the input function that was perturbed.}\label{fig:exact_antiderivative}
+  \caption{(\subref{fig:antiderivative_exact_label}) The perturbed exact input function values from \lccref{eq:sine_derivative}.\ (\subref{fig:antiderivative_exact_prediction}) Prediction of antiderivative from the input function that was perturbed.}\label{fig:antiderivative_exact}
 \end{figure}
 
-For inverse problems, we simply use the same testing set with the labels now used to predict the features. The model instances are still the same as before. With the implementation shown in \lccref{fig:spectralsvr_inverse_impl}, we run the inverse function for predicting coefficients with 2000 epochs, a learning rate of 0.02, and randomized starting point from a normal distribution multiplied by a factor of 0.05. The results of inverse prediction for all three noise levels are shown in \lccref{table:scenario_1_inv_spectral_metrics}. These metrics were computed after both the target and predicted input functions are scaled back using the same scalers they were scaled down with. Because the scales of the input and output functions are different, the absolute metrics are much larger in these results compared to the forward problem results. For reference, the target input coefficents on average range from -695.65 to 694.9. The relative metrics show that for the lower noise levels, the accuracy is still relatively good. However, the values are lower than the values for the forward test. The difference with the antiderivative prediction becomes more pronounced with the higher noise levels. For the highest noise level, the performance has degraded so far that the predictions are worse than a baseline model from the mean of the target input functions. One must also note that despite the much worse results of the other metrics for the highest noise level, at this time we're unable to explain why sMAPE results in roughly the same performance as in the forward problem.
+For inverse problems, we simply use the same testing set with the labels now used to predict the features. The model instances are still the same as before. With the implementation shown in \lccref{fig:spectralsvr_inverse_impl}, we run the inverse function for predicting coefficients with 2000 epochs, a learning rate of 0.02, and randomized starting point from a normal distribution multiplied by a factor of 0.05. The results of inverse prediction for all three noise levels are shown in \lccref{table:scenario_1_inv_spectral_metrics}. These metrics were computed after both the target and predicted input functions are scaled back using the same scaling functions they were scaled down with. Because the scales of the input and output functions are different, the absolute metrics are much larger in these results compared to the forward problem results. For reference, the target input coefficients on average range from -695.65 to 694.9. The relative metrics show that for the lower noise levels, the accuracy is still relatively good. However, the values are lower than the values for the forward test. The difference with the antiderivative prediction becomes more pronounced with the higher noise levels. For the highest noise level, the performance has degraded so far that the predictions are worse than a baseline model from the mean of the target input functions. One must also note that despite the much worse results of the other metrics for the highest noise level, at this time we're unable to explain why sMAPE results in roughly the same performance as in the forward problem.
 
 \begin{table}[H]
   \caption{Performance metrics of coefficient inverse prediction of derivative in scenario 1 by noise level.}\label{table:scenario_1_inv_spectral_metrics}
@@ -1606,82 +1608,275 @@ For inverse problems, we simply use the same testing set with the labels now use
 
 Next, we have the correlation image and p-matrix for the model of each noise level. The results are shown in \lccref{fig:scenario_1_interpretation}. Each row in the figure represent the results of a model trained on a different noise level. The correlation image for 5\% and 10\% noise show clear lines on the coefficient corresponding to the output coefficient that was sorted. We can also see that the negative wave number reflection also being sorted. This is because of the reflection that occurs with complex Fourier coefficients for real-valued functions. There are other faint vertical lines you are able to see for other input coefficients. These faint lines are not sorted like the corresponding coefficients we mentioned before. Meaning, while they don't affect the particular output coefficients that were sorted, they do show that there is information embedded in the kernel matrix for these input coefficients. However, if we look at the 50\% noise correlation image, even the corresponding coefficient does not show a clear line or gradient. The lines are more noisy compared to the other noise levels. But the kernel still manages to embed some information. The p-matrices show that The model itself is able to still learn some relationship between the input coefficients and the output coefficients. For the 5\% and 10\% noise levels, the p-matrices show very clearly the contributions of input coefficients to the output coefficients. However, looking at the p-matrix for 50\% noise level, the lower wave numbers show lower contribution of input coefficients to the output coefficients.
 \begin{figure}[H]
-  \centering
-  \begin{subfigure}{0.49\linewidth}
-    \begin{adjustbox}{width=1.2\linewidth}
-      \input{figures/antiderivative_ci_5.pgf}
-    \end{adjustbox}
-    \caption{Correlation image 5\% noise.}\label{fig:sc1_ci_5}
-  \end{subfigure}
-  \begin{subfigure}{0.49\linewidth}
-    \begin{adjustbox}{width=1.2\linewidth}
-      \input{figures/antiderivative_pm_5.pgf}
-    \end{adjustbox}
-    \caption{The p-matrix for 5\% noise.}\label{fig:sc1_pm_5}
-  \end{subfigure}
-  \\[-0.7\baselineskip]
-  \begin{subfigure}{0.49\linewidth}
-    \begin{adjustbox}{width=1.2\linewidth}
-      \input{figures/antiderivative_ci_10.pgf}
-    \end{adjustbox}
-    \caption{Correlation image 10\% noise.}\label{fig:sc1_ci_10}
-  \end{subfigure}
-  \begin{subfigure}{0.49\linewidth}
-    \begin{adjustbox}{width=1.2\linewidth}
-      \input{figures/antiderivative_pm_10.pgf}
-    \end{adjustbox}
-    \caption{The p-matrix for 10\% noise.}\label{fig:sc1_pm_10}
-  \end{subfigure}
-  \\[-0.7\baselineskip]
-  \begin{subfigure}{0.49\linewidth}
-    \begin{adjustbox}{width=1.2\linewidth}
-      \input{figures/antiderivative_ci_50.pgf}
-    \end{adjustbox}
-    \caption{Correlation image 50\% noise.}\label{fig:sc1_ci_50}
-  \end{subfigure}
-  \begin{subfigure}{0.49\linewidth}
-    \begin{adjustbox}{width=1.2\linewidth}
-      \input{figures/antiderivative_pm_50.pgf}
-    \end{adjustbox}
-    \caption{The p-matrix for 50\% noise.}\label{fig:sc1_pm_50}
-  \end{subfigure}
+  \begin{adjustwidth}{-0.1\linewidth}{-0.1\linewidth}
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/antiderivative_ci_5.pgf}
+      \end{adjustbox}
+      \caption{Correlation image 5\% noise.}\label{fig:sc1_ci_5}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/antiderivative_pm_5.pgf}
+      \end{adjustbox}
+      \caption{The p-matrix for 5\% noise.}\label{fig:sc1_pm_5}
+    \end{subfigure}
+    % \\[\baselineskip]
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/antiderivative_ci_10.pgf}
+      \end{adjustbox}
+      \caption{Correlation image 10\% noise.}\label{fig:sc1_ci_10}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/antiderivative_pm_10.pgf}
+      \end{adjustbox}
+      \caption{The p-matrix for 10\% noise.}\label{fig:sc1_pm_10}
+    \end{subfigure}
+    \\[\baselineskip]
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/antiderivative_ci_50.pgf}
+      \end{adjustbox}
+      \caption{Correlation image 50\% noise.}\label{fig:sc1_ci_50}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/antiderivative_pm_50.pgf}
+      \end{adjustbox}
+      \caption{The p-matrix for 50\% noise.}\label{fig:sc1_pm_50}
+    \end{subfigure}
+  \end{adjustwidth}
   \caption{Correlation image (left column) and p-matrix (right column) for each model trained on a different noise level (row). The correlation image was sorted same order the values of the real component of wave number \(k=2\) were sorted in descending order.}\label{fig:scenario_1_interpretation}
 \end{figure}
 
-The final observation we make is how for all the p-matrices the pronounced contribution of the input wave number to their corresponding output wave number. This means that the majority of contributions to each output coefficients come from the corresponding input coefficients of the same wave number. Our knowledge on how the simple derivative equation for Fourier series relate the coefficients of the derivative function and the antiderivative function aligns with the contributions shown by the p-matrices. This confirms that the model is indeed learning the relations that is defined by the derivative equation.
+The final observation we make is how for all the p-matrices the pronounced contribution of the input wave number to their corresponding output wave number. This means that the majority of contributions to each output coefficients come from the corresponding input coefficients of the same wave number. Our knowledge on how the simple derivative equation for Fourier series relate the coefficients of the derivative function and the antiderivative function is shown in \lccref{eq:derivative_coeff}. This aligns with the contributions shown by the p-matrices. This confirms that the model is indeed learning the relations that is defined by the derivative equation.
+
+In summary, the model is able to learn the linear relationship defined by the derivative equation. This is true even for high noise levels. The model also learns the actual relationship between each wave number which is shown in the p-matrix. Inverse prediction of the input function is also successfully done for lower noise levels. At high noise levels, the noise overwhelms the model.
 
 \subsection{Scenario 2}
-\noindent The second scenario results are presented in two parts which are the coefficient predictions and function value predictions. The functions are first preprocessed in order to format them into current and next values in time as discussed in \lccref{sec:data_transformation}. The coefficient value predictions are shown in \lccref{table:scenario_2_spectral_metrics}. The RBF kernel parameter computed from the data is once again the same for all versions of the dataset with a value of 10. The testing metrics show that the performance of the model vary with the viscosity value \(\nu \). Starting with the inviscid Burgers' equation, with \(\nu=0\), the model performs relatively well and close to the best result with \(\nu=0.01\). The function value evaluated from the predictions is shown in \lccref{table:scenario_2_function_metrics}. The metrics across the board shows that the function value relative metrics are worse compared to the coefficients. Comparing the absolute metrics for the same table, we see the same general trend that the higher viscosity show the model performing worse.
+\noindent The second scenario results are presented in two parts which are the coefficient predictions and function value predictions. The functions are first preprocessed in order to format them into current and next values in time as discussed in \lccref{sec:data_transformation}. The sample pairs are first divided into two for the training and testing sets. Each function is then discretized into 200 time steps. Then, the features are put together as the coefficients of the solution and forcing term at the current time step. The labels are the solution at the next time step. Since there is too much data to fit into memory all at once at the end of this process, we randomly sample the feature and label pairs. This result in a maximum of 8000 samples for the training set and 2000 samples for the testing set. As mentioned in \lccref{sec:data_transformation}, the training features are used to fit a scaling function. And then, all features are scaled using the fitted scaling function.
+
+The coefficient value predictions are shown in \lccref{table:scenario_2_spectral_metrics}. The RBF kernel parameter computed from the data is once again the same for all versions of the dataset with a value of 5.66. The testing metrics show that the performance of the model vary with the viscosity value \(\nu \). Starting with the inviscid Burgers' equation, with \(\nu=0\), the model performs the best with a close second from the model for the \(\nu = 0.01 \) dataset version. The function value evaluated from the predictions is shown in \lccref{table:scenario_2_function_metrics}. The metrics across the board shows that the function value relative metrics are slightly better compared to the coefficients. Comparing the absolute metrics for the same table, we see the same general trend that the higher viscosity show the model performing worse.
 
 \begin{table}[H]
-  \caption{Performance metrics of coefficient prediction of next time step in scenario 2 by noise level.}\label{table:scenario_2_spectral_metrics}
+  \caption{Performance metrics of coefficient prediction of next time step in scenario 2 by viscosity.}\label{table:scenario_2_spectral_metrics}
   \centering
   \begin{tabular}{lrrrrr}
     \toprule
-    \(\nu\) & MSE  & RMSE & MAE  & R2   & sMAPE \\
+    \(\nu \) & MSE      & RMSE     & MAE      & R2   & sMAPE \\
     \midrule
-    0.0     & 0.01 & 0.09 & 0.06 & 0.87 & 0.60  \\
-    0.01    & 0.01 & 0.08 & 0.06 & 0.90 & 0.56  \\
-    0.1     & 0.03 & 0.17 & 0.13 & 0.49 & 1.09  \\
+    0.0      & 3.46e-04 & 1.86e-02 & 1.24e-02 & 0.79 & 0.65  \\
+    0.01     & 3.56e-04 & 1.89e-02 & 1.27e-02 & 0.78 & 0.67  \\
+    0.1      & 9.17e-04 & 3.03e-02 & 2.32e-02 & 0.46 & 1.08  \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \begin{table}[H]
-  \caption{Performance metrics of function values evaluated from coefficient prediction of next time step in scenario 2 by noise level.}\label{table:scenario_2_function_metrics}
+  \caption{Performance metrics of function values evaluated from coefficient prediction of next time step in scenario 2 by viscosity.}\label{table:scenario_2_function_metrics}
   \centering
   \begin{tabular}{lrrrrr}
     \toprule
-    \(\nu\) & MSE      & RMSE & MAE  & R2   & sMAPE \\
+    \(\nu \) & MSE      & RMSE     & MAE      & R2   & sMAPE \\
     \midrule
-    0.0     & 6.36e-04 & 0.03 & 0.02 & 0.85 & 0.66  \\
-    0.01    & 5.19e-04 & 0.02 & 0.02 & 0.88 & 0.62  \\
-    0.1     & 2.28e-03 & 0.05 & 0.04 & 0.45 & 1.13  \\
+    0.0      & 5.58e-05 & 7.47e-03 & 5.89e-03 & 0.82 & 0.70  \\
+    0.01     & 5.74e-05 & 7.58e-03 & 6.01e-03 & 0.81 & 0.71  \\
+    0.1      & 1.58e-04 & 1.26e-02 & 9.98e-03 & 0.51 & 1.04  \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The correlation image and p-matrix for each viscosity can be seen in \lccref{fig:scenario_2_interpretation}. Analyzing the correlation images first, we see that some columns are sorted in correlation to how the samples are sorted based on the real component of the 4th output wave number. For the inviscid equation, this correlation is the strongest with multiple columns exhibiting the correlation. The highest and visually most sorted values are from the forcing term portion of the inputs. A weaker correlation is still present of the viscosity of \(\nu=0.01\). However, once we get to the highest viscosity case, we see a seemingly random arrangement of the correlation image values. This observation and the lower scores can both be explained by the level of temporal discretization. This is the same issue we encounter when we use some traditional methods for higher viscosity values with the same time step for lower viscosity values \autocite{kassamFourthOrderTimeSteppingStiff2005,seydaogluNumericalSolutionBurgers2016}. The issue arises in stiff differential equations. This term describes the presence of a rapidly varying component. We can see that the larger amplitudes of high frequency components in the forcing term to represent the rapidly varying components as shown in \lccrefs{fig:burgers_forcing_0.0,fig:burgers_forcing_0.01,fig:burgers_forcing_0.1}. Traditionally, stiff equations would require specific solvers purpose built to efficiently solve the problem. Otherwise, as with our method, the solving process would require much finer time steps.
+The testing results are complimented with a rollout experiment. The results from the rollout are shown in \lccref{fig:scenario_2_rollout}. The rollout starts from time \(t=0\). In all the plots, this is at the bottom. We have included this initial condition in the plots. From this initial condition in combination with the forcing term at the initial time step, the model predicts the first time step solution. The model then uses the predicted solution combined with the corresponding forcing term to predict the second time step. To see how well the model is performing relative to the actual target values, we compute the difference between the two as shown in \lccrefs{fig:sc2_rollout_diff_0.0,fig:sc2_rollout_diff_0.01,fig:sc2_rollout_diff_0.1}. Observe that errors are introduced relatively early around time \(t=1\). However, the model rollout stays stable until the end despite this error. This results in the model being able to finish the rollout for this sample.
+\begin{figure}[H]
+  \centering
+  \begin{adjustwidth}{-0.1\linewidth}{-0.1\linewidth}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_target_0.0.pgf}
+      \end{adjustbox}
+      \caption{The target for \(\nu=0.0\)}\label{fig:sc2_rollout_target_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_pred_0.0.pgf}
+      \end{adjustbox}
+      \caption{The prediction for \(\nu=0.0\)}\label{fig:sc2_rollout_pred_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.32\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_diff_0.0.pgf}
+      \end{adjustbox}
+      \caption{The difference for \(\nu=0.0\)}\label{fig:sc2_rollout_diff_0.0}
+    \end{subfigure}
+    \\[0.7\baselineskip]
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_target_0.01.pgf}
+      \end{adjustbox}
+      \caption{The target for \(\nu=0.01\)}\label{fig:sc2_rollout_target_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_pred_0.01.pgf}
+      \end{adjustbox}
+      \caption{The prediction for \(\nu=0.01\)}\label{fig:sc2_rollout_pred_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.32\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_diff_0.01.pgf}
+      \end{adjustbox}
+      \caption{The difference for \(\nu=0.01\)}\label{fig:sc2_rollout_diff_0.01}
+    \end{subfigure}
+    \\[0.7\baselineskip]
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_target_0.1.pgf}
+      \end{adjustbox}
+      \caption{The target for \(\nu=0.1\)}\label{fig:sc2_rollout_target_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{The prediction for \(\nu=0.1\)}\label{fig:sc2_rollout_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.32\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{The difference for \(\nu=0.1\)}\label{fig:sc2_rollout_diff_0.1}
+    \end{subfigure}
+    % \\[0.7\baselineskip]
+  \end{adjustwidth}
+  \caption{The rollout predictions for one of the test function. The difference is calculated as the targets subtracted by the predictions.}\label{fig:scenario_2_rollout}
+\end{figure}
+
+Another observation we can see is that the difference between the target and rollout predictions is much more pronounced for lower viscosity values. This result is aligned with metrics shown in \lccrefs{table:scenario_2_rollout_spectral_metrics,table:scenario_2_rollout_function_metrics}. The absolute metrics show that the models are performing several times worse in rollout compared to the single time step tests shown in \lccrefs{table:scenario_2_spectral_metrics,table:scenario_2_function_metrics}. This seems to be the same challenge that traditional solvers also face with the shocks that may be present with lower viscosity values. This means that for rollout scenarios, the model has a much harder time with lower viscosity values.
+\begin{table}[H]
+  \caption{Performance metrics of coefficient rollout in scenario 2 by viscosity.}\label{table:scenario_2_rollout_spectral_metrics}
+  \centering
+  \begin{tabular}{lrrrr}
+    \toprule
+    \(\nu \) & MSE      & RMSE     & MAE      & sMAPE \\
+    \midrule
+    0.0      & 2.91e-01 & 5.40e-01 & 4.07e-01 & 0.90  \\
+    0.01     & 1.61e-01 & 4.01e-01 & 2.86e-01 & 0.75  \\
+    0.1      & 1.70e-01 & 4.12e-01 & 3.02e-01 & 0.81  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\begin{table}[H]
+  \caption{Performance metrics of function values evaluated from coefficient rollout in scenario 2 by viscosity.}\label{table:scenario_2_rollout_function_metrics}
+  \centering
+  \begin{tabular}{lrrrr}
+    \toprule
+    \(\nu \) & MSE      & RMSE     & MAE      & sMAPE \\
+    \midrule
+    0.0      & 5.81e-02 & 2.41e-01 & 1.89e-01 & 1.04  \\
+    0.01     & 3.17e-02 & 1.78e-01 & 1.40e-01 & 0.94  \\
+    0.1      & 2.91e-02 & 1.71e-01 & 1.33e-01 & 0.92  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The exact function \cref{eq:burgers_exact_solution} is computed for each viscosity value. The discrete Fourier transform of the values are then used for doing rollout with the model. For the forcing term, we just use a constant function with a value of zero. The rollout predictions are shown in \lccref{fig:scenario_2_interpretation}. The model is not successful in the rollout for the inviscid equation and for the viscosity of \(\nu=0.01\). Both of these cases, the model produces too much error that the original function is no longer recognizable in the predictions. For the higher viscosity value of \(\nu=0.1\) the rollout produces a recognizable prediction. The error stays to about half the maximum function value. We do see some more noticeable error in the flatter parts of the function. The error also take a very similar shape across the different viscosity values. Since we essentially used the same solutions for training the model for each viscosity, the similarity in error means that it can be alleviated with more diverse training samples. The error for the flatter functions may also be alleviated by including similar flatter functions during training.
+\begin{figure}[H]
+  \centering
+  \begin{adjustwidth}{-0.1\linewidth}{-0.1\linewidth}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_target_0.0.pgf}
+      \end{adjustbox}
+      \caption{The target for \(\nu=0.0\)}\label{fig:sc2_exact_target_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_pred_0.0.pgf}
+      \end{adjustbox}
+      \caption{The prediction for \(\nu=0.0\)}\label{fig:sc2_exact_pred_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.32\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_diff_0.0.pgf}
+      \end{adjustbox}
+      \caption{The difference for \(\nu=0.0\)}\label{fig:sc2_exact_diff_0.0}
+    \end{subfigure}
+    \\[0.7\baselineskip]
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_target_0.01.pgf}
+      \end{adjustbox}
+      \caption{The target for \(\nu=0.01\)}\label{fig:sc2_exact_target_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_pred_0.01.pgf}
+      \end{adjustbox}
+      \caption{The prediction for \(\nu=0.01\)}\label{fig:sc2_exact_pred_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.32\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_diff_0.01.pgf}
+      \end{adjustbox}
+      \caption{The difference for \(\nu=0.01\)}\label{fig:sc2_exact_diff_0.01}
+    \end{subfigure}
+    \\[0.7\baselineskip]
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_target_0.1.pgf}
+      \end{adjustbox}
+      \caption{The target for \(\nu=0.1\)}\label{fig:sc2_exact_target_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{The prediction for \(\nu=0.1\)}\label{fig:sc2_exact_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.32\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{The difference for \(\nu=0.1\)}\label{fig:sc2_exact_diff_0.1}
+    \end{subfigure}
+    % \\[0.7\baselineskip]
+  \end{adjustwidth}
+  \caption{The rollout predictions for one of the exact function in \lccref{eq:burgers_exact_solution}. The difference is calculated as the targets subtracted by the predictions.}\label{fig:scenario_2_exact}
+\end{figure}
+
+The metrics for the exact rollout further solidifies our observations from the plots. The metrics are shown in \lccrefs{table:scenario_2_exact_spectral_metrics,table:scenario_2_exact_function_metrics}. While the absolute metrics are low, this is mostly due to the maximum function values of the exact function also being pretty low. The relative metric sMAPE shows a much clearer picture. As expected, the inviscid prediction is pretty much just error. The next result, for viscosity \(\nu=0.01\), is better. This seems to be from the slight conformance to the target. The plots for this viscosity show that the prediction contains \enquote{shapes} similar to the target despite the scale not being close to the target. Finally, the highest viscosity level results show the best performance. Despite the good performance in the higher detail areas of the function, the error from the flatter areas overwhelm the metrics due to its larger portion of the function.
+\begin{table}[H]
+  \caption{Performance metrics of coefficient rollout of exact solution in scenario 2 by viscosity.}\label{table:scenario_2_exact_spectral_metrics}
+  \centering
+  \begin{tabular}{lrrrr}
+    \toprule
+    \(\nu \) & MSE      & RMSE     & MAE      & sMAPE \\
+    \midrule
+    0.0      & 2.16e-02 & 1.47e-01 & 1.08e-01 & 2.00  \\
+    0.01     & 1.32e-02 & 1.15e-01 & 6.37e-02 & 1.58  \\
+    0.1      & 2.83e-03 & 5.32e-02 & 4.00e-02 & 1.50  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\begin{table}[H]
+  \caption{Performance metrics of function values evaluated from coefficient rollout of exact solution in scenario 2 by viscosity.}\label{table:scenario_2_exact_function_metrics}
+  \centering
+  \begin{tabular}{lrrrr}
+    \toprule
+    \(\nu \) & MSE      & RMSE     & MAE      & sMAPE \\
+    \midrule
+    0.0      & 4.16e-03 & 6.45e-02 & 4.56e-02 & 2.00  \\
+    0.01     & 3.23e-03 & 5.68e-02 & 4.94e-02 & 1.73  \\
+    0.1      & 3.86e-04 & 1.97e-02 & 1.62e-02 & 1.47  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The correlation image and p-matrix for each viscosity can be seen in \lccref{fig:scenario_2_interpretation}. Analyzing the correlation images first, we see that some columns are sorted in correlation to how the samples are sorted based on the real component of the 4th output wave number. For the inviscid equation, this correlation is the strongest with multiple columns exhibiting the correlation. The highest and visually most sorted values are from the forcing term portion of the inputs. Different wave numbers in the inputs are also sorted differently, this indicates an inverse correlation. For a higher viscosity of \(\nu=0.01\), a weaker correlation is still present.
+
 \begin{figure}[H]
   \centering
   \begin{subfigure}{0.49\linewidth}
@@ -1722,10 +1917,14 @@ The correlation image and p-matrix for each viscosity can be seen in \lccref{fig
     \end{adjustbox}
     \caption{The p-matrix for \(\nu=0.1\).}\label{fig:sc2_pm_0.1}
   \end{subfigure}
-  \caption{Correlation image (left column) and p-matrix (right column) for each model trained on a different noise level (row). The correlation image was sorted same order the values of the real component of wave number \(k=4\) were sorted in descending order.}\label{fig:scenario_2_interpretation}
+  \caption{Correlation image (left column) and p-matrix (right column) for each model trained on a different viscosity (row). The correlation image was sorted same order the values of the real component of wave number \(k=4\) were sorted in descending order.}\label{fig:scenario_2_interpretation}
 \end{figure}
 
-The p-matrix shows the difference in contributions of both input functions. For the inviscid equation, the contributions mainly come from the forcing term. The current solution contributes a smaller amount in comparison. There is similarity with the antiderivative p-matrices in this case. The contributions to each output wave number mainly come from input coefficients with the same wave number. However, there is a noticeable contribution from other wave numbers too unlike the antiderivative case. For higher viscosity values, notice that the contribution of the previous solution increases. The increase is more pronounced for higher frequencies. This aligns with the quadratic scaling from the wave number on the coefficients \autocite{canutoSpectralMethodsEvolution2007}. The p-matrix for lower viscosity values show more structured contribution of other wave numbers in comparison to the higher wave numbers. This structure comes in the form of a grid pattern. For the real components of the output, the contribution of other wave numbers oscillate between higher and lower values depending on whether the input component is real or not. The imaginary output components on the other hand have a more constant contribution across the input components. The contribution once again become more pronounced the higher the absolute value of the wave number.
+Once we get to the highest viscosity, while the order is still present, we see a more random arrangement of the correlation image values. This observation and the lower scores can both be explained by the level of temporal discretization. This is the same issue we encounter when we use some traditional methods for higher viscosity values with the same time step for lower viscosity values \autocite{kassamFourthOrderTimeSteppingStiff2005,seydaogluNumericalSolutionBurgers2016}. The issue arises in stiff differential equations. Stiff differential equations refer to the presence of a rapidly varying component. We can see that the larger amplitudes of high frequency components in the forcing term to represent the rapidly varying components as shown in \lccrefs{fig:burgers_forcing_0.0,fig:burgers_forcing_0.01,fig:burgers_forcing_0.1}. Traditionally, stiff equations would require specific numerical methods purpose built to efficiently solve the problem. Otherwise, the using a solver like FDM would require much finer time steps than the one we are using here.
+
+The p-matrix shows the difference in contributions of both input functions. For the inviscid equation, the contributions mainly come from the forcing term. The current solution contributes a smaller amount in comparison. There is similarity with the antiderivative p-matrices in this case. The contributions to each output wave number mainly come from input coefficients with the same wave number. However, there is a noticeable contribution from other wave numbers too unlike the antiderivative case. The biggest contribution from the current solution is the constant/bias term. For higher viscosity values, notice that the contribution of the previous solution increases. The increase is more pronounced for higher frequencies. This aligns with the quadratic scaling from the wave number on the coefficients \autocite{canutoSpectralMethodsEvolution2007}. The p-matrix for lower viscosity values show more structured contribution of other wave numbers in comparison to the higher wave numbers. This structure comes in the form of a grid pattern. For the real components of the output, the contribution of other wave numbers oscillate between higher and lower values depending on whether the input component is real or not. The imaginary output components on the other hand have a more constant contribution across the input components. The contribution once again become more pronounced the higher the absolute value of the wave number.
+
+To summarize, Low viscosity values are a challenge to the model as with traditional methods. Despite that, this scenario confirms the model's ability to learn the nonlinear relationship defined by the Burgers' equation. The model is also able to stay stable with a relatively large time step. This concludes the synthetic data portion of the study.
 
 \subsection{Scenario 3}
-\noindent
+\noindent This final scenario tests the model on a much more complex dataset with much more immediate implications for the real world.
