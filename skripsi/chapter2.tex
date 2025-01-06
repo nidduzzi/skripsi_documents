@@ -12,7 +12,7 @@ Complex numbers are numbers consisting of real and imaginary components. Complex
 \end{align}
 \autocite{DiscreteFourierTransform}
 \begin{align}
-  c_k=\sum_{n=0}^{N-1} f_n e^{-i2\pi kn/N} \label{eq:discrete_fourier_transform}\\
+  c_k=\sum_{n=0}^{N-1} f_n e^{-i2\pi kn/N} \label{eq:discrete_fourier_transform} \\
   f_n=\sum_{k=0}^{N-1} c_k e^{i2\pi kn/N} \label{eq:inverse_discrete_fourier_transform}
 \end{align}
 
@@ -43,10 +43,10 @@ Such that
 Derive the KKT system
 \begin{equation}
   \begin{split}
-    \pdv{L}{W} = 0 \rightarrow & W = \sum_{k=1}^{n}\alpha_{k}x_{k} \\
-    \pdv{L}{b} = 0 \rightarrow & \sum_{k=1}^{n}\alpha_{k} = 0 \\
-    \pdv{L}{e_{k}} = 0 \rightarrow & \alpha_{k} = C e_{k} & \qquad k=1,\dots,n\\
-    \pdv{L}{\alpha_{k}} = 0 \rightarrow & W^{\intercal}\vb{x}_{k}+b+e_{k} - y_{k} = 0 & \qquad k=1,\dots,n\\
+    \pdv{L}{W} = 0 \rightarrow          & W = \sum_{k=1}^{n}\alpha_{k}x_{k}                                \\
+    \pdv{L}{b} = 0 \rightarrow          & \sum_{k=1}^{n}\alpha_{k} = 0                                     \\
+    \pdv{L}{e_{k}} = 0 \rightarrow      & \alpha_{k} = C e_{k}                        & \qquad k=1,\dots,n \\
+    \pdv{L}{\alpha_{k}} = 0 \rightarrow & W^{\intercal}\vb{x}_{k}+b+e_{k} - y_{k} = 0 & \qquad k=1,\dots,n \\
   \end{split}
 \end{equation}
 
@@ -133,7 +133,7 @@ After training the model can be used for prediction of unseen features. The pseu
   \end{algorithmic}
 \end{algorithm}
 
-In this exmple we will be using the function $2x^2+4$. The values of this function can be seen in Table \ref{table:1}.
+In this example we will be using the function \(2x^2+4\). The values of this function can be seen in \lccref{table:1}.
 
 \begin{table}[H]
   \centering
@@ -154,8 +154,8 @@ For example, with $\sigma=1$, $x_i=0.0$, \& $x_j = 0.33\dots$
 \begin{equation}
   \begin{split}
     K(0.0,0.33) & = exp\left(-\frac{\norm*{0.0-0.33}^2}{2(1)^2}\right) \\
-    & = exp\left(-\frac{0.33^2}{2}\right) \\
-    & = 0.9460
+                & = exp\left(-\frac{0.33^2}{2}\right)                  \\
+                & = 0.9460
   \end{split}
 \end{equation}
 

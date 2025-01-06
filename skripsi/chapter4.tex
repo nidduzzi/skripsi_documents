@@ -46,7 +46,6 @@ In the third step, the output function coefficients are computed. To find the re
 
 In the final step, using randomly generated values of \(\hat{a}_k\), the corresponding values of \(\hat{u}_k\) are computed with \lccref{eq:derivative_coeff}. These coefficients are then used to compute the function values inside the domain. The two-hour time window is represented by a grid of 500 discrete points. With the coefficients and evaluation points ready, the function values are computed using \lccrefs{eq:fourier_speed,eq:fourier_acceleration}. Next, noise is added to the function values in order to motivate models learning on the dataset to generalize on noise. To also allow evaluation of how well the model performs with different levels of noise, the samples are duplicated into three copies for each high, medium and low noise levels. The function values of each copy is perturbed with noise from a Gaussian distribution with zero mean and standard deviation of some percentage of the average function value standard deviation. The percentages of each high, medium, and low noise levels are 5, 10, and 50 percent. The perturbed function values are then transformed back into their coefficients. An example generated function and its different perturbed versions is shown in \lccref{fig:antiderivative_noise_levels}. The horizontal axis indicates time which is displayed in units of hours. The vertical axis indicates velocity in abstract units.
 
-% TODO: add figures and tables of generated data and some intermediate steps.
 \begin{figure}[H]
   \centering
   \begin{subfigure}{\linewidth}
@@ -164,7 +163,7 @@ While the original data provided by ECMWF is available in NetCDF or GRIB, the We
   \centering
   \begin{lstlisting}[language=Python]
   import xarray as xr
-  xr.open_zarr(
+  ds = xr.open_zarr(
       "DATASET_ADDRESS",
       storage_options = {"token": "anon"},
   )
@@ -172,17 +171,49 @@ While the original data provided by ECMWF is available in NetCDF or GRIB, the We
   \caption{Example of using Xarray to access a publicly accessible Zarr dataset hosted on Google Cloud Storage Bucket.}\label{fig:access_remote_zarr}
 \end{figure}
 
-The dataset includes 62 variables with some variables also spanning 13 discrete vertical levels in the atmosphere. For our use, we will only be using the 2-meter temperature of the atmosphere. This is the air temperature 2 meters above the surface be it land, sea, or inland water. This variable is in units of kelvin. The values of this variable is obtained by interpolating between the model values at the surface and the lowest model vertical level. We also limit the time range to ... An example of the data that was retrieved can be seen in .
-% TODO: talk about selecting the time here
-% ECMWF description
-% - Role
-% - legitimacy
-% - Weatherbench2
-% data description
-% - data assimilation, maybe reference a general description
-% - variables
-% - dimensions/coordinates (time, spatial) and resolution in each
-% - climatology
+The specific dataset resolution we use is 64 by 32 representing longitude and latitude respectively. The ERA5 reanalysis dataset is hosted at the following URL\@: \url{gs://weatherbench2/datasets/era5/1959-2023_01_10-6h-64x32_equiangular_conservative.zarr}. The corresponding climatology is hosted at \url{gs://weatherbench2/datasets/era5-hourly-climatology/1990-2019_6h_64x32_equiangular_conservative.zarr}. The climatology is the average for hours 0, 6, 12, and 18 for each day of the year from 1990 until 2019. This average helps in defining the expected state of the weather at specific points in time based on the historical averages for that time of day and year.
+
+For the reanalysis dataset, we limit the time range to the years 1995{-}2013 for training and 2020{-}2022 for testing. The specific time ranges for training are chosen to balance the diversity within the data and capacity of the machine the processing will be done on. The testing set time range was chosen to be as close to those shown on the WeatherBench 2 website. The filter for time and variables is shown in \lccref{fig:wb2_retrieval}. The reason for the different time ranges between training and testing is to reduce the risk of information leakage accross the training and testing sets. This ensures that the testing scores we measure will be for the most part from the generalization that model learned during training. The filter is an array the length of the number of samples. The array values are all the datetime values that the year ranges are true for. This results in an array of boolean values. Using this boolean filter we can index the data so that we get the filtered data. Then, the filtered data is saved locally so that we can access it in a more performant way. The encoding chunks may need to be removed in order to evade the Xarray library from mistakenly persisting the remote encoding after slicing data \autocite{ianZarrEncodingAttributes}.
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+  years_idx = ds['time.year']
+  data_idx = (years_idx > START_YEAR) & (years_idx < END_YEAR)
+  da_orig = ds['2m_temperature'][data_idx]
+  # save locally
+  da_orig.encoding.pop('chunks',None)
+  da_orig.to_zarr(DATA_FILENAME, mode='w')
+  # open local version
+  da = xr.open_zarr(DATA_FILENAME)
+  \end{lstlisting}
+  \caption{Example of filtering of Xarray dataset by year and variable. The data is saved and then loaded locally.}\label{fig:wb2_retrieval}
+\end{figure}
+
+The dataset includes 62 variables with some variables also spanning 13 discrete vertical levels in the atmosphere. For our use, we will only be using the 2-meter temperature of the atmosphere. This is the air temperature 2 meters above the surface be it land, sea, or inland water. This variable is in units of kelvin (K). Vertically, the values of this variable is obtained by interpolating between the model values at the surface and the lowest model vertical level. An example of the data that was retrieved can be seen in \lccref{fig:wb2_data}. The data shown is in the equiangular projection. This means that towards the poles, the shapes become more distorted. While this is not the most ideal way to represent the data, using the data in this way adds to the challenge of how the model can adapt to the use of suboptimal configurations in the data. To compute the anomaly, we can simply subtract the current state in \lccref{fig:wb2_train_data} by the climatology in \lccref{fig:wb2_clim_data} resulting in \lccref{fig:wb2_train_anomaly}.
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_train_data.pgf}
+    \end{adjustbox}
+    \caption{}\label{fig:wb2_train_data}
+  \end{subfigure}
+  \begin{subfigure}{\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_clim_data.pgf}
+    \end{adjustbox}
+    \caption{}\label{fig:wb2_clim_data}
+  \end{subfigure}
+  \begin{subfigure}{\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_train_anomaly.pgf}
+    \end{adjustbox}
+    \caption{}\label{fig:wb2_train_anomaly}
+  \end{subfigure}
+  \caption{Data retrieved:(\subref{fig:wb2_train_data}) 2-meter temperature at January 1, 1995 6:00 UTC\@. (\subref{fig:wb2_train_anomaly}) Anomaly for 2-meter temperature at January 1, 1995 6:00 UTC\@. (\subref{fig:wb2_clim_data}) 2-meter temperature climatology for the first day of the year at hour 6 UTC\@.}\label{fig:wb2_data}
+\end{figure}
+
+After filtering, our training set has the dimensions of 27760 time steps, 64 longitude, and 32 latitude. The testing set on the other hand has 4384 time steps and the same values for the other two dimensions. For uses, such as a validation set during hyperparameter optimization, one can use a subset of the training set. The dimensions of the climatology are 4 for hour (0, 6, 12,\& 18), 366 for day of year, 64 for longitude, and 32 for latitude.
 
 \section{Design of Computational Model}\label{sec:computational_model_design}
 \noindent In this section, we will discuss the design of the computational model that is proposed in this work. An illustration of the computational model is show in \lccref{fig:computational_model}.
@@ -200,8 +231,7 @@ The computational model is divided into four large phases. The processes within 
 \subsection{Data Preparation}
 \noindent The data preparation phase starts off the computation by preparing the data that is to be used in this study. This phase starts with specifying the problem to be solved. This translates to the dataset that will be used to represent these problems. The first type of dataset is generated based on a known governing equation or PDE\@. Using said equation, the goal is to generate pairs of functions that are related to each other by the equation. In the next process, generally, the solution function is first generated randomly. This is done by generating random numbers to use as coefficients of a set of basis functions. Then parameters of the equation is determined, such as term coefficients. Using the generated solution and predetermined parameters, a forcing term can generally be computed to satisfy the equation. Augmentations such as noise can then be added in the final process which is evaluating the function values. These processes result in a generated dataset. To verify the generation method and any models trained on the generated data one can use exact analytical solutions of the governing equations.
 
-The second type of dataset is retrieved from an external source. The data source is first identified, in our case it is the WeatherBench 2 collection of datasets. The specific dataset from the collection of different dataset versions is first determined. The dataset is available in the \emph{Zarr} format. And then, we determine the filters for the portions of the dataset we are interested in. Once the dataset and filters are determined, the retrieval process starts by accessing the dataset using the \emph{Xarray} library \autocite{hoyer2017xarray,hoyerXarray2024}. The filters are applied as in .... % TODO: add figure for code of the filtering process and local save process
-Finally, the filtered version is stored locally. The local dataset is also stored in the \emph{Zarr} format.
+The second type of dataset is retrieved from an external source. The data source is first identified, in our case it is the WeatherBench 2 collection of datasets. The specific dataset from the collection of different dataset versions is first determined. The dataset is available in the \emph{Zarr} format. And then, we determine the filters for the portions of the dataset we are interested in. Once the dataset and filters are determined, the retrieval process starts by accessing the dataset using the \emph{Xarray} library \autocite{hoyer2017xarray,hoyerXarray2024}. The filters are applied as in \lccref{fig:wb2_retrieval}. Finally, the filtered version is stored locally. The local dataset is also stored in the \emph{Zarr} format.
 
 \subsection{Data Transformation}\label{sec:data_transformation}
 \noindent The second phase of the computational model transforms the data that has been prepared into a form that can be used with the proposed model. In this study, there are two ways a dataset can be used. The first and simplest way is to predict the solution function from the forcing term for a given set of PDE parameters. In this case, the input function is the forcing term. In other words, the input function is the predictor or independent variable that will be used to predict the solution function. As such, the output function is the solution function. The antiderivative dataset is used in this way. The derivative, which represents the acceleration function, is used to predict the velocity function. Which means that the input function is the acceleration function and the output function is the velocity function.
@@ -255,8 +285,7 @@ Second, as the training process of an LSSVR described in requires constructing t
 % Assemble lssvr optimality equation matrices
 Third, using the inputs \(\vb{X}\), outputs \(\vb{y}\), predetermined regularization constant \(C \), and the obtained kernel matrix \(\Omega \), \lccref{eq:lssvr_solution_vectorized} is assembled. Finally, the matrix of learned parameters \(\vb{\alpha}\) and \(\vb{b}\), which are the Lagrange multipliers and bias respectively, are solved for using a linear equation solver such as a matrix Moore-Penrose inverse or linear least squares solver.
 
-% TODO: decide if hyperparameter selection is needed and explain why or why not. Maybe hyperparameter selection is done in a phase after the model evaluation with a decision between repeating model training with different hyperparameters or keeping the trained model.
-Next, the selection of hyperparameters is done to optimize the model further. As previously mentioned, the hyperparameters are the regularization constant \(C \) and kernel functions including the kernel function parameters.
+For our study, we choose to not optimize the hyperparameters to focus on the broad performance with default hyperparameter values. The scaling parameter of the RBF kernel is computed from the training features. This is computed as the square root of the sum of feature variances. The regularization parameter used will be a default value of 1. Using the same values allow for easier comparisons for comparable results.
 
 \subsection{Model Evaluation}
 \noindent The fourth phase of the computational model is the evaluation of the learned model. This phase starts with formatting the inputs. If the inputs aren't scaled yet, then it is scaled using the scaling function fitted on the training set. This is the case for new data such as new measurements or an analytical solution of the learned PDE\@. Once the inputs that is to be evaluated is scaled in the same way as the training inputs, the model can predict the corresponding outputs.
@@ -701,7 +730,7 @@ The implementation leverages the operator overloading in Python classes. In addi
   \caption{Implementation of basis addition function.}\label{fig:basis_addition_impl}
 \end{figure}
 
-The calculus operations for Fourier basis take advantage of the properties of the Fourier series. As discussed in \lccref{sec:fourier_discussion}, derivatives and integration become multiplication and division in the spectral space of Fourier series. Our implementation takes advantage of this as shown in \lccref{fig:basis_grad_impl}. Similar to how subtraction is just a modification of the addition operation, the integral or antiderivative operator is also implemented simply by changing the operation with the term multiplier from multiplication to division. % TODO: change the reference to specific equations for calculus in spectral domain
+The calculus operations for Fourier basis take advantage of the properties of the Fourier series. As discussed in \lccref{sec:fourier_discussion}, derivatives and integration become multiplication and division in the spectral space of Fourier series. Our implementation takes advantage of this as shown in \lccref{fig:basis_grad_impl}. Similar to how subtraction is just a modification of the addition operation, the integral or antiderivative operator is also implemented simply by changing the operation with the term multiplier from multiplication to division. % TODO: change the reference to specific equations for calculus in spectral domain in ch2
 
 \begin{figure}[H]
   \centering
@@ -1030,7 +1059,7 @@ The final core piece of functionality the SpectralSVR class provides is the inve
   \caption{Implementation of SpectralSVR inverse coeff function (parameter estimation).}\label{fig:spectralsvr_inverse_impl}
 \end{figure}
 
-The SpectralSVR class also provides a convenience function for testing the performance of the learned model. This function is shown in \lccref{fig:spectralsvr_test_impl}. The function arguments are the testing inputs, expected testing outputs, and a resolution for evaluation of function values. The first step is to convert the testing input into real representations and then predicting the output function. The predicted output are then compared to the testing outputs using many metrics including RMSE, MSE, MAE, R2, SMAPE, RRSE, and the number of Nan values present in the predicted output. The same comparison process is carried out again for the function values which are evaluated at the specified resolution. Finally, the function returns the metric values as a nested tuple for both the coefficients predictions and the function value predictions.
+The SpectralSVR class also provides a convenience function for testing the performance of the learned model. This function is shown in \lccref{fig:spectralsvr_test_impl}. The function arguments are the testing inputs, expected testing outputs, and a resolution for evaluation of function values. The first step is to convert the testing input into real representations and then predicting the output function. The predicted output are then compared to the testing outputs using many metrics including RMSE, MSE, MAE, R\textsuperscript{2}, SMAPE, RRSE, and the number of Nan values present in the predicted output. The same comparison process is carried out again for the function values which are evaluated at the specified resolution. Finally, the function returns the metric values as a nested tuple for both the coefficients predictions and the function value predictions.
 
 \begin{figure}[H]
   \centering
@@ -1480,7 +1509,7 @@ The model interpretations are displays of the correlation image and the p-matrix
   \centering
   \begin{tabular}{lrrrrrrrrr}
     \toprule
-    Noise level & MSE   & RMSE & MAE  & R2   & sMAPE \\
+    Noise level & MSE   & RMSE & MAE  & R\textsuperscript{2}   & sMAPE \\
     \midrule
     5\%         & 0.86  & 0.93 & 0.57 & 0.96 & 0.31  \\
     10\%        & 2.06  & 1.43 & 0.93 & 0.91 & 0.46  \\
@@ -1493,16 +1522,16 @@ The scenario is implemented as a Jupyter notebook which imports relevant librari
 
 The kernel scaling hyperparameter sigma has the same value of 10 for all noise levels. This is because the inputs are all scaled to approximately have a standard deviation of one. The value itself is from the number of features which comes out to 100 total inputs to the LSSVR\@.
 
-\Cref{table:scenario_1_spectral_metrics} shows that the model is able to generalize from the training data and learn the simple linear antiderivative operator. Focusing on the coefficient of determination (R2) scores, we can see that the model is off by 0.04 to the perfect score of 1.0 for the lowest noise level.  While increasing noise levels does degrade the performance, this is partly due to the target values also having been perturbed. This fact can be seen if we look at how predictions from the very same trained models on noisy inputs are compared to the noise-free versions of the antiderivative functions which is shown in \lccref{table:scenario_1_clean_spectral_metrics}. The metrics show that the model predictions are slightly closer to the unperturbed function coefficients compared to the perturbed versions. This can be seen as the influence of the independent synthetic measurement noise in the perturbed targets being removed from the testing metrics.
+\Cref{table:scenario_1_spectral_metrics} shows that the model is able to generalize from the training data and learn the simple linear antiderivative operator. Focusing on the coefficient of determination (R\textsuperscript{2}) scores, we can see that the model is off by 0.04 to the perfect score of 1.0 for the lowest noise level.  While increasing noise levels does degrade the performance, this is partly due to the target values also having been perturbed. This fact can be seen if we look at how predictions from the very same trained models on noisy inputs are compared to the noise-free versions of the antiderivative functions which is shown in \lccref{table:scenario_1_clean_spectral_metrics}. The metrics show that the model predictions are slightly closer to the unperturbed function coefficients compared to the perturbed versions. This can be seen as the influence of the independent synthetic measurement noise in the perturbed targets being removed from the testing metrics.
 
-The higher noise levels shows that the model is still relatively accurate. Looking at the R2 score for the 50\% noise level, the model is more accurate than a baseline mean value model. The R2 score of 0.5 means that the model predictions has roughly half the error the baseline would produce.
+The higher noise levels shows that the model is still relatively accurate. Looking at the R\textsuperscript{2} score for the 50\% noise level, the model is more accurate than a baseline mean value model. The R\textsuperscript{2} score of 0.5 means that the model predictions has roughly half the error the baseline would produce.
 
 \begin{table}[H]
   \caption{Performance metrics of coefficient prediction compared to unperturbed targets in scenario 1 by noise level.}\label{table:scenario_1_clean_spectral_metrics}
   \centering
   \begin{tabular}{lrrrrrrrr}
     \toprule
-    Noise level & MSE  & RMSE & MAE  & R2   & sMAPE \\
+    Noise level & MSE  & RMSE & MAE  & R\textsuperscript{2}   & sMAPE \\
     \midrule
     5\%         & 0.79 & 0.89 & 0.51 & 0.96 & 0.28  \\
     10\%        & 1.80 & 1.34 & 0.80 & 0.92 & 0.40  \\
@@ -1511,13 +1540,13 @@ The higher noise levels shows that the model is still relatively accurate. Looki
   \end{tabular}
 \end{table}
 
-The function values are also evaluated and the values of the metrics between the noisy targets and predictions are shown in \lccref{table:scenario_1_function_metrics}. While the relative metrics R2 and sMAPE stay close to the values we obtained for the coefficients themselves, since the metrics are now being computed in the physical domain, the scales have changed and because of that the values of the absolute metrics now reflect the change in scale. For reference, the scale of the target coefficient values for the 50\% noise level dataset in their real representation can range on average from -13.54 to 13.6 across the entire dataset. Therefore, an RMSE value of 3.94 for the predictions compared to the noisy targets mean that the error ratio is roughly 0.148 or just above 1 to 7. For the function values of the 50\% noise dataset the values range on average from -2.5 to 2.49. This was more difficult to compute since there is no direct way to compute the amplitude of the function from just the coefficients. Here we used the inverse transform and extracted the maximum and minimum values of each function from the discrete values. Since the RMSE in \lccref{table:scenario_1_function_metrics} for the 50\% noise dataset is 0.63, the error ratio comes to 0.126. One side note about \lccref{table:scenario_1_function_metrics} is that since the model instances are the same as the ones used in the coefficient evaluations, the hyperparameters are still the same including the kernel scaling factor sigma.
+The function values are also evaluated and the values of the metrics between the noisy targets and predictions are shown in \lccref{table:scenario_1_function_metrics}. While the relative metrics R\textsuperscript{2} and sMAPE stay close to the values we obtained for the coefficients themselves, since the metrics are now being computed in the physical domain, the scales have changed and because of that the values of the absolute metrics now reflect the change in scale. For reference, the scale of the target coefficient values for the 50\% noise level dataset in their real representation can range on average from -13.54 to 13.6 across the entire dataset. Therefore, an RMSE value of 3.94 for the predictions compared to the noisy targets mean that the error ratio is roughly 0.148 or just above 1 to 7. For the function values of the 50\% noise dataset the values range on average from -2.5 to 2.49. This was more difficult to compute since there is no direct way to compute the amplitude of the function from just the coefficients. Here we used the inverse transform and extracted the maximum and minimum values of each function from the discrete values. Since the RMSE in \lccref{table:scenario_1_function_metrics} for the 50\% noise dataset is 0.63, the error ratio comes to 0.126. One side note about \lccref{table:scenario_1_function_metrics} is that since the model instances are the same as the ones used in the coefficient evaluations, the hyperparameters are still the same including the kernel scaling factor sigma.
 \begin{table}[H]
   \caption{Performance metrics of function value from evaluated coefficient prediction in scenario 1 by noise level.}\label{table:scenario_1_function_metrics}
   \centering
   \begin{tabular}{lrrrrrrrr}
     \toprule
-    Noise level & MSE  & RMSE & MAE  & R2   & sMAPE \\
+    Noise level & MSE  & RMSE & MAE  & R\textsuperscript{2}   & sMAPE \\
     \midrule
     5\%         & 0.03 & 0.18 & 0.15 & 0.97 & 0.39  \\
     10\%        & 0.08 & 0.29 & 0.23 & 0.92 & 0.55  \\
@@ -1532,7 +1561,7 @@ For the metrics between the predictions and the noise-free version of the target
   \centering
   \begin{tabular}{lrrrrrrr}
     \toprule
-    Noise level & MSE  & RMSE & MAE  & R2   & sMAPE \\
+    Noise level & MSE  & RMSE & MAE  & R\textsuperscript{2}   & sMAPE \\
     \midrule
     5\%         & 0.03 & 0.18 & 0.14 & 0.97 & 0.38  \\
     10\%        & 0.07 & 0.27 & 0.21 & 0.93 & 0.53  \\
@@ -1587,7 +1616,7 @@ The predictions of the exact equation is shown in \lccref{fig:antiderivative_exa
     \end{adjustbox}
     \caption{}\label{fig:antiderivative_exact_prediction}
   \end{subfigure}
-  \caption{(\subref{fig:antiderivative_exact_label}) The perturbed exact input function values from \lccref{eq:sine_derivative}.\ (\subref{fig:antiderivative_exact_prediction}) Prediction of antiderivative from the input function that was perturbed.}\label{fig:antiderivative_exact}
+  \caption{(\subref{fig:antiderivative_exact_input}) The perturbed exact input function values from \lccref{eq:sine_derivative}.\ (\subref{fig:antiderivative_exact_prediction}) Prediction of antiderivative from the input function that was perturbed.}\label{fig:antiderivative_exact}
 \end{figure}
 
 For inverse problems, we simply use the same testing set with the labels now used to predict the features. The model instances are still the same as before. With the implementation shown in \lccref{fig:spectralsvr_inverse_impl}, we run the inverse function for predicting coefficients with 2000 epochs, a learning rate of 0.02, and randomized starting point from a normal distribution multiplied by a factor of 0.05. The results of inverse prediction for all three noise levels are shown in \lccref{table:scenario_1_inv_spectral_metrics}. These metrics were computed after both the target and predicted input functions are scaled back using the same scaling functions they were scaled down with. Because the scales of the input and output functions are different, the absolute metrics are much larger in these results compared to the forward problem results. For reference, the target input coefficients on average range from -695.65 to 694.9. The relative metrics show that for the lower noise levels, the accuracy is still relatively good. However, the values are lower than the values for the forward test. The difference with the antiderivative prediction becomes more pronounced with the higher noise levels. For the highest noise level, the performance has degraded so far that the predictions are worse than a baseline model from the mean of the target input functions. One must also note that despite the much worse results of the other metrics for the highest noise level, at this time we're unable to explain why sMAPE results in roughly the same performance as in the forward problem.
@@ -1597,7 +1626,7 @@ For inverse problems, we simply use the same testing set with the labels now use
   \centering
   \begin{tabular}{lrrrrr}
     \toprule
-    Noise level & MSE      & RMSE   & MAE    & R2    & sMAPE \\
+    Noise level & MSE      & RMSE   & MAE    & R\textsuperscript{2}    & sMAPE \\
     \midrule
     5\%         & 1739.56  & 41.71  & 26.44  & 0.91  & 0.36  \\
     10\%        & 3485.10  & 59.03  & 42.19  & 0.76  & 0.52  \\
@@ -1608,7 +1637,7 @@ For inverse problems, we simply use the same testing set with the labels now use
 
 Next, we have the correlation image and p-matrix for the model of each noise level. The results are shown in \lccref{fig:scenario_1_interpretation}. Each row in the figure represent the results of a model trained on a different noise level. The correlation image for 5\% and 10\% noise show clear lines on the coefficient corresponding to the output coefficient that was sorted. We can also see that the negative wave number reflection also being sorted. This is because of the reflection that occurs with complex Fourier coefficients for real-valued functions. There are other faint vertical lines you are able to see for other input coefficients. These faint lines are not sorted like the corresponding coefficients we mentioned before. Meaning, while they don't affect the particular output coefficients that were sorted, they do show that there is information embedded in the kernel matrix for these input coefficients. However, if we look at the 50\% noise correlation image, even the corresponding coefficient does not show a clear line or gradient. The lines are more noisy compared to the other noise levels. But the kernel still manages to embed some information. The p-matrices show that The model itself is able to still learn some relationship between the input coefficients and the output coefficients. For the 5\% and 10\% noise levels, the p-matrices show very clearly the contributions of input coefficients to the output coefficients. However, looking at the p-matrix for 50\% noise level, the lower wave numbers show lower contribution of input coefficients to the output coefficients.
 \begin{figure}[H]
-  \begin{adjustwidth}{-0.1\linewidth}{-0.1\linewidth}
+  \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
     \centering
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
@@ -1635,7 +1664,7 @@ Next, we have the correlation image and p-matrix for the model of each noise lev
       \end{adjustbox}
       \caption{The p-matrix for 10\% noise.}\label{fig:sc1_pm_10}
     \end{subfigure}
-    \\[\baselineskip]
+    % \\[\baselineskip]
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/antiderivative_ci_50.pgf}
@@ -1666,7 +1695,7 @@ The coefficient value predictions are shown in \lccref{table:scenario_2_spectral
   \centering
   \begin{tabular}{lrrrrr}
     \toprule
-    \(\nu \) & MSE      & RMSE     & MAE      & R2   & sMAPE \\
+    \(\nu \) & MSE      & RMSE     & MAE      & R\textsuperscript{2}   & sMAPE \\
     \midrule
     0.0      & 3.46e-04 & 1.86e-02 & 1.24e-02 & 0.79 & 0.65  \\
     0.01     & 3.56e-04 & 1.89e-02 & 1.27e-02 & 0.78 & 0.67  \\
@@ -1680,7 +1709,7 @@ The coefficient value predictions are shown in \lccref{table:scenario_2_spectral
   \centering
   \begin{tabular}{lrrrrr}
     \toprule
-    \(\nu \) & MSE      & RMSE     & MAE      & R2   & sMAPE \\
+    \(\nu \) & MSE      & RMSE     & MAE      & R\textsuperscript{2}   & sMAPE \\
     \midrule
     0.0      & 5.58e-05 & 7.47e-03 & 5.89e-03 & 0.82 & 0.70  \\
     0.01     & 5.74e-05 & 7.58e-03 & 6.01e-03 & 0.81 & 0.71  \\
@@ -1917,7 +1946,7 @@ The correlation image and p-matrix for each viscosity can be seen in \lccref{fig
     \end{adjustbox}
     \caption{The p-matrix for \(\nu=0.1\).}\label{fig:sc2_pm_0.1}
   \end{subfigure}
-  \caption{Correlation image (left column) and p-matrix (right column) for each model trained on a different viscosity (row). The correlation image was sorted same order the values of the real component of wave number \(k=4\) were sorted in descending order.}\label{fig:scenario_2_interpretation}
+  \caption{Correlation image (left column) and p-matrix (right column) for each model trained on a different viscosity (row). The correlation image was sorted same order the values of the real component of wave number \(k=2\) were sorted in descending order.}\label{fig:scenario_2_interpretation}
 \end{figure}
 
 Once we get to the highest viscosity, while the order is still present, we see a more random arrangement of the correlation image values. This observation and the lower scores can both be explained by the level of temporal discretization. This is the same issue we encounter when we use some traditional methods for higher viscosity values with the same time step for lower viscosity values \autocite{kassamFourthOrderTimeSteppingStiff2005,seydaogluNumericalSolutionBurgers2016}. The issue arises in stiff differential equations. Stiff differential equations refer to the presence of a rapidly varying component. We can see that the larger amplitudes of high frequency components in the forcing term to represent the rapidly varying components as shown in \lccrefs{fig:burgers_forcing_0.0,fig:burgers_forcing_0.01,fig:burgers_forcing_0.1}. Traditionally, stiff equations would require specific numerical methods purpose built to efficiently solve the problem. Otherwise, the using a solver like FDM would require much finer time steps than the one we are using here.
@@ -1927,4 +1956,112 @@ The p-matrix shows the difference in contributions of both input functions. For 
 To summarize, Low viscosity values are a challenge to the model as with traditional methods. Despite that, this scenario confirms the model's ability to learn the nonlinear relationship defined by the Burgers' equation. The model is also able to stay stable with a relatively large time step. This concludes the synthetic data portion of the study.
 
 \subsection{Scenario 3}
-\noindent This final scenario tests the model on a much more complex dataset with much more immediate implications for the real world.
+\noindent This final scenario tests the model on a much more complex dataset. As said previously, this dataset, which is computed using real observations of Earth's weather system, will be used to represent the model learning a very complex system with many unknown contributing variables. For our case, this means the data used will be limited to the 2-meter temperature. The anomaly is computed by subtracting the climatology from the corresponding day of years and hours of the atmospheric state. For example, the temperature on the 6\textsuperscript{th} of January 1998 at 18:00 UTC is subtracted with the average temperature for the 6\textsuperscript{th} day of the year at 18:00 hour UTC\@. For any anomaly predictions, the corresponding atmospheric state can simply be computed as the inverse process described before by adding the climatology to the predicted anomaly.
+
+The preprocessing of the data is carried out in the same manner as the Burgers' equation experiments. The difference being that for the features we only include the current anomaly of the atmosphere and there are no forcing terms. The targets are the future anomaly of the atmosphere. The reason for choosing to train and predict the anomaly instead of the state valued themselves is to avoid the model from just learning the obvious periodicity that exists in weather such as the day-night cycle or the seasons. Next, Both the current anomaly and future anomaly are Fourier transformed to their 2-dimensional coefficients. This process is done for both the training and testing set. Once the features for both are processed, we fit the standard scaling function on the training features. Using this fitted scaling function, both the training and testing features are scaled to a mean of 0 and standard deviation of approximately 1.
+
+The testing results are shown in \lccrefs{table:sc3_test_anomaly_metrics,table:sc3_test_state_metrics}. To put the absolute metrics into context, the median test state coefficient' maximum absolute value is \num{569364.25}. With this information, an RMSE value of 64.72 is relatively low error. The relative metric sMAPE also agrees with this, with a value of 0.76. The function values show that the model on average has an error of around 2 degrees kelvin or Celsius. This is again relatively small for the range of temperatures on Earth which span roughly 120 degrees kelvin across the historical maxima and minima. From existing knowledge of the problem, we know these values for the metrics are mainly due to the periodicity of atmospheric states. When we look at the anomaly metrics, the model is still able to learn some things and perform slightly better than a model of anomaly averages. However, since the median maximum absolute value for the state coefficients is \num{1155.14}, the error rate is not as good as the state predictions.
+\begin{table}[H]
+  \caption{Performance metrics of anomaly coefficient prediction for scenario 3.}\label{table:sc3_test_anomaly_metrics}
+  \centering
+  \begin{tabular}{lrrrrr}
+    \toprule
+                   & MSE     & RMSE  & MAE   & R\textsuperscript{2}   & sMAPE \\
+    \midrule
+    spectral       & 4189.16 & 64.72 & 32.47 & 0.35 & 1.19  \\
+    function value & 4.09    & 2.02  & 1.44  & 0.09 & 1.24  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \caption{Performance metrics of state coefficient prediction for scenario 3.}\label{table:sc3_test_state_metrics}
+  \centering
+  \begin{tabular}{lrrrrr}
+    \toprule
+                   & MSE     & RMSE  & MAE   & R\textsuperscript{2}   & sMAPE \\
+    \midrule
+    spectral       & 4189.16 & 64.72 & 32.47 & 0.56 & 0.74  \\
+    function value & 4.09    & 2.02  & 1.44  & 0.75 & 0.01  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+The p-matrix and correlation image is shown in \lccref{fig:sc3_interpretation}. For the correlation image, we see that most wave numbers are correlated or inversely correlated with the outputs. The strongest correlation is shown by the features of the same wave number as the sorted target. This is an indication that the equations involved may be nonlinear. If we look at the p-matrix however, it seems very flat save a faint diagonal line from the top left to the bottom right. The values of the p-matrix are also extremely high. With the \enquote{flatness} we see, this is indicative of strong contributions by a few inputs.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_ci.pgf}
+    \end{adjustbox}
+    \caption{The correlation image.}\label{fig:sc3_ci}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_pm.pgf}
+    \end{adjustbox}
+    \caption{The p-matrix.}\label{fig:sc3_pm}
+  \end{subfigure}
+  % \\[-0.7\baselineskip]
+  \caption{Correlation image and p-matrix for WeatherBench 2 model. The correlation image was sorted same order the values of the real component of wave number \((k_{longitude}=0, k_{latitude}=2)\) were sorted in descending order.}\label{fig:sc3_interpretation}
+\end{figure}
+
+To see more details of the p-matrix, we show a zoomed in version in \lccrefs{fig:sc3_pm_zoom1,fig:sc3_pm_zoom2}. The relationships are much more clear between features and outputs that do not share the same wave number. The coefficients with the same longitude wave numbers appear in the same \enquote{square} shape. Within the \enquote{square}, coefficients close to the same latitude wave number show much stronger contribution. For low wave numbers, shown in \lccref{fig:sc3_pm_zoom1}, the contribution is spread over more latitude wave numbers. The higher wave numbers, on the other hand, has the contributions much more concentrated on the coefficients with the same latitude wave numbers. In addition, the value of contribution differ by an order of magnitude with lower longitude wave numbers having higher maximum contribution. This observation suggests that the nonlinearity and magnitude are inversely proportional to the absolute value of the longitude wave number. This is in contrast to when we discussed the forcing term for our Burgers' equation scenario. The low frequencies in longitude may indicate that the model has learned some feature of the anomaly that is specific to different times of day. This is because the lowest longitudinal wave number would correspond to when different parts of the world is in nighttime or in daytime. Other possible explanations may be due to the fact that the earth more closely resemble a sphere compared to the toroidal shape that the 2-dimensional Fourier transform assumes. This would result in the representation latitude-wise being distorted. For this issue, the use of spherical harmonics may be a better fit to rule out the possibility of any distortions the Fourier transform may introduce.
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_pm_zoom1.pgf}
+    \end{adjustbox}
+    \caption{The p-matrix zoomed in to \((k_{longitude}=\{0, 1, 2\}, k_{latitude}=[-16, 16))\).}\label{fig:sc3_pm_zoom1}
+  \end{subfigure}
+  \begin{subfigure}{\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_pm_zoom2.pgf}
+    \end{adjustbox}
+    \caption{The p-matrix zoomed in to \((k_{longitude}=\{\phantom{-}31,-32,\phantom{-}32\}, k_{latitude}=[-16, 16))\).}\label{fig:sc3_pm_zoom2}
+  \end{subfigure}
+  \caption{The p-matrix of the WeatherBench 2 models zoomed in to specific wave numbers.}\label{fig:sc3_pm_zoomed}
+\end{figure}
+
+The predictions from test features are processed through the Fourier inverse transform to evaluate the function values. The direct predictions, which is the anomaly, is shown in \lccref{fig:sc3_anomaly_predictions}. The model seem to be predicting less extreme values that are noticeable in the target. Specifically areas over North America, Central Asia, and parts of Antarctica show lower temperature anomaly than expected. We also loose detail in areas which should have a lower anomaly such as northern areas of Africa, Greenland, and South Asia. The lack of detail seems to be a problem of underestimation. We believe this is caused by the so-called \enquote{double penalty} issue caused by the loss function used for the LSSVR \autocite{lledoScaledependentVerificationPrecipitation2023}. The predictions tend to be closer to the mean of the data to avoid the extra penalty from a wrong prediction with a high value. One way to allow for finer details that are less accurate is to penalize the higher frequency wave numbers less compared to the lower frequency wave numbers. For our case this means the LSSVR for each output will have their regularization parameter decreased to allow the model to focus less on the errors for higher frequencies.
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{\linewidth}
+    % \centering
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_anom_pred.pgf}
+    \end{adjustbox}
+    \caption{Predicted 2-meter temperature anomaly.}\label{fig:sc3_anomaly_pred}
+  \end{subfigure}
+  \begin{subfigure}{\linewidth}
+    % \centering
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_anom_target.pgf}
+    \end{adjustbox}
+    \caption{Target 2-meter temperature anomaly.}\label{fig:sc3_anomaly_target}
+  \end{subfigure}
+  \caption{2-meter temperature anomaly prediction for the 1\textsuperscript{st} of January 2020 at 6:00 UTC based on the previous anomaly at 0:00 UTC.}\label{fig:sc3_anomaly_predictions}
+\end{figure}
+
+The state predictions which is obtained by adding the climatology to the predicted anomaly is shown in \lccref{fig:sc3_state_predictions}. This further shows areas of discrepancy between the prediction and the target. The area in the South Pacific show that the target has a higher difference temperature compared to the prediction. This smoothness in the prediction is easier to see for areas in the ocean. Many sharp features are lost and the state prediction start to resemble averaged view of the climatology. We must also take into account that the model only used temperature distribution data. Other pieces of information we know to be crucial to weather prediction such as wind speed or pressure was not included in the inputs. With this in consideration the model was still able to learn some relationships defined by governing equations of weather.
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{\linewidth}
+    % \centering
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_state_pred.pgf}
+    \end{adjustbox}
+    \caption{Predicted 2-meter temperature.}\label{fig:sc3_state_pred}
+  \end{subfigure}
+  \begin{subfigure}{\linewidth}
+    % \centering
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_state_target.pgf}
+    \end{adjustbox}
+    \caption{Target 2-meter temperature.}\label{fig:sc3_state_target}
+  \end{subfigure}
+  \caption{2-meter temperature prediction for the 1\textsuperscript{st} of January 2020 at 6:00 UTC based on the previous anomaly at 0:00 UTC.}\label{fig:sc3_state_predictions}
+\end{figure}
+
+The results of our experiments show that the proposed model has the ability to learn the relationships that PDEs and other governing equations define. The interpretation methods for support vector regression that we used, namely the correlation image and p-matrix developed by \textcite{ustunVisualisationInterpretationSupport2007}, allows us to confirm what the model has learned. In the case of the WeatherBench2 model, it has also allowed us to glean some insight into some mechanisms that the model has learned. This information was used to verify the learned relationships for the simple derivative equation. Together with the performance metrics on three different problems, we have shown the proposed model to be a viable tool for situations with limited knowledge and a need for some level of interpretability of the model.

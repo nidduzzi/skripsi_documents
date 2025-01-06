@@ -1,0 +1,5 @@
+\mmzMemo 
+\global \mmzContextExtra {}%
+%
+\mmzSource 
+\begin {tikzpicture} \begin {pgfonlayer}{nodelayer} \node [style=Process] (2) at (-5, 6.75) {Problem\\Specification}; \node [style=Process] (4) at (9, 6.75) {Literature Review}; \node [style=Process] (6) at (9, 2.75) {Design of\\Computational Model}; \node [style=Process] (8) at (-5, 2.75) {Implementation of\\Computational Model}; \node [style=Process] (10) at (-5, -1.25) {Experimental\\Scenarios}; \node [style=Process] (12) at (9, -1.25) {Data Generation\\and Retreival}; \node [style=Process] (14) at (9, -5.25) {Data\\Preprocessing}; \node [style=Process] (16) at (-5, -5.25) {Experiments}; \node [style=Process] (20) at (-5, -9.25) {Analysis\\and Discussion}; \end {pgfonlayer} \begin {pgfonlayer}{edgelayer} \draw [style=Single arrow] (4) to (6); \draw [style=Single arrow] (6) to (8); \draw [style=Single arrow] (8) to (10); \draw [style=Single arrow] (12) to (14); \draw [style=Single arrow] (14) to (16); \draw [style=Single arrow] (2) to (4); \draw [style=Dotted Single Arrow] (10) to (12); \draw [style=Single arrow] (10) to (16); \draw [style=Single arrow] (16) to (20); \end {pgfonlayer} \end {tikzpicture}
