@@ -5,7 +5,7 @@
 \section{Data Generation}\label{sec:data_generation}
 \noindent This study uses two data acquisition approaches. The first approach which is discussed in this section is data generation. This process involves manufacturing data randomly in such a way that they obey the PDEs to be modeled. The generated data consists of features and labels. These features and labels in the context of PDEs are parameters and the solution of the PDEs, respectively. The PDEs enforce a relationship between parameters and the solution. This relationship is implicitly encoded into the features and labels, which is what machine learning models can learn. Because the solution and parameters to PDEs are functions and there are many kinds with different properties, generating all the different kinds of functions is a difficult task. This is why this study focuses on Fourier functions. This means that out of the space of all functions \(F \) which include categories such as polynomials \(f\left(x\right)=a_{n}x^n+\cdots+a_1x+a_0\) where \(f\in F\), and \(a_n\) are constants; we only consider the subset of functions \(U \subset F\) which are of the form \(u\left(x\right)=\sum_{k}^{m}c_k e^{2\pi i k \frac{x}{P}}\).
 
-Using the subset of Fourier functions has several benefits which has motivated the choice. First these functions are characterized purely by their coefficients \(c_k\), meaning there is no need to store discretized values which potentially saves space and computation. The second benefit is that other functions such as polynomials can be approximated by them using the Fourier transform. This means that despite limiting the set of functions to Fourier functions, the behavior of PDEs with other sets of functions can be approximated to a certain extent. The final benefit is the mature ecosystem around these functions which include fast algorithms for the Fourier transform and even numerical approaches for solving known PDEs like the previously mentioned spectral method. In summary the generated data consists of features and labels which are Fourier functions implicitly defining the relationship enforced by a PDE and scenario. After establishing the kind of functions to be used in dataset generation, the process can proceed. There are 4 steps involved in the data generation:% TODO: add reference to second chapter for spectral method, fourier transform, and other external concepts.
+Using the subset of Fourier functions has several benefits which has motivated the choice. First these functions are characterized purely by their coefficients \(c_k\), meaning there is no need to store discretized values which potentially saves space and computation. The second benefit is that other functions such as polynomials can be approximated by them using the Fourier transform. This means that despite limiting the set of functions to Fourier functions, the behavior of PDEs with other sets of functions can be approximated to a certain extent. The final benefit is the mature ecosystem around these functions which include fast algorithms for the Fourier transform and even numerical approaches for solving known PDEs like the previously mentioned spectral method which we discussed in \lccref{sec:fourier_discussion}. In summary, the generated data consists of features and labels which are Fourier coefficients implicitly defining the relationship enforced by a PDE and scenario. To proceed with the data generation, there are 4 steps involved:
 \begin{enumerate}
   \item Scenario and PDE Determination:
         The first step of data generation is determining the scenario related to the PDE or governing equations. First, the PDE to be modeled is determined based on the goals of the dataset. Then, one or more of the parameters is chosen to predict the solution. The chosen parameters will be called the input functions and the solution will be called output functions from here on. The second part of the scenario is the domain or more simply the physical space occupied by the system to be modeled. The domain will be used to compute the function values in relation to the physical space from coefficients of Fourier functions.
@@ -29,13 +29,12 @@ These four steps are the general processes involved in generating datasets for t
 \noindent The first dataset is a simple one dimensional derivative. This was chosen as a simple proof of concept of the ability to solve a differential equation. The equation is related to many real-world problems such as acceleration and speed. One can imagine a train in an ideal world where acceleration is directly translated into speed. When the train accelerates at time \(t \) by some amount \(a \), we can expect the train to have some speed \(u \). In this ideal world, the relationship between speed and acceleration can be modeled with a simple differential \lccref{eq:derivative}. This scenario is found in many real systems albeit often with many more details such as different components of acceleration from friction, drag, gravity, and other factors.
 As previously mentioned in \lccref{sec:data_generation}, both velocity \(u \) and acceleration \(a \) are modeled with Fourier series in \lccrefs{eq:fourier_speed,eq:fourier_acceleration} respectively.
 \begin{align}
-  \dv{u\left( t \right)}{t} & = a\left( t \right) \label{eq:derivative}                         \\
   u\left( t \right)         & = \sum_{k} \hat{u}_k e^{2\pi ikt} \label{eq:fourier_speed}        \\
   a\left( t \right)         & = \sum_{k} \hat{a}_k e^{2\pi ikt} \label{eq:fourier_acceleration}
 \end{align}
 The domain of the scenario is a two-hour time window. This number was chosen because it is around the ideal length of travel time on high speed rail in comparison to air travel and car travel \autocite{givoniDevelopmentImpactModern2006,wangEfficiencySpatialEquity2019,wrro2236}. This is the first step in generating this dataset.
 
-In the second step, as the derivative \lccref{eq:derivative} does not contain any parameters other than the acceleration which is the input parameter, there are no other parameters to determine. Therefore, the data generation process proceeds to generating coefficients for the speed functions \(\hat{u} \). The coefficients are assigned randomly from a Gaussian distribution with a mean of zero and standard deviation of one. This choice was made such that most wave numbers will have a coefficient of close to zero leaving a sparse set of wave numbers to mostly affect the resulting function. In total, 5000 unique functions are generated with 100 complex coefficients each.
+In the second step, as the derivative \lccref{eq:derivative} does not contain any parameters other than the acceleration which is the input parameter, there are no other parameters to determine. Therefore, the data generation process proceeds to generating coefficients for the speed functions \(\hat{u} \). The coefficients are assigned randomly from a Gaussian distribution with a mean of zero and standard deviation of one. This choice was made such that most wave numbers will have a coefficient of close to zero leaving a sparse set of wave numbers to mostly affect the resulting function. In total, \num{5000} unique functions are generated with \num{100} complex coefficients each.
 
 In the third step, the output function coefficients are computed. To find the relation between \(\hat{u}_k \) and \(\hat{a}_k \), we need to find substitutes for each term in \lccref{eq:derivative}. To do this, we take the derivative of \lccref{eq:fourier_speed} which result in \lccref{eq:fourier_series_derivative}. Using this we can substitute the terms in \lccref{eq:derivative} with \lccrefs{eq:fourier_series_derivative,eq:fourier_acceleration} giving \lccref{eq:example_spectral_method_fourier_substituted}. Finally, after some algebraic manipulation we obtain the relationship between the input \(a^*\) and output function \(u^*\) in terms of their coefficients in \lccref{eq:derivative_coeff}. One also needs to choose the integration constant \(\hat{u}_{0}\) because at \(k=0\) \lccref{eq:derivative_coeff} becomes a division by zero.
 \begin{align}
@@ -44,7 +43,7 @@ In the third step, the output function coefficients are computed. To find the re
   \hat{u}_k                                                    & = \hat{a}_k / \left( 2\pi ik \right) \label{eq:derivative_coeff}
 \end{align}
 
-In the final step, using randomly generated values of \(\hat{a}_k\), the corresponding values of \(\hat{u}_k\) are computed with \lccref{eq:derivative_coeff}. These coefficients are then used to compute the function values inside the domain. The two-hour time window is represented by a grid of 500 discrete points. With the coefficients and evaluation points ready, the function values are computed using \lccrefs{eq:fourier_speed,eq:fourier_acceleration}. Next, noise is added to the function values in order to motivate models learning on the dataset to generalize on noise. To also allow evaluation of how well the model performs with different levels of noise, the samples are duplicated into three copies for each high, medium and low noise levels. The function values of each copy is perturbed with noise from a Gaussian distribution with zero mean and standard deviation of some percentage of the average function value standard deviation. The percentages of each high, medium, and low noise levels are 5, 10, and 50 percent. The perturbed function values are then transformed back into their coefficients. An example generated function and its different perturbed versions is shown in \lccref{fig:antiderivative_noise_levels}. The horizontal axis indicates time which is displayed in units of hours. The vertical axis indicates velocity in abstract units.
+In the final step, using randomly generated values of \(\hat{a}_k\), the corresponding values of \(\hat{u}_k\) are computed with \lccref{eq:derivative_coeff}. These coefficients are then used to compute the function values inside the domain. The two-hour time window is represented by a grid of \num{500} discrete points. With the coefficients and evaluation points ready, the function values are computed using \lccrefs{eq:fourier_speed,eq:fourier_acceleration}. Next, noise is added to the function values in order to motivate models learning on the dataset to generalize on noise. To also allow evaluation of how well the model performs with different levels of noise, the samples are duplicated into three copies for each high, medium and low noise levels. The function values of each copy is perturbed with noise from a Gaussian distribution with zero mean and standard deviation of some percentage of the average function value standard deviation. The percentages of each high, medium, and low noise levels are 5, 10, and 50 percent. The perturbed function values are then transformed back into their coefficients. An example generated function and its different perturbed versions is shown in \lccref{fig:antiderivative_noise_levels}. The horizontal axis indicates time which is displayed in units of hours. The vertical axis indicates velocity in abstract units.
 
 \begin{figure}[H]
   \centering
@@ -68,20 +67,18 @@ In the final step, using randomly generated values of \(\hat{a}_k\), the corresp
   \end{subfigure}
   \caption{(\subref{fig:antiderivative_noise_levels}) A generated function with no noise (clean), low noise level (5\%), medium noise level (10\%), and high noise levels (50\%).\ (\subref{fig:antiderivative}) Antiderivative function with no noise.\ (\subref{fig:derivative}) Derivative function with no noise.}
 \end{figure}
-% TODO: interesting note that model trains better on function to coefficient task when the antiderivative is computed from the randomly generated derivative than if the derivative is computed from the randomly generated antiderivative. THIS NEEDS A REASON AND ANALYSIS SO MIGHT NOT BE NEEDED IN THIS WRITING. MAYBE A GOOD IDEA FOR A SEPARATE PIECE
+% TODO: interesting note that the model trains better on function to coefficient task when the antiderivative is computed from the randomly generated derivative than if the derivative is computed from the randomly generated antiderivative. THIS NEEDS A REASON AND ANALYSIS SO MIGHT NOT BE NEEDED IN THIS WRITING. MAYBE A GOOD IDEA FOR A SEPARATE PIECE
 
-\subsection{Data Generation: Burgers' Equation}
+\subsection{Data Generation: Burgers' Equation}\label{sec:data_generation_burgers}
 \noindent The second dataset generated in this study concerns the Burgers' equation. This equation has been used to model a variety of cases including fluid dynamics, traffic flow, and, shock waves \autocite{bonkileSystematicLiteratureReview2018,orlandiBurgersEquation2000,becBurgersTurbulence2007,jamesonEnergyEstimatesNonlinear2007}. This equation is also used as a base problem for testing the effectivity of numerical methods in solving non-linear PDEs \autocite{barterShockCapturingPDEbased2008,banksNumericalErrorEstimation2012, tabatabaeiImplicitMethodsNumerical2007,bonkileSystematicLiteratureReview2018}. The nonlinear term in the equation creates steep gradients and even shock waves which are discontinuous with low viscosity conditions. These challenges test the stability of numerical solvers. This is the scenario and reason for the choice of this PDE\@. To control the viscosity and therefore the steepness of gradients, the formulation of the Burgers' equation considered in this study is the forced viscous Burgers' equation in one dimension. For a velocity of \(u(x, t)\), viscosity of \(\nu \), and forcing term of \(f(x, t)\), the formulation of the forced Burgers' equation is shown in \lccref{eq:forced_viscous_burgers}.
-\begin{align}
-  \pdv{u}{t}+u\pdv{u}{x}-\nu\pdv[2]{u}{x} & = f \label{eq:forced_viscous_burgers}
-\end{align}
+
 The domain of we consider here is based on an exact solution of the equation. This is done so that the learned solver model can be tested on the exact solution. There are a number of sources in literature on the exact solution of the Burgers' equation \autocite{bentonTableSolutionsOnedimensional1972,wazwazPartialDifferentialEquations2010,woodExactSolutionBurgers2006}. In this study, we use a specific solution by \textcite{woodExactSolutionBurgers2006} which can be seen in \lccref{eq:burgers_exact_solution}. This solution is periodic in space but not in time. Therefore, the domain in space will be based on the spatial periodicity of the exact solution which is two. As such, the space domain spans from 0 to 2. The time domain, on the other hand, is chosen to span from 0 to 10 such that enough details of the solution is included.
 \begin{equation}
   u(x,t) = \frac{2\nu\pi e^{-\pi^2\nu t}\sin(\pi x)}{a+e^{-\pi^2\nu t}\cos(\pi x)} \label{eq:burgers_exact_solution}
 \end{equation}
-Continuing to the second step, the parameters involved in \lccref{eq:forced_viscous_burgers} are the viscosity \(\nu \) and the forcing term \(f \). Since the forcing term is dependent on the solution in this step, the only parameter to determine is the viscosity. We choose three constant viscosity values which are 0.1, 0.01, and 0.0. These values are chosen so that a variety of behaviors are represented in the dataset from viscous to inviscid flow.
+Continuing to the second step, the parameters involved in \lccref{eq:forced_viscous_burgers} are the viscosity \(\nu \) and the forcing term \(f \). Since the forcing term is dependent on the solution in this step, the only parameter to determine is the viscosity. We choose three constant viscosity values which are \num{0.1}, \num{0.01}, and \num{0.0}. These values are chosen so that a variety of behaviors are represented in the dataset from viscous to inviscid flow.
 
-After this, in the third step, the solution functions \(u \) are generated with 8 modes in time and 8 in space and 500 unique function samples for each viscosity value. Since we don't factor the viscosity in at this point, for ease of comparison, we ensure the same solutions are generated every time by using a new instance of the generator with the same seed number each time. This results in the solutions being the same for all viscosity and other parameters of the equation are adapted to this.
+After this, in the third step, the solution functions \(u \) are generated with 8 modes in time and 8 in space and \num{500} unique function samples for each viscosity value. Since we don't factor the viscosity in at this point, for ease of comparison, we ensure the same solutions are generated every time by using a new instance of the generator with the same seed number each time. This results in the solutions being the same for all viscosity and other parameters of the equation are adapted to this.
 
 Next we account for the different viscosity values in this stage. The forcing term is computed using \lccref{eq:forced_viscous_burgers}. The solution field \(u\) and forcing term \(f\) are modeled with Fourier series in \lccrefs{eq:fourier_field,eq:fourier_force} where \(k\) is a vector of spatial and temporal wave number such that \(k_t\) is the temporal wave number and \(k_x\) is the spatial wave number.
 \begin{align}
@@ -173,7 +170,7 @@ While the original data provided by ECMWF is available in NetCDF or GRIB, the We
 
 The specific dataset resolution we use is 64 by 32 representing longitude and latitude respectively. The ERA5 reanalysis dataset is hosted at the following URL\@: \url{gs://weatherbench2/datasets/era5/1959-2023_01_10-6h-64x32_equiangular_conservative.zarr}. The corresponding climatology is hosted at \url{gs://weatherbench2/datasets/era5-hourly-climatology/1990-2019_6h_64x32_equiangular_conservative.zarr}. The climatology is the average for hours 0, 6, 12, and 18 for each day of the year from 1990 until 2019. This average helps in defining the expected state of the weather at specific points in time based on the historical averages for that time of day and year.
 
-For the reanalysis dataset, we limit the time range to the years 1995{-}2013 for training and 2020{-}2022 for testing. The specific time ranges for training are chosen to balance the diversity within the data and capacity of the machine the processing will be done on. The testing set time range was chosen to be as close to those shown on the WeatherBench 2 website. The filter for time and variables is shown in \lccref{fig:wb2_retrieval}. The reason for the different time ranges between training and testing is to reduce the risk of information leakage accross the training and testing sets. This ensures that the testing scores we measure will be for the most part from the generalization that model learned during training. The filter is an array the length of the number of samples. The array values are all the datetime values that the year ranges are true for. This results in an array of boolean values. Using this boolean filter we can index the data so that we get the filtered data. Then, the filtered data is saved locally so that we can access it in a more performant way. The encoding chunks may need to be removed in order to evade the Xarray library from mistakenly persisting the remote encoding after slicing data \autocite{ianZarrEncodingAttributes}.
+For the reanalysis dataset, we limit the time range to the years 1995{-}2013 for training and 2020{-}2022 for testing. The specific time ranges for training are chosen to balance the diversity within the data and capacity of the machine the processing will be done on. The testing set time range was chosen to be as close to those shown on the WeatherBench 2 website. The filter for time and variables is shown in \lccref{fig:wb2_retrieval}. The reason for the different time ranges between training and testing is to reduce the risk of information leakage across the training and testing sets. This ensures that the testing scores we measure will be for the most part from the generalization that model learned during training. The filter is an array the length of the number of samples. The array values are all the datetime values that the year ranges are true for. This results in an array of boolean values. Using this boolean filter we can index the data so that we get the filtered data. Then, the filtered data is saved locally so that we can access it in a more performant way. The encoding chunks may need to be removed in order to evade the Xarray library from mistakenly persisting the remote encoding after slicing data \autocite{ianZarrEncodingAttributes}.
 \begin{figure}[H]
   \centering
   \begin{lstlisting}[language=Python]
@@ -196,24 +193,24 @@ The dataset includes 62 variables with some variables also spanning 13 discrete 
     \begin{adjustbox}{width=\linewidth}
       \input{figures/wb2_train_data.pgf}
     \end{adjustbox}
-    \caption{}\label{fig:wb2_train_data}
+    \caption{2-meter temperature}\label{fig:wb2_train_data}
   \end{subfigure}
   \begin{subfigure}{\linewidth}
     \begin{adjustbox}{width=\linewidth}
       \input{figures/wb2_clim_data.pgf}
     \end{adjustbox}
-    \caption{}\label{fig:wb2_clim_data}
+    \caption{Climatology}\label{fig:wb2_clim_data}
   \end{subfigure}
   \begin{subfigure}{\linewidth}
     \begin{adjustbox}{width=\linewidth}
       \input{figures/wb2_train_anomaly.pgf}
     \end{adjustbox}
-    \caption{}\label{fig:wb2_train_anomaly}
+    \caption{2-meter temperature anomaly}\label{fig:wb2_train_anomaly}
   \end{subfigure}
-  \caption{Data retrieved:(\subref{fig:wb2_train_data}) 2-meter temperature at January 1, 1995 6:00 UTC\@. (\subref{fig:wb2_train_anomaly}) Anomaly for 2-meter temperature at January 1, 1995 6:00 UTC\@. (\subref{fig:wb2_clim_data}) 2-meter temperature climatology for the first day of the year at hour 6 UTC\@.}\label{fig:wb2_data}
+  \caption{Data retrieved:(\subref{fig:wb2_train_data}) 2-meter temperature at January 1, 1995 6:00 UTC\@. (\subref{fig:wb2_clim_data}) 2-meter temperature climatology for the first day of the year at hour 6 UTC\@. (\subref{fig:wb2_train_anomaly}) Anomaly for 2-meter temperature at January 1, 1995 6:00 UTC\@.}\label{fig:wb2_data}
 \end{figure}
 
-After filtering, our training set has the dimensions of 27760 time steps, 64 longitude, and 32 latitude. The testing set on the other hand has 4384 time steps and the same values for the other two dimensions. For uses, such as a validation set during hyperparameter optimization, one can use a subset of the training set. The dimensions of the climatology are 4 for hour (0, 6, 12,\& 18), 366 for day of year, 64 for longitude, and 32 for latitude.
+After filtering, our training set has the dimensions of \num{27760} time steps, \num{64} longitude, and \num{32} latitude. The testing set on the other hand has \num{4384} time steps and the same values for the other two dimensions. For uses, such as a validation set during hyperparameter optimization, one can use a subset of the training set. The dimensions of the climatology are 4 for hour (0, 6, 12,\& 18), \num{366} for day of year, \num{64} for longitude, and 32 for latitude.
 
 \section{Design of Computational Model}\label{sec:computational_model_design}
 \noindent In this section, we will discuss the design of the computational model that is proposed in this work. An illustration of the computational model is show in \lccref{fig:computational_model}.
@@ -240,7 +237,7 @@ The second use of a dataset depends on whether it can be interpreted as a mappin
 \begin{equation}
   f^{t+1} = f^{t} + \delta t \times \dv{f}{t} + \dots \label{eq:time_step_function}
 \end{equation}
-In this case the previous function and any other independent variables like the forcing term involved in the right-hand side of the equation is used to predict the difference between the future state and the current state. It would mean that each sample function in the data would need to at least have two dimensions. This is because one dimension represents the evolution of the function over time, while the other dimensions define the spatial domain where the function's values are computed at each time step. This condition is true for both the Burgers' equation dataset and the WeatherBench 2 collection of ERA5 datasets. First, the Burgers' equation dataset, while is also able to be used in the first way as a mapping between the forcing term and the solution, one of the traditional ways of solving it is using the method of lines. This entails solving the dimensions other that time with methods such as the finite differences method or the spectral method. The time dimension is then separately solved using the finite differences method such as the form shown in \lccref{eq:time_step_function} \autocite{schiesserNumericalMethodLines2012,sadikuSimpleIntroductionMethod2000}. This is the form that the Burgers' equation dataset will be used in. In this case, algebraic manipulation of \lccref{eq:forced_viscous_burgers} results in the time derivative of the solution as in \lccref{eq:forced_viscous_burgers_time_derivative}.
+In this case the previous function and any other independent variables like the forcing term involved in the right-hand side of the equation is used to predict the difference between the future state and the current state. It would mean that each sample function in the data would need to at least have two dimensions. This is because one dimension represents the evolution of the function over time, while the other dimensions define the spatial domain where the function's values are computed at each time step. This condition is true for both the Burgers' equation dataset and the WeatherBench 2 collection of ERA5 datasets. First, the Burgers' equation dataset, while is also able to be used in the first way as a mapping between the forcing term and the solution, one of the traditional ways of solving it is using the method of lines. This entails solving the dimensions other that time with methods such as the finite differences method or the spectral method. The time dimension is then separately solved using FDM such as the form shown in \lccref{eq:time_step_function} \autocite{schiesserNumericalMethodLines2012,sadikuSimpleIntroductionMethod2000}. This is the form that the Burgers' equation dataset will be used in. In this case, algebraic manipulation of \lccref{eq:forced_viscous_burgers} results in the time derivative of the solution as in \lccref{eq:forced_viscous_burgers_time_derivative}.
 \begin{align}
   \pdv{u}{t} = f - u\pdv{u}{x} + \nu\pdv[2]{u}{x} \label{eq:forced_viscous_burgers_time_derivative}
 \end{align}
@@ -250,8 +247,7 @@ The most important component of the right-hand side of the equation, the time de
 \end{equation}
 Perhaps in a more obvious manner, the same is also applied to the WeatherBench 2 collection of ERA5 datasets. The 2-meter temperature is a series of snapshots in time of the distribution of temperature all over the world at 2 meters above the surface. The input function in this case is the temperature distribution at the current time step. The output function is the time derivative of the temperature distribution computed using \lccref{eq:time_derivative_time_step_function}.
 
-The input and output functions are then transformed into basis coefficients using the Fourier transform. % TODO: add reference to fourier transform in chapter 2
-Once the coefficients are computed, the input and output sample pairs are split into train, test, and validation subsets. For the first type of input and output function pair, since the samples are independent of each other, a random sampling of the dataset without replacement is done to select the samples for each subset. For the second type of input and output function pairs, if there are multiple samples of functions as in the Burgers' equation dataset, the same process with random sampling is followed. On the other hand, if only one function sample is available, such as the WeatherBench 2 dataset, an issue that arises is the fact that the samples are dependent on one another. This is because a previous time step influences the next time step. This is a problem for generalizing the learned model, since random sampling would lead to the model learning information in the future of the testing subset \autocite{kapoorLeakageReproducibilityCrisis2023,kaufmanLeakageDataMining2012}. As such, the portioning of the dataset is done by dividing the sample into different sections of the function in time.
+The input and output functions are then transformed into basis coefficients using the Fourier transform we discussed in \lccref{sec:fourier_discussion}. Once the coefficients are computed, the input and output sample pairs are split into train, test, and validation subsets. For the first type of input and output function pair, since the samples are independent of each other, a random sampling of the dataset without replacement is done to select the samples for each subset. For the second type of input and output function pairs, if there are multiple samples of functions as in the Burgers' equation dataset, the same process with random sampling is followed. On the other hand, if only one function sample is available, such as the WeatherBench 2 dataset, an issue that arises is the fact that the samples are dependent on one another. This is because a previous time step influences the next time step. This is a problem for generalizing the learned model, since random sampling would lead to the model learning information in the future of the testing subset \autocite{kapoorLeakageReproducibilityCrisis2023,kaufmanLeakageDataMining2012}. As such, the portioning of the dataset is done by dividing the sample into different sections of the function in time.
 
 Finally, the data is scaled. This is done because of how support vector machines require scaling for inputs in order to perform well with certain hyperparameters such as the RBF kernel \autocite{ben-hurUsersGuideSupport2010}. For our case we use standard scaling based on the inputs of the training subset. This approach transforms the dataset by manipulating the distribution characteristics of the dataset \autocite{ahsanEffectDataScaling2021}. Specifically, the standard deviation \(\sigma \) and mean \(x_0\) of the dataset values \(x\) are processed such that the resulting values have a mean of 0 and standard deviation of 1. The function shown in \lccref{eq:standard_scaler} represents how each sample is processed with respect to the standard deviation \(\sigma \) and mean \(x_0\) of each feature.
 \begin{equation}
@@ -300,7 +296,7 @@ In the third process, the constructed kernel matrix is then multiplied with the 
 The fourth process is concerned with the fact that the predicted output \(\vb{v}\) is a matrix of real numbers. The LSSVR output needs to be formatted before it can be used in the proposed model. This is done by converting the outputs into the same format as the training labels. As we use the Fourier basis, the model output is converted back into a matrix of complex numbers using the inverse of the first process during training. Finally, these predicted Fourier basis coefficients can be used to evaluate the predicted functions themselves.
 
 \section{Implementation of Computational Model}
-\noindent This section discusses the implementation of modeling and approximation of PDEs using LSSVR\@. Using the computational model design in \lccref{sec:computational_model_design}, the computational model is implemented as a library using the Python programming language. The development process itself is based on the iterative development model as mentioned in \lccref{sec:development method}. In this section, the output iterative processes are consolidated and explained together.
+\noindent This section discusses the implementation of modeling and approximation of PDEs using LSSVR\@. Using the computational model design in \lccref{sec:computational_model_design}, the computational model is implemented as a library using the Python programming language. The development process itself is based on the iterative development model as mentioned in \lccref{sec:development_method}. In this section, the output iterative processes are consolidated and explained together.
 
 \subsection{Analysis}
 \noindent The aim of any program that is developed in this study is to model the relationship between functions defined by a partial differential equation or other operators and governing equations. Since the potential subject of modeling can be wide-ranging, the software product that will be developed is a library. This is done so that the tools and proposed model that is developed will be able to be used with a variety of PDEs. With this in mind, the software must also be performant and compatible with the larger machine learning and scientific computing community.
@@ -730,7 +726,7 @@ The implementation leverages the operator overloading in Python classes. In addi
   \caption{Implementation of basis addition function.}\label{fig:basis_addition_impl}
 \end{figure}
 
-The calculus operations for Fourier basis take advantage of the properties of the Fourier series. As discussed in \lccref{sec:fourier_discussion}, derivatives and integration become multiplication and division in the spectral space of Fourier series. Our implementation takes advantage of this as shown in \lccref{fig:basis_grad_impl}. Similar to how subtraction is just a modification of the addition operation, the integral or antiderivative operator is also implemented simply by changing the operation with the term multiplier from multiplication to division. % TODO: change the reference to specific equations for calculus in spectral domain in ch2
+The calculus operations for Fourier basis take advantage of the properties of the Fourier series. As discussed in \lccref{sec:fourier_discussion}, derivatives and integration become multiplication and division in the spectral space of Fourier series. Our implementation takes advantage of this as shown in \lccref{fig:basis_grad_impl}. Similar to how subtraction is just a modification of the addition operation, the integral or antiderivative operator is also implemented simply by changing the operation with the term multiplier from multiplication to division.
 
 \begin{figure}[H]
   \centering
@@ -1059,7 +1055,7 @@ The final core piece of functionality the SpectralSVR class provides is the inve
   \caption{Implementation of SpectralSVR inverse coeff function (parameter estimation).}\label{fig:spectralsvr_inverse_impl}
 \end{figure}
 
-The SpectralSVR class also provides a convenience function for testing the performance of the learned model. This function is shown in \lccref{fig:spectralsvr_test_impl}. The function arguments are the testing inputs, expected testing outputs, and a resolution for evaluation of function values. The first step is to convert the testing input into real representations and then predicting the output function. The predicted output are then compared to the testing outputs using many metrics including RMSE, MSE, MAE, R\textsuperscript{2}, SMAPE, RRSE, and the number of Nan values present in the predicted output. The same comparison process is carried out again for the function values which are evaluated at the specified resolution. Finally, the function returns the metric values as a nested tuple for both the coefficients predictions and the function value predictions.
+The SpectralSVR class also provides a convenience function for testing the performance of the learned model. This function is shown in \lccref{fig:spectralsvr_test_impl}. The function arguments are the testing inputs, expected testing outputs, and a resolution for evaluation of function values. The first step is to convert the testing input into real representations and then predicting the output function. The predicted output are then compared to the testing outputs using many metrics including RMSE, MSE, MAE, R\textsuperscript{2}, sMAPE, RRSE, and the number of Nan values present in the predicted output. The same comparison process is carried out again for the function values which are evaluated at the specified resolution. Finally, the function returns the metric values as a nested tuple for both the coefficients predictions and the function value predictions.
 
 \begin{figure}[H]
   \centering
@@ -1405,7 +1401,7 @@ The second case is when at least one of the initial condition or forcing term is
   \caption{Implementation of Burgers generate function method of lines.}\label{fig:burgers_generate_mol_impl}
 \end{figure}
 
-The spectral residual of the Burgers' equation which is used in the method of manufactured solution generation approach is implemented as shown in \lccref{fig:burgers_spectral_residual_impl}. As with the right-hand side function, we use the psuedospectral approach for computing the convolution term to avoid large computational expenses for higher number of modes. The function value residual is also implemented similarly to the antiderivative version. The derivatives are computed with the PyTorch gradient function. And then using \lccref{eq:forced_viscous_burgers}, the residual is computed by subtracting the forcing term from both sides.
+The spectral residual of the Burgers' equation which is used in the method of manufactured solution generation approach is implemented as shown in \lccref{fig:burgers_spectral_residual_impl}. As with the right-hand side function, we use the pseudospectral approach for computing the convolution term to avoid large computational expenses for higher number of modes. The function value residual is also implemented similarly to the antiderivative version. The derivatives are computed with the PyTorch gradient function. And then using \lccref{eq:forced_viscous_burgers}, the residual is computed by subtracting the forcing term from both sides.
 
 \begin{figure}[H]
   \centering
@@ -1499,8 +1495,7 @@ The second scenario extends the goal of the first scenario by examining the mode
 The third scenario is designed to demonstrate the modeling capability of SpectralSVR on a more practical problem of weather prediction. The earth weather system is a complex collection of processes. Using the ERA5 dataset, the model will be used to predict future states of the atmosphere from previous states. Specifically, the model will learn to predict the temperature 2 meters above the surface. That means that other than the time and spatial resolution not being the highest, the model will also learn from partial information of the relationships defined by the equation since no other variables will be included. This choice was made as an analog for situation with unknown PDEs and therefore unknown variables. With these situations, there is no guarantee that the variables measured have any relation with the system. These three scenarios together address the last two aims of this study.
 
 \section{Experimental Results}\label{sec:experimental_results}
-\noindent In this section, the results of each experimental scenario is presented and analyzed. The results come in the form of testing metrics mentioned in . %TODO: add reference to the metrics used.
-The model interpretations are displays of the correlation image and the p-matrix. The function values and coefficients themselves will also be plotted depending on the number of dimensions.
+\noindent In this section, the results of each experimental scenario is presented and analyzed. The results come in the form of testing metrics mentioned in \lccref{sec:evaluation_metrics}. The model interpretations are displays of the correlation image and the p-matrix. The function values and coefficients themselves will also be plotted depending on the number of dimensions.
 
 \subsection{Scenario 1}
 \noindent The first scenario results are presented in four parts. The first is the coefficient prediction metrics which is shown in \lccref{table:scenario_1_spectral_metrics}. The table shows the noise level and the performance metrics.
@@ -1688,7 +1683,7 @@ In summary, the model is able to learn the linear relationship defined by the de
 \subsection{Scenario 2}
 \noindent The second scenario results are presented in two parts which are the coefficient predictions and function value predictions. The functions are first preprocessed in order to format them into current and next values in time as discussed in \lccref{sec:data_transformation}. The sample pairs are first divided into two for the training and testing sets. Each function is then discretized into 200 time steps. Then, the features are put together as the coefficients of the solution and forcing term at the current time step. The labels are the solution at the next time step. Since there is too much data to fit into memory all at once at the end of this process, we randomly sample the feature and label pairs. This result in a maximum of 8000 samples for the training set and 2000 samples for the testing set. As mentioned in \lccref{sec:data_transformation}, the training features are used to fit a scaling function. And then, all features are scaled using the fitted scaling function.
 
-The coefficient value predictions are shown in \lccref{table:scenario_2_spectral_metrics}. The RBF kernel parameter computed from the data is once again the same for all versions of the dataset with a value of 5.66. The testing metrics show that the performance of the model vary with the viscosity value \(\nu \). Starting with the inviscid Burgers' equation, with \(\nu=0\), the model performs the best with a close second from the model for the \(\nu = 0.01 \) dataset version. The function value evaluated from the predictions is shown in \lccref{table:scenario_2_function_metrics}. The metrics across the board shows that the function value relative metrics are slightly better compared to the coefficients. Comparing the absolute metrics for the same table, we see the same general trend that the higher viscosity show the model performing worse.
+The coefficient value predictions are shown in \lccref{table:scenario_2_spectral_metrics}. The RBF kernel parameter computed from the data is once again the same for all versions of the dataset with a value of 5.66. The testing metrics show that the performance of the model vary with the viscosity value \(\nu \). Starting with the inviscid Burgers' equation, with \(\nu=0\), the model performs the best with a close second from the model for the \(\nu = 0.01 \) dataset version. The function value evaluated from the predictions is shown in \lccref{table:scenario_2_function_metrics}. The metrics across the board shows that the function value relative metrics are slightly better compared to the coefficients. Comparing the absolute metrics for the same table, we see the same general trend that the higher viscosity show the model performing worse. For reference, the maximum amplitude of the functions on average are \num{2.56e-02}. This puts the error in an order of magnitude less than the average maximum amplitude. For the coefficients, on average, the maximum absolute value at each time step is \num{9.29e-02}. This means for the viscosity of 0.0 and \num{0.01}, the error is roughly 1 to 9 of the maximum absolute value.
 
 \begin{table}[H]
   \caption{Performance metrics of coefficient prediction of next time step in scenario 2 by viscosity.}\label{table:scenario_2_spectral_metrics}
@@ -1986,6 +1981,47 @@ The testing results are shown in \lccrefs{table:sc3_test_anomaly_metrics,table:s
     \bottomrule
   \end{tabular}
 \end{table}
+
+The predictions from test features are processed through the Fourier inverse transform to evaluate the function values. The direct predictions, which is the anomaly, is shown in \lccref{fig:sc3_anomaly_predictions}. The model seem to be predicting less extreme values that are noticeable in the target. Specifically areas over North America, Central Asia, and parts of Antarctica show lower temperature anomaly than expected. We also loose detail in areas which should have a lower anomaly such as northern areas of Africa, Greenland, and South Asia. The lack of detail seems to be a problem of underestimation. We believe this is caused by the so-called \enquote{double penalty} issue caused by the loss function used for the LSSVR \autocite{lledoScaledependentVerificationPrecipitation2023}. The predictions tend to be closer to the mean of the data to avoid the extra penalty from a wrong prediction with a high value. One way to allow for finer details that are less accurate is to penalize the higher frequency wave numbers less compared to the lower frequency wave numbers. For our case this means the LSSVR for each output will have their regularization parameter decreased to allow the model to focus less on the errors for higher frequencies.
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{\linewidth}
+    % \centering
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_anom_pred.pgf}
+    \end{adjustbox}
+    \caption{Predicted 2-meter temperature anomaly.}\label{fig:sc3_anomaly_pred}
+  \end{subfigure}
+  \begin{subfigure}{\linewidth}
+    % \centering
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_anom_target.pgf}
+    \end{adjustbox}
+    \caption{Target 2-meter temperature anomaly.}\label{fig:sc3_anomaly_target}
+  \end{subfigure}
+  \caption{2-meter temperature anomaly prediction for the 1\textsuperscript{st} of January 2020 at 6:00 UTC based on the previous anomaly at 0:00 UTC.}\label{fig:sc3_anomaly_predictions}
+\end{figure}
+
+The state predictions which is obtained by adding the climatology to the predicted anomaly is shown in \lccref{fig:sc3_state_predictions}. This further shows areas of discrepancy between the prediction and the target. The area in the South Pacific show that the target has a higher difference temperature compared to the prediction. This smoothness in the prediction is easier to see for areas in the ocean. Many sharp features are lost and the state prediction start to resemble averaged view of the climatology. We must also take into account that the model only used temperature distribution data. Other pieces of information we know to be crucial to weather prediction such as wind speed or pressure was not included in the inputs. With this in consideration the model was still able to learn some relationships defined by governing equations of weather. %TODO: decide to mention the results of this or not (https://sites.research.google/weatherbench/deterministic-scores/)
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{\linewidth}
+    % \centering
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_state_pred.pgf}
+    \end{adjustbox}
+    \caption{Predicted 2-meter temperature.}\label{fig:sc3_state_pred}
+  \end{subfigure}
+  \begin{subfigure}{\linewidth}
+    % \centering
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/wb2_state_target.pgf}
+    \end{adjustbox}
+    \caption{Target 2-meter temperature.}\label{fig:sc3_state_target}
+  \end{subfigure}
+  \caption{2-meter temperature prediction for the 1\textsuperscript{st} of January 2020 at 6:00 UTC based on the previous anomaly at 0:00 UTC.}\label{fig:sc3_state_predictions}
+\end{figure}
+
 The p-matrix and correlation image is shown in \lccref{fig:sc3_interpretation}. For the correlation image, we see that most wave numbers are correlated or inversely correlated with the outputs. The strongest correlation is shown by the features of the same wave number as the sorted target. This is an indication that the equations involved may be nonlinear. If we look at the p-matrix however, it seems very flat save a faint diagonal line from the top left to the bottom right. The values of the p-matrix are also extremely high. With the \enquote{flatness} we see, this is indicative of strong contributions by a few inputs.
 
 \begin{figure}[H]
@@ -2022,46 +2058,6 @@ To see more details of the p-matrix, we show a zoomed in version in \lccrefs{fig
     \caption{The p-matrix zoomed in to \((k_{longitude}=\{\phantom{-}31,-32,\phantom{-}32\}, k_{latitude}=[-16, 16))\).}\label{fig:sc3_pm_zoom2}
   \end{subfigure}
   \caption{The p-matrix of the WeatherBench 2 models zoomed in to specific wave numbers.}\label{fig:sc3_pm_zoomed}
-\end{figure}
-
-The predictions from test features are processed through the Fourier inverse transform to evaluate the function values. The direct predictions, which is the anomaly, is shown in \lccref{fig:sc3_anomaly_predictions}. The model seem to be predicting less extreme values that are noticeable in the target. Specifically areas over North America, Central Asia, and parts of Antarctica show lower temperature anomaly than expected. We also loose detail in areas which should have a lower anomaly such as northern areas of Africa, Greenland, and South Asia. The lack of detail seems to be a problem of underestimation. We believe this is caused by the so-called \enquote{double penalty} issue caused by the loss function used for the LSSVR \autocite{lledoScaledependentVerificationPrecipitation2023}. The predictions tend to be closer to the mean of the data to avoid the extra penalty from a wrong prediction with a high value. One way to allow for finer details that are less accurate is to penalize the higher frequency wave numbers less compared to the lower frequency wave numbers. For our case this means the LSSVR for each output will have their regularization parameter decreased to allow the model to focus less on the errors for higher frequencies.
-\begin{figure}[H]
-  \centering
-  \begin{subfigure}{\linewidth}
-    % \centering
-    \begin{adjustbox}{width=\linewidth}
-      \input{figures/wb2_anom_pred.pgf}
-    \end{adjustbox}
-    \caption{Predicted 2-meter temperature anomaly.}\label{fig:sc3_anomaly_pred}
-  \end{subfigure}
-  \begin{subfigure}{\linewidth}
-    % \centering
-    \begin{adjustbox}{width=\linewidth}
-      \input{figures/wb2_anom_target.pgf}
-    \end{adjustbox}
-    \caption{Target 2-meter temperature anomaly.}\label{fig:sc3_anomaly_target}
-  \end{subfigure}
-  \caption{2-meter temperature anomaly prediction for the 1\textsuperscript{st} of January 2020 at 6:00 UTC based on the previous anomaly at 0:00 UTC.}\label{fig:sc3_anomaly_predictions}
-\end{figure}
-
-The state predictions which is obtained by adding the climatology to the predicted anomaly is shown in \lccref{fig:sc3_state_predictions}. This further shows areas of discrepancy between the prediction and the target. The area in the South Pacific show that the target has a higher difference temperature compared to the prediction. This smoothness in the prediction is easier to see for areas in the ocean. Many sharp features are lost and the state prediction start to resemble averaged view of the climatology. We must also take into account that the model only used temperature distribution data. Other pieces of information we know to be crucial to weather prediction such as wind speed or pressure was not included in the inputs. With this in consideration the model was still able to learn some relationships defined by governing equations of weather.
-\begin{figure}[H]
-  \centering
-  \begin{subfigure}{\linewidth}
-    % \centering
-    \begin{adjustbox}{width=\linewidth}
-      \input{figures/wb2_state_pred.pgf}
-    \end{adjustbox}
-    \caption{Predicted 2-meter temperature.}\label{fig:sc3_state_pred}
-  \end{subfigure}
-  \begin{subfigure}{\linewidth}
-    % \centering
-    \begin{adjustbox}{width=\linewidth}
-      \input{figures/wb2_state_target.pgf}
-    \end{adjustbox}
-    \caption{Target 2-meter temperature.}\label{fig:sc3_state_target}
-  \end{subfigure}
-  \caption{2-meter temperature prediction for the 1\textsuperscript{st} of January 2020 at 6:00 UTC based on the previous anomaly at 0:00 UTC.}\label{fig:sc3_state_predictions}
 \end{figure}
 
 The results of our experiments show that the proposed model has the ability to learn the relationships that PDEs and other governing equations define. The interpretation methods for support vector regression that we used, namely the correlation image and p-matrix developed by \textcite{ustunVisualisationInterpretationSupport2007}, allows us to confirm what the model has learned. In the case of the WeatherBench2 model, it has also allowed us to glean some insight into some mechanisms that the model has learned. This information was used to verify the learned relationships for the simple derivative equation. Together with the performance metrics on three different problems, we have shown the proposed model to be a viable tool for situations with limited knowledge and a need for some level of interpretability of the model.

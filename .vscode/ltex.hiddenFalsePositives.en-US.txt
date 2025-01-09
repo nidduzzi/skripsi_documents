@@ -5,3 +5,24 @@
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QTo do this we first formulate both into separate Fourier series approximations \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q and \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q in eq:example_fourier_1,eq:example_fourier_2 respectively.\\E$"}
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\Q\\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q Next we take the derivative of eq:example_fourier_1 which result in eq:fourier_series_derivative.\\E$"}
 {"rule":"ENGLISH_WORD_REPEAT_BEGINNING_RULE","sentence":"^\\QIn this way, the code can be run quickly and fail immediately\\E$"}
+{"rule":"POSSESSIVE_APOSTROPHE","sentence":"^\\QTraditionally, stiff equations would require specific numerical methods purpose built to efficiently solve the problem.\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qfigures/research_design_diagram Research design diagram\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qfigures/data_generation_diagram Data generation diagram\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qfigures/iterative_development_diagram Iterative development model\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QFor a neural network \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q approximating the real solution \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q, the residual loss for the heat equation in eq:heat_equation is eq:heat_pinn_loss.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QThis is formulated in eq:universal_op_approx_nn.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\Qcompat=1.14 auto=adjustbox memoize\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qcompat=1.14 auto=adjustbox memoize\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\Qtabsize = 2, frame = tb, breaklines = true, numbers = left, numbersep = 5pt, numberstyle = , stepnumber = 1, basicstyle = , commentstyle=., keywordstyle = ., keywordstyle = [2]., keywordstyle = [3]., keywordstyle = [4]., keywordstyle = [5]., stringstyle = , aboveskip = , showstringspaces = false .\\E$"}
+{"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\Qtabsize = 2, frame = tb, breaklines = true, numbers = left, numbersep = 5pt, numberstyle = , stepnumber = 1, basicstyle = , commentstyle=., keywordstyle = ., keywordstyle = [2]., keywordstyle = [3]., keywordstyle = [4]., keywordstyle = [5]., stringstyle = , aboveskip = , showstringspaces = false .\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qtabsize = 2, frame = tb, breaklines = true, numbers = left, numbersep = 5pt, numberstyle = , stepnumber = 1, basicstyle = , commentstyle=., keywordstyle = ., keywordstyle = [2]., keywordstyle = [3]., keywordstyle = [4]., keywordstyle = [5]., stringstyle = , aboveskip = , showstringspaces = false .\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qcomment = [l]., keywords = true, false., morestring = [b]\".\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\Qcomment = [l]., keywords = true, false., morestring = [b]\".\\E$"}
+{"rule":"EN_UNPAIRED_BRACKETS","sentence":"^\\Qcomment = [l]., keywords = true, false., morestring = [b]\".\\E$"}
+{"rule":"EN_UNPAIRED_BRACKETS","sentence":"^\\Qcomment = [l]., keywords = true, false., morestring = [b]\".\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QToml.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\Qcomment = [l]., keywords = true, false., morestring = [b]\"., .\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qcomment = [l]., keywords = true, false., morestring = [b]\"., .\\E$"}
+{"rule":"COMMA_PERIOD","sentence":"^\\Qcomment = [l]., keywords = true, false., morestring = [b]\"., .\\E$"}
+{"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\Q.\\E$"}
+{"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\Q[display] .\\E$"}

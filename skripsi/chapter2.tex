@@ -1,56 +1,161 @@
 % !TEX root = ./skripsi.tex
-\chapter{KAJIAN PUSTAKA}
+\chapter{LITERATURE REVIEW}
+\noindent This chapter will discuss and summarize the literature related to this study. The context of the study will be explained in terms of the state of the art (SoTA), the literature involved, and how this problem fits within the larger computing and physical sciences field.
+% \noindent Bab ini mengulas secara rinci konsep-konsep dasar yang berkaitan dengn pekerjaan penelitian TA dan deskripsi studi pustaka yang dilakukan. Judul bab tidak harus seperti yang dituliskan, melainkan dapat lebih fleksibel yang mencerminkan isi paparan pada bab ini. Demikian halnya dengan judul sub bab.
 
-\noindent Bab ini mengulas secara rinci konsep-konsep dasar yang berkaitan dengn pekerjaan penelitian TA dan deskripsi studi pustaka yang dilakukan. Judul bab tidak harus seperti yang dituliskan, melainkan dapat lebih fleksibel yang mencerminkan isi paparan pada bab ini. Demikian halnya dengan judul sub bab.
+\section{Governing Equations}
+\noindent Mathematical expressions that describe the behavior of a system are called governing equations. Typically, governing equations are in the form of Differential Equations (DE). For some systems with several variables, the governing equations are Partial Differential Equations (PDE). These equations are the foundation of many engineering and scientific models \autocite{olverIntroductionPartialDifferential2014,andersonGoverningEquationsFluid1992}. In the physical sciences, the use of PDEs as governing equations is widespread. Many fields, including those outside the physical sciences, use these equations to model systems and solve problems whose solutions we take for granted today, ranging from fluid mechanics to ecology.
+
+In recorded history, the early work of differential equations can be traced to the independent works of Gottfried Wilhelm Leibniz and Isaac Newton. The formulation of calculus and its associated notation paved the groundwork for further study into the mathematical description of change. PDEs as a subject of study was started in the 18\textsuperscript{th} century with the works of Euler, d'Alembert, Lagrange, and Laplace \autocite{brezisPartialDifferentialEquations1998}. Near the end of the 19\textsuperscript{th} century, Poincar\'e stated that a variety of physical system share a similarity. This is followed by the statement that they should be treated in a similar fashion. He expressed his motivation for mathematical proofs that approximate physical phenomena. Meanwhile, through the 18\textsuperscript{th} and 19\textsuperscript{th} century, many equations such as the Euler equation of incompressible flow, Maxwell's equation in electromagnetic theory, and the Navier-Stokes equations for fluid flow. These are just some examples of the equations that were developed during that period of time. In the 20\textsuperscript{th} century, what is known today as the Burgers' equation was introduced with the interest of modeling turbulent flow. Today, there are many more equations that have been introduced to solve many more different problems. The Poisson equation, for example, is used to model many problems including electric potential, steady-state temperature distribution, and Newtonian gravity \autocite{selvaduraiPartialDifferentialEquations2000}.
+
+% Derivative Equation
+Governing equations in the form of PDEs describe the behavior of systems by quantifying changes. These changes, naturally, are represented as partial derivatives. We will discuss three situations where systems can be described in this way. First, in its simplest form, a derivative equation models the relationship between the rate of change and the total change. In more relatable terms, the example for this is the relationship between speed and acceleration. Acceleration is the rate of change for speed. The function that describes speed will complement the acceleration depending on the kind of function that describes acceleration and vice versa. The mathematical formulation for the derivative equation is shown in \lccref{eq:derivative}. Because of the ubiquity of the relationship defined by this equation, it is perhaps the one with the most uses. Some applications for differential equations include radioactive decay \autocite{grochRadioactiveDecay1998,huestisUnderstandingOriginMeaning2002}, population dynamics \autocite{gopalsamyStabilityOscillationsDelay1992}, and other dynamical systems \autocite{katokIntroductionModernTheory2009}.
+\begin{align}
+  \dv{u\left( t \right)}{t} & = a\left( t \right) \label{eq:derivative}
+\end{align}
+
+Solving the derivative equation can be analytically if the exact form is known. This involves common techniques in calculus such as separation of variables \autocite{braunDifferentialEquationsTheir1993}. In other cases, the solution can be computed using numerical methods such as Euler's method and the Runge-Kutta method among others. These numerical methods use the knowledge about the differential equations to compute the solutions. Both the Euler's method and Runge-Kutta method compute the solution by adding the current value of the solution with the estimated difference with the next value of the solution to produce the next value of the solution. The estimated difference is typically computed by with some combination the derivative and step size. This is where the knowledge of the derivative equation to be solved is used. By storing each predicted solution value and using it as the current solution value, the entire solution is computed.
+
+% Burgers' Equation
+The second situation we discuss is the Burgers' equation. This equation was initially used for describing the distribution of speed in a fluid. Although not entirely physically accurate, this equation describes how differences in speed observed within a fluid can emerge. These differences in speed can lead to shocks where the gradient approach infinity \autocite{orlandiBurgersEquation2000}. The forced-viscous equation can be seen in \lccref{eq:forced_viscous_burgers}. The equation is made up of four terms including the forcing term. The first is the time derivative. The second term is the convection term which makes this equation nonlinear because the solution is multiplied by another form of the solution, which in this case is the first derivative in space. The third term is the advection term. Finally, we have the forcing term that encompasses all external influence on the solution.
+\begin{align}
+  \pdv{u}{t}+u\pdv{u}{x}-\nu\pdv[2]{u}{x} & = f \label{eq:forced_viscous_burgers}
+\end{align}
+
+An intuitive way to understand how the solution would evolve in time is to think of the time derivative in terms of all the other components. This way we can see how the solution would change from one time to the next at all points. The viscosity \(\nu \) modulates the advection term. The larger the viscosity value, the more the solution resists forming shocks. This is because, the second derivative makes the time derivative have higher values for areas of rapid change. Specifically, it makes areas that change rapidly in space to lower solution values have lower time derivative values. For areas with rapid change in space to higher solution values, it makes those areas have higher time derivative values. The result is that it spreads out the rapid changes in space or \enquote{curves} over time.
+
+The convolution term behaves in an amplifying manner. For areas that have the same signs for their solution value and the space derivative, it would attract it to lower values. For areas with differing signs for the solution value and space derivative, it would attract it to a higher value. As a whole this would make the solution tend toward large negative gradients and discourage large positive gradients. As the negative gradient grows, if unimpeded by the advection term, it would eventually lead to the formation of a shock wave moving to the positive x direction. Finally, the forcing term affects the time derivative directly and attract the solution toward which ever direction defined by the forcing term. %add discussion about turbulence here.
+% TODO: add figure for the effects of each term on the time derivative and how the solution evolves
+Solutions to the Burgers' equation can be obtained analytically. One of the most straightforward ways is the Cole-Hopf transform. Using this method, the solution to the Burgers' equation \(u\) is computed from any valid solutions of the heat equation \(\phi \). The solution of the Burgers' equation is obtained by using the Cole-Hopf transform written in \lccref{eq:cole_hopf}. However, this limits the range of possible solutions because of the requirement of a valid heat equation solution. For a wider range of solutions, numerical methods are predominantly used to solve the initial value problem for the Burgers' equation. This can be done by computing the time derivative term from the other terms. However, both the convection and advection terms create a challenge in solving the equation numerically. For small viscosity values, the equation is dominated by the convection term. And as previously mentioned this means the development of sharp gradients and possibly shock waves. As the gradient become sharper, the solution would require finer and finer time steps in order to stay at a consistent error for each step, otherwise the solution can become unstable.
+\begin{align}
+  u = -2\nu\frac{\phi_x}{\phi}\label{eq:cole_hopf}
+\end{align}
+
+High viscosity values introduce a similar issue. The problem comes from rapidly varying large values introduced by the second derivative. This is a product of the \enquote{amplification} caused by derivatives which is compounded by higher orders. The rapid variation also mean that smaller time steps would need to be used by standard numerical solvers. For numerical solvers, such as the forward Euler method we discussed earlier, insufficiently fine time steps can lead to numerical instability. This imposes a constraint on how large the time steps and or on how the numerical solvers can treat these equations. The differential equations that cause this issue are called stiff PDEs. To overcome these challenges, specialized numerical solvers for stiff PDEs have been developed \autocite{kassamFourthOrderTimeSteppingStiff2005}.
+
+% The Weather
+The third situation we discuss here is the weather system. Today, we have much better understanding of the governing equations of the weather system. The governing equations of the weather include the momentum equations (for example wind), gravitational force, friction, centrifugal force, Coriolis force, the hydrostatic equation, and thermodynamic equations \autocite{martinIntroductionWeatherClimate2014}. These components each describe how different variables change and the interaction between those variables, such as wind and temperature.
+
+The interplay between the governing equations of weather are very complex. In addition, some constituting equations like the Navier-Stokes, can be very nonlinear. These are some reasons why analytical solutions for the governing equation are not feasible for realistic scenarios. Today, the weather is modeled by numerical methods. Initially, many numerical models that were in use were based on the Finite Differences Method (FDM). After 1972, other approaches regained interest, namely the spectral methods \autocite{puNumericalWeatherPrediction2018,mengaldoCurrentEmergingTimeIntegration2019}. Much more recently, other advances include ensemble forecasting where multiple models represent the probabilistic distribution that needs to be accounted for. Another development is advanced data assimilation methods for various observational data sources \autocite{parkDataAssimilationAtmospheric2013}. Due to the size differences involved with simulating the weather, some parts such as turbulence or the presence of aerosols adds further challenges. Many operational models, use approximations such as turbulence closure because the unknowns outnumber the equations. Due to these challenges, there has been research into the use of machine learning and other statistical methods for this specific area \autocite{langAIFSECMWFDatadriven2024,bonevSphericalFourierNeural2023}. Machine learning-based approaches provide the ability to predict the weather with increasing accuracy and speed using a black box model which complements the physics-based models \autocite{biAccurateMediumrangeGlobal2023}. Ongoing research and technological developments continue to refine these models, aiming for more precise and reliable weather forecasts.
+% TODO: talk about inverse and forward problems
+
+\section{Machine Learning}
+\noindent Machine Learning (ML) has experienced a surge of interest in the past two decades. A major contributor to this is the increase in computing power. Specifically Neural Networks (NN), found renewed interest with parallel algorithms being able to run on hardware accelerators like Graphics Processing Units (GPU). Machine Learning can be categorized into two major paradigms which are supervised learning and unsupervised learning \autocite{alpaydinIntroductionMachineLearning2020}. In unsupervised learning, the model is usually asked to find the structures within the data. For example, the different groups that share a similar structure or how often such structures appear. On the other hand, supervised learning involves training models with pairs of features and labels. The labeled dataset gives a certain direction the for the model to learn. For example, labels that indicate whether a cat is present or not in an image. Other labels might instead indicate the number of cats in the image. These labels essentially asks the model to look for certain structures in the features that are shared between common labels.
+
+Supervised learning is further categorized into the type of prediction task. The first task is classification. In this task, models are trained to group samples into different categories. Samples within the same category would share a common structure within its features. For example, a regulatory body of the government wants to detect fraudulent activities. A model could be trained to classify whether a bank account is involved in fraudulent activity or not. This is done by training on a collection of both fraudulent and normal transaction data. By processing the data into more meaningful features such as average transactions or the rate of transactions and incorporating other information about the account a pair of features and labels are created. This can then be used to train the model to distinguish between fraudulent and legitimate activities.
+
+% Regression
+The second task we will discuss is regression, which we will focus on for the rest of this section. In regression the model is tasked to predict continuous values based on the features it receives \autocite{alpaydinIntroductionMachineLearning2020,matloffStatisticalRegressionClassification2017}. This is in contrast to the discrete values used as labels in the classification task. Applying machine learning to the problem of modeling systems, like traditional numerical methods, is a regression task. For example, if we want a model to learn the relationship between the coefficients of two different functions in place of the spectral method, this would be a case of regression. As more concrete example, the prediction of weather variables is a regression task. Typically, the features are based on the current and previous states of the atmosphere. The model is then trained to predict the future atmospheric state. The variables that represent atmospheric state such as temperature and wind speed are continuous variables. Specifically, if the task is to predict from features outside the range of the training data, such as predicting future weather, this is called extrapolation. On the other hand, if the features exists within the range of the training data, such as approximating the wind speed between weather station, the action is called interpolation. Regardless, for both, the model learns to approximate the continuous labels from the features.
+
+% Autoregression
+On the subject of weather prediction, the goal is sometimes to predict several time steps ahead of the reference input features. The term lead time is used in this scenario to refer to the amount of time ahead of the reference time. Weather predictions for several time steps ahead is particularly useful in order to allow for longer term planning. For example, management of the power grid and renewable power sources rely on weather forecasts to manage supply. For these cases, the model is usually trained to predict the state at the next time step based on the current time step. To achieve the predictions for several time steps ahead, the model would need to predict using its previous predictions. This is repeated until the target lead time is reached. This use of the model is called autoregression \autocite{maccarroneGDPForecastingMachine2021}. An important property of the model for this task is stability. This is because errors will compound very quickly if the model is unstable. For ML models that has flexible loss functions like NNs, the model can be made more accurate by including the autogression during training and incorporating the autoregression error into the loss function \autocite{pmlr-v32-gregor14}. Together, autoregression and regression, form an essential tool for solving many problems involving the prediction of continuous values.
+
+\section{Operator Learning}
+\noindent Machine learning, as with many other fields, has found its foothold in scientific computing. The term that has become popular for this field is Scientific Machine Learning (SciML) \autocite{bakerWorkshopReportBasic2019}. This field, just like scientific computing, is interdisciplinary with mathematics, physics, computer science, and other disciplines contributing to solve the specific challenges involved with datasets specific to these individual disciplines. The field seeks to extract insights from scientific datasets by building new methods that are scalable, interpretable, and reliable. This is partly driven by the advances in computing, specifically machine learning, and the potential for and accumulation of scientific data. The motivations for developing domain-specific machine learning tools include the difficulty in using and interpreting general purpose ML algorithms for the problems researchers seek to solve with scientific datasets.
+
+A set of tools called Operator Learning has been attracting interest within SciML\@. These tools learn the mappings between functions defined by an operator \autocite{JMLR:v24:21-1524,boulleMathematicalGuideOperator2024}. Mathematically, an operator is a mapping between function spaces. For example, the derivative operator \(\dv{x}\) maps the space of all differentiable functions with the space of derivative functions. For this example, the model would learn the relationship between the derivative function and the antiderivative function. More generally, a model \(\hat{\mathcal{A}}\) is used to approximate an unknown operator \(\mathcal{A}\). Given data that represent two functions \((f,u)\) with \(f\in\mathcal{F}\) and \(u\in\mathcal{U}\) on a domain \(\Omega{}\) which is a subset of the \(n\)-dimensional real number line, and an operator \(\mathcal{A}:\mathcal{F}\mapsto\mathcal{U}\) such that \(\mathcal{A}(f)=u\), the objective is to find the approximation \(\hat{\mathcal{A}}\). The search for the approximation is due such that for any new data \(f'\in\mathcal{F}\) and \(u'\in\mathcal{U}\), we get \(\hat{\mathcal{A}}(f')\approx\mathcal{A}(f')\).
+
+The model \(\hat{\mathcal{A}}\) is optimized by minimizing the loss function shown in \lccref{eq:operator_learning_loss}, with model parameters \(\theta{}\).
+\begin{align}
+  \min_{\theta} L\left(\hat{\mathcal{A}}\left(f;\theta\right),u\right)\label{eq:operator_learning_loss}
+\end{align}
+
+There are currently different model architectures for the learning operators. Most of these are implemented as Neural Networks (NN). The Neural Operator proposes a method to generalize NNs to learning mappings between function spaces \autocite{li2021fourier}. The Fourier Neural Operator (FNO) variant adds Fourier transforms to the composition of layers within the NN\@. Another NN layer is added to learn the mapping within the Fourier domain. The outputs of this layer is then Inverse transformed and passed on. This entire process is called the FNO block. Adding multiple of these blocks allow for learning more complex relationships. Another approach called Spectral Neural Operators, instead maps the coefficients of inputs to the coefficients of output functions \autocite{fanaskovSpectralNeuralOperators2023}. For coefficients obtained from Fourier transforms, the model is approximating the standard spectral method by taking advantage of the properties of the Fourier coefficients we discuss in \lccref{sec:fourier_discussion}. Essentially, derivatives are multiplication in the Fourier domain. A similar work extended the idea by leveraging the known PDE to be part of the loss function \autocite{du2024neural}. The model is penalized for the residual computed using the PDE\@. This allows the NN to be trained in a self-supervised setting. Another major model is the so called DeepONet architecture proposed by \textcite{luLearningNonlinearOperators2021}. This model can be seen as foregoing the basis function the Fourier Transform enforces and instead learns the basis functions from the data \autocite{meurisMachinelearningbasedSpectralMethods2023}. Because of this, the model has two components. The first, named the trunk network acts as the learned basis functions. This network is given evaluation coordinates and computes the values of the \enquote{basis functions}. The second network, called the branch network, learns the mapping between the input function representation and the coefficients for the output function. The dot product of the outputs of both trunk and branch networks are evaluated to obtain the value of the predicted function at the specified coordinate. The final proposed approach we will discuss here doesn't use Deep Learning. The approach proposed by \textcite{nelsenOperatorLearningUsing2024} uses Random Feature Models (RFM) to learn operators. This model enjoys the advantage of using one of the simplest forms of machine learning.
 
 \section{Fourier Transform and Series}\label{sec:fourier_discussion}
-\noindent
+\noindent The Fourier transform and its associated series is a well known topic in both computing and the physical sciences \autocite{smithMathematicsDiscreteFourier2007}. The Fourier transform is used extensively both in theoretical and practical scenarios. In mathematics and physics, the Fourier transform is used widely for many subjects such as harmonic analysis, quantum mechanics, and of course in solving PDEs. More practical uses of the transform include signal processing, communication systems, data compression such as JPEG and MP3, and cryptography. For solving PDEs, the Fourier transform is used to simplify the equations involved. This is due to the unique properties associated with the Fourier transform.
 
-Complex numbers are numbers consisting of real and imaginary components. Complex numbers are written as in \lccref{eq:complex_number} with \(a \) and \(b \) being the real and imaginary components respectively. The imaginary component is multiplied by the imaginary unit \(i=\sqrt{-1}\).
+The Fourier series can be represented in two ways, the first is the real representation by using sine and cosines as the basis functions in the series shown in \lccref{eq:fourier_series_sine_cosine}. The second representation is the complex representation which uses Euler's formula as the basis functions shown in \lccref{eq:fourier_series_complex}. Both of these are equivalent and are just the different representations. The relationship between the two representations is defined in \lccref{eq:fourier_coefficient_equivalency}.
+\begin{align}
+  f(x)=       & \hat{a}_0 + \sum_{k=0}^{\infty} \hat{a}_k\cos(2\pi kx) + \hat{b}_k\sin(2\pi kx)\label{eq:fourier_series_sine_cosine} \\
+  f(x)=       & \sum_{k=-\infty}^{\infty} \hat{c}_k e^{2\pi ikx}\label{eq:fourier_series_complex}                                    \\
+  \hat{c}_k = & \begin{cases}
+                  \hat{a}_0,               & k = 0 \\
+                  (\hat{a}_k-\hat{b}_k)/2, & k > 0 \\
+                  (\hat{a}_k+\hat{b}_k)/2, & k < 0 \\
+                \end{cases}\label{eq:fourier_coefficient_equivalency}
+\end{align}
+
+To understand the complex coefficients better, we will do a brief summary of complex numbers. Complex numbers are numbers consisting of real and imaginary components. Complex numbers are written as in \lccref{eq:complex_number} with \(a \) and \(b \) being the real and imaginary components respectively. The imaginary component is multiplied by the imaginary unit \(i=\sqrt{-1}\).
 \begin{align}
   c = a + bi \label{eq:complex_number} \\
 \end{align}
-\autocite{DiscreteFourierTransform}
+The Discrete Fourier Transform (DFT) is shown in \lccref{eq:discrete_fourier_transform}. The DFT is used for discrete function values, which is the case for most practical applications \autocite{smithMathematicsDiscreteFourier2007,mathworksDiscreteFourierTransform2024}. This transform takes the discretized values and performs point wise multiplication between the values of the function and the basis function for a specific wave number. This is equivalent to the dot product between vectors which measures how large the projection of one vector on the other. Intuitively, this process \enquote{measures} how much of the discretized function is aligned with the basis function of that specific wave number. This measure is the coefficient for that wave number. The computation is repeated for all wave numbers. The inverse DFT calculates the function values from the computed coefficients as shown in \lccref{eq:inverse_discrete_fourier_transform}.
 \begin{align}
-  c_k=\sum_{n=0}^{N-1} f_n e^{-i2\pi kn/N} \label{eq:discrete_fourier_transform} \\
-  f_n=\sum_{k=0}^{N-1} c_k e^{i2\pi kn/N} \label{eq:inverse_discrete_fourier_transform}
+  \hat{c}_k= & \sum_{n=0}^{N-1} f_n e^{-2\pi ikn/N} \label{eq:discrete_fourier_transform}                   \\
+  f_n=       & \sum_{k=-N/2}^{N/2-1} \hat{c}_k e^{2\pi ikn/N} \label{eq:inverse_discrete_fourier_transform}
 \end{align}
 
+The implementation of the DFT and inverse DFT can affect the performance of the operation. The naive approach of implementing the equations exactly, while flexible in ways such as the wave numbers to compute coefficients for, is not the most efficient way. For faster computation, the aptly named Fast Fourier Transform (FFT) algorithm is used \autocite{chuFFTBlackBox2000}. This algorithm computes the DFT efficiently by exploiting symmetries that exist in and properties of the DFT\@. The Cooley-Tukey algorithm, arguably one of the most well known variation, uses a divide and conquer strategy by dividing the DFT into two at each step. This means that the discretized function would need to have discretization that is of the power of two. Methods have been developed to get around this, such as padding the data with zeroes to the next power of two and scaling the results accordingly. FFT algorithms can achieve a computational complexity of \(O(n\log(n))\) in comparison to \(O(n^2)\) complexity of the naive DFT algorithm.
+
+% Derivatives and antiderivatives of fourier series
+The Fourier series has an important property that is very important to this study. Taking the derivative of the Fourier series in \lccref{eq:fourier_series_complex} with respect to \(x\) results in \lccref{eq:fourier_series_complex_derivative}. Assuming we represent the derivative function is represented as another Fourier series with coefficients \(\hat{f'}_k\), the derivative coefficients can be computed from the coefficients of the original function \(f\) as shown in \lccref{eq:fourier_coeff_derivative}. This shows that the derivative of a Fourier series can be obtained trivially by simply multiplying the coefficients with the coefficients of the basis function exponents. The antiderivative can similarly be obtained by using the same relation and dividing the coefficients of the original function with the same scaling factor. Notice that the wave number is included in the scaling factor. This means that higher frequency coefficients get scaled more. For derivatives this amplifies the higher frequencies more and the antiderivative will smooth out the function by suppressing the higher frequencies.
+\begin{align}
+  \dv{x}f(x)=  & \sum_{k=-N/2}^{N/2-1} \hat{c}_k (2\pi ik) e^{2\pi ikx} \label{eq:fourier_series_complex_derivative} \\
+  =            & \sum_{k=-N/2}^{N/2-1} \hat{f'}_k e^{2\pi ikx}\nonumber                                              \\
+  \hat{f'}_k = & (2\pi ik)\hat{c}_k\label{eq:fourier_coeff_derivative}
+\end{align}
+
+This property of Fourier series is used in the spectral method \autocite{shenSpectralMethodsAlgorithms2011,boydChebyshevFourierSpectral2001}. The ability to compute derivatives as a simple multiplication motivates its use to solve PDEs. By using Fourier series to represent the solution to PDEs, one can isolate the solution coefficients in terms of the other values. This is a powerful tool for linear PDEs. For nonlinear PDEs like the Burgers' equation, the solution coefficients are not able to be obtained as easily. This is due to the multiplication between the solution and its derivatives. The solution is to iteratively compute the value of the solution coefficient until it converges. For problems in domains with more than one dimension, such as space and time for the Burgers' equation, one of the dimensions can be integrated separately using a different method like Euler's method. This hybrid approach is called the Method of Lines. Using the Fourier series, the spectral method is able to solve PDEs to a high degree of accuracy and efficiency for smooth functions.
+
+\section{Method of Manufactured Solutions}
+\noindent A method commonly used for testing PDE solvers is the Method of Manufactured Solutions (MMS). This is to verify that the program runs but also is accurate in its solutions. The concern of this method is not the physical realism of the solutions, rather it is a purely mathematical concern. This is because verification of a method means making sure the code accurately implements the mathematical equation. This very specific goal, places no requirement on the realism of any solutions used in the verification of the method \autocite{roacheCodeVerificationMethod2002,salariCodeVerificationMethod2000,vedovotoApplicationMethodManufactured2011}.
+
+The method solves PDEs by simply utilizing the equations involved. This method requires that the form of the PDE used must account for a forcing term. This is typically done by adding the forcing term as the residual. The residual is simply the right-hand side after moving all terms to the left-hand side. Without a forcing term, which translate to a forcing term of zero, the residual is the discrepancy between the right-hand side and left-hand side of the equation. By encapsulating the residual in the forcing term, any solution can be chosen because the discrepancy is now accounted as the outside forces the forcing term represent. This is the principle behind MMS\@. Combining this approach with the spectral method and Fourier series with arbitrary coefficients, the forcing term can be computed as a Fourier series given the solution as another Fourier series and other parameters. For verification purposes of numerical methods, using the solutions and other parameters generated with MMS require the implemented method to admit forcing terms. An example of MMS can be seen in \lccref{sec:data_generation_burgers}.
+
+% other properties we use such as Parseval's identity
+
 \section{Least Squares Support Vector Machine}
-\noindent An arguably fundamental model widely used whether in pedagogical settings or otherwise is the support vector machine. It dates back to works by Vapnik \& Lerner in 1963 (Recognition of Patterns with help of Generalized Portraits) and V. N. Vapnik \& A. Ya. Chervonenkis in 1964 (A note on one class of perceptrons/On a perceptron class). As the development on SVM continued, what originally was a model for classification of separable data generalized to regression tasks as well Vapnik (2000 The Nature of Statistical Learning Theory).
-\subsection{Disadvantages}
-However, the main disadvantage of LSSVMs are the fact that they do not have the sparse property of SVMs which can leave performance on the table. A simple mitigation can be done by filtering training samples with small absolute values of lagrangian multipliers \autocite{haifengwangComparisonSVMLSSVM2005}.
+\noindent An arguably fundamental model widely used both in pedagogical settings or otherwise is the Support Vector Machine (SVM). It dates back to works by \textcite{vapnik1963recognition} and \textcite{vapnik1964perceptron}. As the development on SVM continued, what originally was a model for classification of separable data generalized to regression tasks as well \autocite{vapnikNatureStatisticalLearning2000}. The support vector machine is essentially a straight line fitting model. We will refer to the line as a hyperplane for a more general term in multiple dimensions. For classification, this hyperplane divides the samples into two sides. One side being of one class and the other for samples not in that class. The optimization is done such that the line is at the maximum distance from the nearest points. This formulation still has a major weakness, which is that the model many not find a line that perfectly separates all the points. To allow for some error, slack terms are added to the constraints of the model. For regression, SVMs follow a similar approach with classification. However, rather than separating the inputs, the line is optimized to best fit the samples.
 
-To derive the least squares support vector regression (J.A. Suykens LSSVM Book) model we start with the linear expression:
-
+% Derivation of LSSVR
+The quadratic nature of the SVM objective function means that it is guaranteed to have an optimum point. However, with the motivation to further simplify the SVM, the Least-Squares Support Vector Machine (LSSVM) was introduced by \textcite{suykensLeastSquaresSupport2005}. The aim of this proposed method was to have a simpler formulation of the SVM while retaining the majority of benefits it provided. Here, we will focus on the regression problem and as such the LSSVM for regression. Given a pair of features \(\vb{x}\in\mathcal{X}\) and labels \(y\in\mathcal{Y}\), the approximate linear model is given by \lccref{eq:lssvr_primal_linear_model} where \(W\) is the model weights and \(b\) is the bias which are both parameters of the model.
 \begin{equation}
-  y=W^{\intercal}\vb{x}+b
+  y=W^{\intercal}\vb{x}+b\label{eq:lssvr_primal_linear_model}
 \end{equation}
-
+Training the model means optimizing the model by adjusting its parameters to minimize the objective function in \lccref{eq:lssvr_primal_objective} where \(e_k\) is the difference between the prediction \(W^{\intercal}\vb{x}+b\) and the label \(y\).
 \begin{equation}
-  \min_{W,e} J(W,e) = \frac{1}{2}W^{\intercal}W + C\frac{1}{2}\sum_{k=1}^{n}e_{k}
+  \min_{W,b,e} J(W,e) = \frac{1}{2}W^{\intercal}W + C\frac{1}{2}\sum_{k=1}^{n}e_{k}^{2}\label{eq:lssvr_primal_objective}
 \end{equation}
-
 Such that
 \begin{equation}
-  y_{k}=W^{\intercal}\vb{x}_{k}+b+e_{k} \qquad k=1,\dots,n
+  y_{k}=W^{\intercal}\vb{x}_{k}+b+e_{k} \qquad k=1,\dots,n\label{eq:lssvr_primal_constraint}
 \end{equation}
-
+To find the optimal point for the objective function given the constraint \lccref{eq:lssvr_primal_constraint}, we must construct the Lagrangian which combines the objective function with the constraint. The Lagrangian is shown in \lccref{eq:lssvr_primal_lagrangian} where \(\alpha_{k}\) is the Lagrange multiplier for the \(k\)\textsuperscript{th} sample constraint.
 \begin{equation}
-  L(W,b,e;\vb{\alpha}) = \frac{1}{2}W^{\intercal}W + C\frac{1}{2}\sum_{k=1}^{n}e_{k} + \sum_{k=1}^{n}\alpha_{k} \left(W^{\intercal}\vb{x}_{k}+b+e_{k} - y_{k} \right)
+  L(W,b,e;\vb{\alpha}) = \frac{1}{2}W^{\intercal}W + C\frac{1}{2}\sum_{k=1}^{n}e_{k}^{2} - \sum_{k=1}^{n}\alpha_{k} \left(W^{\intercal}\vb{x}_{k}+b+e_{k} - y_{k} \right)\label{eq:lssvr_primal_lagrangian}
 \end{equation}
 
-Derive the KKT system
+To compute the optimal parameters, first the point at which the gradient is zero for each parameter must be found. This is simply by equating to zero the derivative of the Lagrangian with respect to each parameter. This is called the Karush-Khun-Tucker optimality condition. Computing this for our Lagrangian results in \lccref{eq:lssvr_KKT}.
 \begin{equation}
   \begin{split}
-    \pdv{L}{W} = 0 \rightarrow          & W = \sum_{k=1}^{n}\alpha_{k}x_{k}                                \\
-    \pdv{L}{b} = 0 \rightarrow          & \sum_{k=1}^{n}\alpha_{k} = 0                                     \\
-    \pdv{L}{e_{k}} = 0 \rightarrow      & \alpha_{k} = C e_{k}                        & \qquad k=1,\dots,n \\
-    \pdv{L}{\alpha_{k}} = 0 \rightarrow & W^{\intercal}\vb{x}_{k}+b+e_{k} - y_{k} = 0 & \qquad k=1,\dots,n \\
-  \end{split}
+    \pdv{L}{W} = 0 \rightarrow          & W           = & \sum_{k=1}^{n}\alpha_{k}\vb{x}_{k}                      \\
+    \pdv{L}{b} = 0 \rightarrow          & 0           = & \sum_{k=1}^{n}\alpha_{k}                                \\
+    \pdv{L}{e_{k}} = 0 \rightarrow      & \alpha_{k}  = & C e_{k}                            & \qquad k=1,\dots,n \\
+    \pdv{L}{\alpha_{k}} = 0 \rightarrow & y_{k}       = & W^{\intercal}\vb{x}_{k}+b+e_{k}    & \qquad k=1,\dots,n \\
+  \end{split}\label{eq:lssvr_KKT}
 \end{equation}
 
-After eliminating $W$ and $\vb*{e}$, with $\vb{1}_{n} = \langle 1,\dots,1\rangle$, $\vb{y} = \lbrack y_1, \dots, y_n \rbrack $, and ${\alpha} = \lbrack \alpha_1, \dots, \alpha_n \rbrack $ the solution is as follows in block matrix notation
+Substituting the relationships for the optimal parameters, we can rewrite the Lagrangian in terms of the Lagrangian multipliers and the bias. The reasoning for this choice will be explained later. The substitution yields \lccref{eq:lssvr_dual}.
+\begin{align}
+   & \begin{aligned}
+       L(W,b,e;\vb{\alpha}) & =  \frac{1}{2}\left(\sum_{k=1}^{n}\alpha_{k}\vb{x}_{k}^{\intercal}\right)\left(\sum_{l=1}^{n}\alpha_{l}\vb{x}_{l}\right) + \frac{1}{2C}\sum_{k=1}^{n}\alpha_{k}^{2} \\
+                            & \qquad - \sum_{k=1}^{n}\alpha_{k} \left(\sum_{l=1}^{n}\alpha_{l}\vb{x}_{l}^{\intercal}\vb{x}_{k}+b+\frac{\alpha_{k}}{C} - y_{k} \right)
+     \end{aligned}        \\
+   & \begin{aligned}
+       \phantom{L(W,b,e;\vb{\alpha})} & =  \frac{1}{2}\sum_{k=1}^{n}\sum_{l=1}^{n}\alpha_{k}\alpha_{l}\vb{x}_{k}^{\intercal}\vb{x}_{l} + \frac{1}{2C}\vb{\alpha}^{\intercal}\vb{\alpha}                                      \\
+                                      & \qquad - \sum_{k=1}^{n}\sum_{l=1}^{n}\alpha_{k}\alpha_{l}\vb{x}_{l}^{\intercal}\vb{x}_{k} -b\times 0 - \frac{1}{C}\vb{\alpha}^{\intercal}\vb{\alpha} + \sum_{k=1}^{n}\alpha_{k}y_{k}
+     \end{aligned} \nonumber \\
+   & \begin{aligned}
+       \phantom{L(W,b,e;\vb{\alpha})} & =  -\frac{1}{2}\sum_{k=1}^{n}\sum_{l=1}^{n}\alpha_{k}\alpha_{l}\vb{x}_{k}^{\intercal}\vb{x}_{l} - \frac{1}{2C}\vb{\alpha}^{\intercal}\vb{\alpha} + \vb{\alpha}^{\intercal}\vb{y} \\
+     \end{aligned}\label{eq:lssvr_dual}
+\end{align}
+subject to
+\begin{equation}
+  \sum_{k=1}^{n}\alpha_{k} = 0
+\end{equation}
+
+To extend the model further, the kernel trick was introduced by \textcite{vapnikNatureStatisticalLearning2000}. This allows SVMs to learn nonlinear problems. In order to achieve, the input data is mapped to a higher dimension. For example, a set of points along one dimension can be lifted to two dimension by adding another coordinate that is the square of the first. This operation leads to the line being able to separate the samples in the middle from the samples towards both edges by intersecting the now parabolic line of samples in two points instead of the original one. Doing this with more dimensions mean that the model can add more nonlinearity. This is done by simply replacing the features \(\vb{x}_{k}\) with the mapped features \(\phi(\vb{x}_{k})\). However, for high dimensional mappings this causes the size of the weights \(W\) to increase accordingly. This is especially concerning when we use mappings to infinite dimensions. Fortunately, the dual formulation only contains inner products (dot products for Euclidean spaces) for all operations with the features. This means that a kernel function \(K\) can be used to compute these inner products in the higher dimensions without having to deal with the actual high dimensional mappings directly. The first term of the dual can be reformulated as a matrix of the kernel values multiplied by the vectors of Lagrange multipliers \(\alpha \). The kernel matrix \(\Omega \) has elements of \(K(\vb{x}_{k},\vb{x}_{l})\). In addition, the minimization of the derived dual in \lccref{eq:lssvr_dual} is equivalent to the maximization of the equation multiplied by \(-1\). Putting all the above together we can construct the block matrix notation for the LSSVR optimal parameters shown in \lccref{eq:lssvr_solution} with \(\vb{1}_{n} = \langle 1,\dots,1\rangle \), \(\vb{y} = \lbrack y_1, \dots, y_n \rbrack \), and \({\alpha} = \lbrack \alpha_1, \dots, \alpha_n \rbrack \). Solving for the parameters which are the Lagrangian multipliers \(\vb{\alpha}\) and bias \(b\) can be done by doing least-squares.
 \begin{equation} \label{eq:lssvr_solution}
   \begin{bmatrix}
     0          & \vb{1}_{n}^{\intercal} \\
@@ -67,12 +172,11 @@ After eliminating $W$ and $\vb*{e}$, with $\vb{1}_{n} = \langle 1,\dots,1\rangle
   \end{bmatrix}
 \end{equation}
 
-The solution in \cref{eq:lssvr_solution}
-
+The construction of matrices in \lccref{eq:lssvr_solution} and the solving procedure is presented by the pseudocode in \lccref{alg:lssvr_training}. Given a training set of length \(n\), features \(\vb{X}\), and labels \(\vb{y}\). Training the LSSVM means computing the values of Lagrange multipliers \(\vb{\alpha}\) and bias \(b\) where \(K\) is the kernel function, \(\vb{A}\) is the right-hand side matrix of size \(n+1\) by \(n+1\), \(\vb{H}\) is sum of the kernel matrix and the diagonal matrix of reciprocals of the regularization parameter \(C\) of size \(n\) by \(n\), \(\vb{I}\) is the identity matrix, \(\vb{B}\) is the right-hand side vector of size \(n+1\), and \(\vb{S}\) is the solution parameter vector of size \(n+1\).
 \begin{algorithm}[H]
   \caption{LSSVR Training}\label{alg:lssvr_training}
   \begin{algorithmic}[1]
-    \Procedure{SolveLSSVR}{$\vb{X}, \vb{y}, \gamma $}
+    \Procedure{SolveLSSVR}{$\vb{X}, \vb{y}, C $}
     \State{\(\Omega \gets [[]]\)}
     \Comment{Construct matrix of inner products in high dimensional space}
 
@@ -81,7 +185,7 @@ The solution in \cref{eq:lssvr_solution}
     \State{\(\Omega_{k,l}\gets K(\vb{X}_k,\vb{X}_l)\)}
     \EndFor{}
     \EndFor{}
-    \State{\(\vb{H} \gets \Omega + \frac{\vb{I}}{\gamma}\)}
+    \State{\(\vb{H} \gets \Omega + \frac{\vb{I}}{C}\)}
     % \State $\vb{1} \gets [1,1,...,1]$
     \State{\(\vb{A} \gets [[]]\)}
     \Comment{Construct left-hand side matrix}
@@ -101,8 +205,8 @@ The solution in \cref{eq:lssvr_solution}
     \For{\(k=0 \to n\)}
     \State{\(\vb{B}_{k+1} \gets \vb{y}_{k}\)}
     \EndFor{}
-    \State{\(\vb{A}^{\dagger} \gets pseudoInverse(\vb{A})\)}
-    \Comment{Compute solution using pseudo inverse}
+    \State{\(\vb{A}^{\dagger} \gets leastSquares(\vb{A})\)}
+    \Comment{Compute solution using least-squares}
     \State{\(\vb{S} \gets \vb{A}^{\dagger}\vb{B}\)}
     \State{\(b \gets \vb{S}_{0}\)}
     \For{\(k=0 \to n\)}
@@ -113,177 +217,101 @@ The solution in \cref{eq:lssvr_solution}
   \end{algorithmic}
 \end{algorithm}
 
-The basic pseudocode from the LSSVM Equation for function regression is defined in \lccref{alg:lssvr_training} for a training set of length $n$, features $\vb{X}$, and labels $\vb{y}$. Training the LSSVM means computing the values of langrange multipliers $\vb{\alpha}$ and bias $b$. $K$ is the kernel function used to compute the inner products in high dimensional space, here we assume the RBF kernel. $\vb{A}$ is a matrix of size $n+1$ by $n+1$. $\vb{H}$ is a matrix of size $n$ by $n$. $\vb{I}$ is the identity. $\vb{B}$ is a vector of size $n+1$. $\vb{S}$ is a vector of size $n+1$.
-
-After training the model can be used for prediction of unseen features. The pseudocode for prediction is shown in \lccref{alg:lssvr_prediction} for prediction features $\vb{U}$ with \(p \) samples. The trained model uses the training features themselves $\vb{X}$ with \(n \) samples, the learned multipliers of training points $\vb{\alpha}$, and the bias $b$.
-
+After training the model can be used for prediction of unseen features. The pseudocode for prediction is shown in \lccref{alg:lssvr_prediction} for prediction features \(\vb{U}\) with \(p \) samples. The trained model uses the training features themselves \(\vb{X}\) with \(n \) samples, the learned multipliers of training points \(\vb{\alpha}\), and the bias \(b\).
 \begin{algorithm}[H]
   \caption{LSSVR Prediction}\label{alg:lssvr_prediction}
   \begin{algorithmic}[1]
-    \Require $\vb{U}, \vb{\alpha}, \vb{X}, b$
-    \Ensure $\vb{v}$
-    \State $\Omega \gets [[]]$ \Comment{Construct matrix of inner products in high dimensional space}
+    \Require{\(\vb{U}, \vb{\alpha}, \vb{X}, b\)}
+    \Ensure{\(\vb{v}\)}
+    \State{\(\Omega \gets [[]]\)} \Comment{Construct matrix of inner products in high dimensional space}
 
-    \For{$k=0 \to p$}
-    \For{$l=0 \to n$}
-    \State$\Omega_{k,l}\gets K(\vb{U}_{k},\vb{X}_l)$
-    \EndFor
-    \EndFor
-    \State $\vb{v} \gets \Omega\vb{\alpha} + \vb{1}_{m}b$
+    \For{\(k=0 \to p\)}
+    \For{\(l=0 \to n\)}
+    \State{\(\Omega_{k,l}\gets K(\vb{U}_{k},\vb{X}_l)\)}
+    \EndFor{}
+    \EndFor{}
+    \State{\(\vb{v} \gets \Omega\vb{\alpha} + \vb{1}_{m}b\)}
   \end{algorithmic}
 \end{algorithm}
 
-In this example we will be using the function \(2x^2+4\). The values of this function can be seen in \lccref{table:1}.
+The choice of kernel used to construct the kernel matrix is problem specific. Three kernels are most commonly used in SVMs. These kernels are:
+\begin{enumerate}
+  \item Linear Kernel
 
-\begin{table}[H]
-  \centering
-  \begin{tabular}{@{}lll@{}}
-    \toprule
-    No & x       & y       \\ \midrule
-    1  & 0.0     & 4.0     \\
-    2  & 0.33... & 4.22... \\
-    3  & 0.66... & 4.88... \\
-    4  & 1.0     & 6.0     \\
-    \bottomrule
-  \end{tabular}
-  \caption{Example data of function $2x^2+4$} \label{table:1}
-\end{table}
-For $\Omega_{i,j}=K(x_i,x_j)=exp \left(-\frac{\norm*{x_i-x_j}^2}{2\sigma^2}\right)$
+        This kernel is the simplest with it being the dot product. It is recommended for cases where the number of features overwhelm the number of samples. The kernel is shown in \lccref{eq:linear_kernel}. Because this kernel operates in the original feature space, it is effective for linear problems.
+        \begin{equation}
+          K(\vb{x}_k,\vb{x}_l) = \vb{x}_k\cdot\vb{x}_l\label{eq:linear_kernel}
+        \end{equation}
+  \item Polynomial Kernel
 
-For example, with $\sigma=1$, $x_i=0.0$, \& $x_j = 0.33\dots$
-\begin{equation}
-  \begin{split}
-    K(0.0,0.33) & = exp\left(-\frac{\norm*{0.0-0.33}^2}{2(1)^2}\right) \\
-                & = exp\left(-\frac{0.33^2}{2}\right)                  \\
-                & = 0.9460
-  \end{split}
-\end{equation}
+        The polynomial kernel is shown in \lccref{eq:poly_kernel}. This kernel allows the model to learn more complex nonlinear decision boundaries. The parameter \(c\) is a constant and \(d\) is the degree of the polynomial. The degree of the polynomial need to be monitored closely in order to avoid overfitting.
+        \begin{equation}
+          K\left(\vb{x}_k,\vb{x}_l\right) = \left(\vb{x}_k\cdot\vb{x}_l+c\right)^{d} \label{eq:poly_kernel}
+        \end{equation}
+  \item Radial Basis Function Kernel
 
-\begin{equation}
-  \Omega\gets
-  \begin{bmatrix}
-    1.0000 & 0.9460 & 0.8007 & 0.6065 \\
-    0.9460 & 1.0000 & 0.9460 & 0.8007 \\
-    0.8007 & 0.9460 & 1.0000 & 0.9460 \\
-    0.6065 & 0.8007 & 0.9460 & 1.0000 \\
-  \end{bmatrix}
-\end{equation}
+        The RBF kernel is presented in \lccref{eq:rbf_kernel}. This kernel maps the inputs to infinite dimensional space. This enables the SVM to create decision boundaries which are not rigid. The RBF kernel is especially effective for nonlinear relationships between features and labels. The kernel has a parameter \(\sigma \) which is the scale parameter. This parameter affects how the kernel treats structures of different scales in the features. This parameter can be approximated roughly from the average variance of across all features multiplied by the number of features.
+        \begin{equation}
+          K(\vb{x}_k,\vb{x}_l) = \exp\left(-\frac{\lVert\vb{x}_k,\vb{x}_l\rVert^2}{2\sigma^2}\right) \label{eq:rbf_kernel}
+        \end{equation}
+\end{enumerate}
 
-\begin{equation}
-  \vb{I}\frac{1}{\gamma}\to\vb{I}\frac{1}{5}\to
-  \begin{bmatrix}
-    0.2000 & 0.0000 & 0.0000 & 0.0000 \\
-    0.0000 & 0.2000 & 0.0000 & 0.0000 \\
-    0.0000 & 0.0000 & 0.2000 & 0.0000 \\
-    0.0000 & 0.0000 & 0.0000 & 0.2000
-  \end{bmatrix}
-\end{equation}
+% SVR Interpretation
+After an SVM model is trained, it can be dissected and analyzed to interpret the decisions the model came up with using the work of \textcite{ustunVisualisationInterpretationSupport2007}. There are two tools that \autocite{ustunVisualisationInterpretationSupport2007} introduced, which are the Correlation Image (CI) and the p-vector. First, the correlation image is aimed to present the contribution of each input feature to the kernel matrix. This is because of the loss of input feature information after computing the inner product using the kernel function. Given \(N\) training samples and \(m\) input features, the correlation image matrix can be computed as the matrix multiplication between the kernel matrix of the training input features with a shape of \((N,N)\) and the matrix of all training input features with a shape of \((N,m)\). The matrix multiplication results in a matrix with the same shape as the matrix of training samples. To show the correlation, the rows of the result matrix will need to be sorted according to the output values.
 
-\begin{equation}
-  \Omega+\vb{I}\frac{1}{5}\to H\to
-  \begin{bmatrix}
-    1.2000 & 0.9460 & 0.8007 & 0.6065 \\
-    0.9460 & 1.2000 & 0.9460 & 0.8007 \\
-    0.8007 & 0.9460 & 1.2000 & 0.9460 \\
-    0.6065 & 0.8007 & 0.9460 & 1.2000 \\
-  \end{bmatrix}
-\end{equation}
+The second tool is the p-vector. This tool seeks to inform the learned contributions of each input feature towards the output. The Lagrangian multipliers contain information on the contribution of each training sample towards the output. To link this with the input features, the multipliers are multiplied against the matrix of training inputs. This is done by transposing the matrix of training inputs and performing a matrix multiplication against the Lagrange multipliers. The result shows how much contribution each input contributes to the output. If we generalize to multiple outputs, the result is a matrix with the rows representing input features and columns representing each output.
 
-\begin{equation}
-  A\to
-  \begin{bmatrix}
-    0.0000 & 1.0000 & 1.0000 & 1.0000 & 1.0000 \\
-    1.0000 & 1.2000 & 0.9460 & 0.8007 & 0.6065 \\
-    1.0000 & 0.9460 & 1.2000 & 0.9460 & 0.8007 \\
-    1.0000 & 0.8007 & 0.9460 & 1.2000 & 0.9460 \\
-    1.0000 & 0.6065 & 0.8007 & 0.9460 & 1.2000 \\
-  \end{bmatrix}
-\end{equation}
+Both of these tools allow the user to analyze which inputs are important. In addition, the relationships learned can also be seen albeit with the caveat that the contributions are basically sums different contribution terms. And, there is method to separate each contribution term currently. Despite the shortcomings, these tools are invaluable in interpreting and understanding the learned model.
 
-\begin{equation}
-  B\to
-  \begin{bmatrix}
-    0.0000 \\
-    4.0000 \\
-    4.2222 \\
-    4.8889 \\
-    6.0000 \\
-  \end{bmatrix}
-\end{equation}
+% Advantages and Disadvantages
+LSSVMs have many benefits but also its own trade-offs. The main disadvantage of LSSVMs is the fact that they do not have the sparse property of SVMs. This can result in more computation during training and prediction since every single sample would need to be included in the computations. A simple mitigation can be done by filtering training samples with small absolute values of Lagrangian multipliers \autocite{haifengwangComparisonSVMLSSVM2005}. However, the benefits of simple matrix operations outweigh the disadvantages. This is because of the parallelization benefits of algorithms for simple matrix operations. With access to parallel hardware accelerators, the speedup for both training and inference can be very large.
 
-\begin{equation}
-  A^{\dag}\to
-  \begin{bmatrix}
-    -0.8994 & 0.4348  & 0.0652  & 0.0652  & 0.4348  \\
-    0.4348  & 2.0686  & -1.6490 & -0.5292 & 0.1096  \\
-    0.0652  & -1.6490 & 3.3774  & -1.1992 & -0.5292 \\
-    0.0652  & -0.5292 & -1.1992 & 3.3774  & -1.6490 \\
-    0.4348  & 0.1096  & -0.5292 & -1.6490 & 2.0686  \\
-  \end{bmatrix}
-\end{equation}
+\section{Regression Metrics}\label{sec:evaluation_metrics}
+\noindent In order to evaluate the prediction of the model, four metrics are used. The metrics are divided into absolute metrics and relative metrics. Absolute metrics require context of scale to interpret their meaning \autocite{botchkarevNewTypologyDesign2019,alpaydinIntroductionMachineLearning2020}. Meanwhile, relative metrics often have a set range of values that it can have. This allows for quick interpretation of the severity of prediction errors. The metrics we discuss here are:
+\begin{enumerate}
+  \item MSE and RMSE
 
-\begin{equation}
-  A^{\dag}B\to S\to
-  \begin{bmatrix}
-    4.9421  \\
-    -0.6177 \\
-    -1.3737 \\
-    -0.5625 \\
-    2.5538  \\
-  \end{bmatrix}
-\end{equation}
+        The Mean Squared Error (MSE) and its root RMSE, are both very popular metrics. Given target values \(y_i\) and predictions \(y'_i\) such that the difference is \(e_{i} = y'_i-y_i\), the MSE is shown in \lccref{eq:mse}.
+        \begin{equation}
+          MSE = \frac{1}{n}\sum_{i=1}^{n}e_{i}^{2}\label{eq:mse}
+        \end{equation}
 
-\begin{equation}
-  b\to 4.9421
-\end{equation}
+        For The RMSE is simply the square root of the MSE\@. The MSE has the property of inflating large errors. The squaring also makes it so that the values are positive. This means that the absolute lowest error value is zero. However, the squaring does complicate the interpretation because the units are no longer the same as the predictions. Here the RMSE comes into play, because of the root square, the units are back to the original target units. This makes the MSE and RMSE very useful.
+  \item MAE
 
-\begin{equation}
-  \alpha \to
-  \begin{bmatrix}
-    -0.6177 \\
-    -1.3737 \\
-    -0.5625 \\
-    2.5538  \\
-  \end{bmatrix}
-\end{equation}
+        The second metric is the MAE\@. This metric is calculated as the mean of the absolute differences between the prediction and the target. The MAE is calculated as shown in \lccref{eq:mae}.
+        \begin{equation}
+          MAE = \frac{1}{n}\sum_{i=1}^{n}\abs{e_{i}}\label{eq:mae}
+        \end{equation}
 
-Prediction
-\begin{equation}
-  U\to
-  \begin{bmatrix}
-    0.3 \\
-    0.2 \\
-    0.5
-  \end{bmatrix}
-\end{equation}
+        This metric is good at representing the errors without any distortions. Because there is no nonlinear components, the metric is very straightforward to interpret. Due to the use of the absolute value, the minimum value of the metric is also zero.
+  \item R\textsuperscript{2}
 
-\begin{equation}
-  \Omega\to
-  \begin{bmatrix}
-    0.9560 & 0.9994 & 0.9350 & 0.7827 \\
-    0.9802 & 0.9912 & 0.8968 & 0.7261 \\
-    0.8825 & 0.9862 & 0.9862 & 0.8825 \\
-  \end{bmatrix}
-\end{equation}
+        The third metric is the coefficient of determination. This metric can be seen as the ratio between the model's accuracy and a baseline model of mean values. Mathematically, this metric is calculated using \lccref{eq:r2} given target values \(y_i\) and predictions \(y'_i\).
+        \begin{equation}
+          r2 = 1 - \frac{\sum_{i=1}^{n}(y_{i} - y'_{i})^{2}}{\sum_{i=1}^{n}(y_{i} - \bar{y})^{2}}\label{eq:r2}
+        \end{equation}
 
-\begin{equation}
-  \Omega\alpha\to
-  \begin{bmatrix}
-    -0.4904 \\
-    -0.6170 \\
-    -0.2008 \\
-  \end{bmatrix}
-\end{equation}
+        Because the R\textsuperscript{2} is a relative metric, there is a range of possible values. First, the highest value possible is one. This happens when the predictions are exactly the same as the targets. For predictions that are no better than the average value, the score is zero. Scores below zero mean that the predictions are worse than the average value.
+  \item sMAPE
 
-\begin{equation}
-  \Omega\alpha+b\vb{1}_{m}\to v\to
-  \begin{bmatrix}
-    4.4516 \\
-    4.3251 \\
-    4.7413 \\
-  \end{bmatrix}
-\end{equation}
-Where $\vb{1}_{m}$ is a vector of 1s with the length of $U$.
+        The final metric is the symmetric Mean Absolute Percentage Error. This metric has a range of values between zero for no error and two for high error. The values can be scaled by multiplying by 100 to obtain the percentages. Given target values \(y_i\) and predictions \(y'_i\) such that the difference is \(e_{i} = y'_i-y_i\), the sMAPE is calculated using \lccref{eq:smape} where \(\epsilon \) is a small value to prevent divisions by zero.
+        \begin{equation}
+          sMAPE = \frac{2}{N} \sum_{i=1}^{N}\frac{\abs{e_{i}}}{\max(\abs{y_{i}} + \abs{y'_{i}},\epsilon)}
+        \end{equation}
+
+        Despite the name, sMAPE does have issues with asymmetry arising from the denominator. For cases where the prediction overpredicts and underpredicts by the same amount, depending on the value of the target, the metric may penalize the prediction closer to zero more than the one that is further. This is despite both predictions being the same absolute difference away from the target value.
+
+\end{enumerate}
+
+\section{Python Language and PyTorch Library}
+\noindent The origins of the Python programming language began in the late 1980s as with its designer Guido van Rossum \autocite{rossumHistoryPythonBrief2009}. The language began with internal releases at the designer's workplace. Over thirty years later, today, the language has reached the stable version of \num{3.14}. Many today use Python as a high level language with very convenient features. Python is a multi-paradigm language with support for many styles of programs from standalone scripts to entire applications that use paradigms like object-oriented programming. Python also acts as a bridge for using software components written in other languages \autocite{rossumGlueItAll1998}. The language has a syntax that is relatively easy to understand. This has brought many people to the ecosystem and has consistently ranked the language as one of the most used programming languages in the world \autocite{stackoverflowTechnology2024Stack2024}. Specifically for the field of machine learning, Python enjoys a wide following \autocite{jetbrainsLanguagesStateDeveloper2023}. The machine learning ecosystem within python leverages Python's capability to interact with other languages to provide performant code that is still easy to use. This can be seen across different Machine Learning libraries in Python, such as Tensorflow, PyTorch, and Jax.
+
+PyTorch specifically, was originally developed by Meta AI as an open source project. Today it is part of the Linux Foundation \autocite{jimzemlinWelcomingPyTorchLinux2022}. As one of the most successful and important machine learning software project, PyTorch has a big community which provides support. The PyTorch ecosystem of other projects built around PyTorch, such as torchdiffeq \autocite{Chen_torchdiffeq_2021}, are part of what makes PyTorch an appealing choice when undertaking a Machine Learning project. At its core, PyTorch provides an implementation of tensors which are generalizations of matrices for arbitrary dimensions. The tensors are surrounded by operations that are related to its manipulation and use, such as matrix multiplications or even linear solvers. In addition, PyTorch also provides many of the tools for working with Neural Networks. Other parts of PyTorch deal with the data and preprocessing, such as a way to randomly sample data or the family of operations surrounding FFTs. The features and all other benefits of both Python and PyTorch, allow for rapid prototyping and is conducive to research projects. The community means help is also not far away.
+% Mean Squared Error (MSE & RMSE)
+% Mean Absolute Error (MAE)
+% Coefficient of Determination (R\textsuperscript{2})
+% Symmetric Mean Absolute Percentage Error (sMAPE)
 
 % \section{Sub Bab B}
 % \noindent Suatu penelitian tidak dapat lepas dari capaian pengetahuan dan pemahaman yang sudah dipublikasikan. Deskripsi tentang capaian ini menjadi penting karena selain menunjukkan tingkat pemahaman mahasiswa, juga mengetahui tempat pekerjaan penelitian TA dalam konstelasi capaian tersebut. Studi pustaka dan paparan hasilnya dapat memperkaya wawasan tentang topik yang diangkat pada penelitian TA.
