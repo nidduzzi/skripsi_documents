@@ -27,20 +27,20 @@ These four steps are the general processes involved in generating datasets for t
 
 \subsection{Data Generation: Anti-derivative}
 \noindent The first dataset is a simple one dimensional derivative. This was chosen as a simple proof of concept of the ability to solve a differential equation. The equation is related to many real-world problems such as acceleration and speed. One can imagine a train in an ideal world where acceleration is directly translated into speed. When the train accelerates at time \(t \) by some amount \(a \), we can expect the train to have some speed \(u \). In this ideal world, the relationship between speed and acceleration can be modeled with a simple differential \lccref{eq:derivative}. This scenario is found in many real systems albeit often with many more details such as different components of acceleration from friction, drag, gravity, and other factors.
-As previously mentioned in \lccref{sec:data_generation}, both velocity \(u \) and acceleration \(a \) are modeled with Fourier series in \lccrefs{eq:fourier_speed,eq:fourier_acceleration} respectively.
+As previously mentioned in \lccref{sec:data_generation}, both velocity \(u \) and acceleration \(a \) are modeled with Fourier series in \lccrefs{eq:fourier_speed,eq:fourier_acceleration} respectively, where \(T\) is the period representing the length of the domain.
 \begin{align}
-  u\left( t \right)         & = \sum_{k} \hat{u}_k e^{2\pi ikt} \label{eq:fourier_speed}        \\
-  a\left( t \right)         & = \sum_{k} \hat{a}_k e^{2\pi ikt} \label{eq:fourier_acceleration}
+  u\left( t \right) & = \sum_{k} \hat{u}_k e^{2\pi ikt/T} \label{eq:fourier_speed}        \\
+  a\left( t \right) & = \sum_{k} \hat{a}_k e^{2\pi ikt/T} \label{eq:fourier_acceleration}
 \end{align}
 The domain of the scenario is a two-hour time window. This number was chosen because it is around the ideal length of travel time on high speed rail in comparison to air travel and car travel \autocite{givoniDevelopmentImpactModern2006,wangEfficiencySpatialEquity2019,wrro2236}. This is the first step in generating this dataset.
 
-In the second step, as the derivative \lccref{eq:derivative} does not contain any parameters other than the acceleration which is the input parameter, there are no other parameters to determine. Therefore, the data generation process proceeds to generating coefficients for the speed functions \(\hat{u} \). The coefficients are assigned randomly from a Gaussian distribution with a mean of zero and standard deviation of one. This choice was made such that most wave numbers will have a coefficient of close to zero leaving a sparse set of wave numbers to mostly affect the resulting function. In total, \num{5000} unique functions are generated with \num{100} complex coefficients each.
+In the second step, as the derivative \lccref{eq:derivative} does not contain any parameters other than the acceleration which is the input parameter, there are no other parameters to determine. Therefore, the data generation process proceeds to generating coefficients for the speed functions \(\hat{u} \). The coefficients are assigned randomly from a Gaussian distribution with a mean of zero and standard deviation of one. This choice was made such that most wave numbers will have a coefficient of close to zero leaving a sparse set of wave numbers to mostly affect the resulting function. In total, \num{5000} unique functions are generated with \num{50} complex coefficients each.
 
 In the third step, the output function coefficients are computed. To find the relation between \(\hat{u}_k \) and \(\hat{a}_k \), we need to find substitutes for each term in \lccref{eq:derivative}. To do this, we take the derivative of \lccref{eq:fourier_speed} which result in \lccref{eq:fourier_series_derivative}. Using this we can substitute the terms in \lccref{eq:derivative} with \lccrefs{eq:fourier_series_derivative,eq:fourier_acceleration} giving \lccref{eq:example_spectral_method_fourier_substituted}. Finally, after some algebraic manipulation we obtain the relationship between the input \(a^*\) and output function \(u^*\) in terms of their coefficients in \lccref{eq:derivative_coeff}. One also needs to choose the integration constant \(\hat{u}_{0}\) because at \(k=0\) \lccref{eq:derivative_coeff} becomes a division by zero.
 \begin{align}
-  \dv{u\left( x \right)}{x}                                    & = \sum_{k} \hat{u}_k\times \left( 2\pi ik \right) e^{2\pi ikx} \label{eq:fourier_series_derivative} \\
-  \sum_{k} \hat{u}_k\times \left( 2\pi ik \right) e^{2\pi ikx} & = \sum_{k} \hat{a}_k e^{2\pi ikx} \label{eq:example_spectral_method_fourier_substituted}            \\
-  \hat{u}_k                                                    & = \hat{a}_k / \left( 2\pi ik \right) \label{eq:derivative_coeff}
+  \dv{u\left( t \right)}{t}                                        & = a\left(t\right) \label{eq:fourier_series_derivative}                                                             \\
+  \sum_{k} \hat{u}_k\times \left( 2\pi ik/T \right) e^{2\pi ikt/T} & = \sum_{k} \hat{a}_k e^{2\pi ikt/T} \label{eq:example_spectral_method_fourier_substituted}                         \\
+  \hat{a}_k                                                        & = \hat{u}_k\left( 2\pi ik/T \right)                                                    \label{eq:derivative_coeff}
 \end{align}
 
 In the final step, using randomly generated values of \(\hat{a}_k\), the corresponding values of \(\hat{u}_k\) are computed with \lccref{eq:derivative_coeff}. These coefficients are then used to compute the function values inside the domain. The two-hour time window is represented by a grid of \num{500} discrete points. With the coefficients and evaluation points ready, the function values are computed using \lccrefs{eq:fourier_speed,eq:fourier_acceleration}. Next, noise is added to the function values in order to motivate models learning on the dataset to generalize on noise. To also allow evaluation of how well the model performs with different levels of noise, the samples are duplicated into three copies for each high, medium and low noise levels. The function values of each copy is perturbed with noise from a Gaussian distribution with zero mean and standard deviation of some percentage of the average function value standard deviation. The percentages of each high, medium, and low noise levels are 5, 10, and 50 percent. The perturbed function values are then transformed back into their coefficients. An example generated function and its different perturbed versions is shown in \lccref{fig:antiderivative_noise_levels}. The horizontal axis indicates time which is displayed in units of hours. The vertical axis indicates velocity in abstract units.
@@ -72,35 +72,33 @@ In the final step, using randomly generated values of \(\hat{a}_k\), the corresp
 \subsection{Data Generation: Burgers' Equation}\label{sec:data_generation_burgers}
 \noindent The second dataset generated in this study concerns the Burgers' equation. This equation has been used to model a variety of cases including fluid dynamics, traffic flow, and, shock waves \autocite{bonkileSystematicLiteratureReview2018,orlandiBurgersEquation2000,becBurgersTurbulence2007,jamesonEnergyEstimatesNonlinear2007}. This equation is also used as a base problem for testing the effectivity of numerical methods in solving non-linear PDEs \autocite{barterShockCapturingPDEbased2008,banksNumericalErrorEstimation2012, tabatabaeiImplicitMethodsNumerical2007,bonkileSystematicLiteratureReview2018}. The nonlinear term in the equation creates steep gradients and even shock waves which are discontinuous with low viscosity conditions. These challenges test the stability of numerical solvers. This is the scenario and reason for the choice of this PDE\@. To control the viscosity and therefore the steepness of gradients, the formulation of the Burgers' equation considered in this study is the forced viscous Burgers' equation in one dimension. For a velocity of \(u(x, t)\), viscosity of \(\nu \), and forcing term of \(f(x, t)\), the formulation of the forced Burgers' equation is shown in \lccref{eq:forced_viscous_burgers}.
 
-The domain of we consider here is based on an exact solution of the equation. This is done so that the learned solver model can be tested on the exact solution. There are a number of sources in literature on the exact solution of the Burgers' equation \autocite{bentonTableSolutionsOnedimensional1972,wazwazPartialDifferentialEquations2010,woodExactSolutionBurgers2006}. In this study, we use a specific solution by \textcite{woodExactSolutionBurgers2006} which can be seen in \lccref{eq:burgers_exact_solution}. This solution is periodic in space but not in time. Therefore, the domain in space will be based on the spatial periodicity of the exact solution which is two. As such, the space domain spans from 0 to 2. The time domain, on the other hand, is chosen to span from 0 to 10 such that enough details of the solution is included.
-\begin{equation}
-  u(x,t) = \frac{2\nu\pi e^{-\pi^2\nu t}\sin(\pi x)}{a+e^{-\pi^2\nu t}\cos(\pi x)} \label{eq:burgers_exact_solution}
-\end{equation}
+The domain of we consider here is based on an exact solution of the equation. This is done so that the learned model can be tested on an exact solution and capture enough of the details within the solution within the domain. In this study, we use a specific solution by \textcite{woodExactSolutionBurgers2006} which can be seen in \lccref{eq:burgers_exact_solution}. This solution is periodic in space but not in time. Therefore, the domain in space will be based on the spatial periodicity of the exact solution which is two. As such, the space domain spans from 0 to 2. The time domain, on the other hand, is chosen to span from 0 to 10 such that enough details of the solution is included.
+
 Continuing to the second step, the parameters involved in \lccref{eq:forced_viscous_burgers} are the viscosity \(\nu \) and the forcing term \(f \). Since the forcing term is dependent on the solution in this step, the only parameter to determine is the viscosity. We choose three constant viscosity values which are \num{0.1}, \num{0.01}, and \num{0.0}. These values are chosen so that a variety of behaviors are represented in the dataset from viscous to inviscid flow.
 
 After this, in the third step, the solution functions \(u \) are generated with 8 modes in time and 8 in space and \num{500} unique function samples for each viscosity value. Since we don't factor the viscosity in at this point, for ease of comparison, we ensure the same solutions are generated every time by using a new instance of the generator with the same seed number each time. This results in the solutions being the same for all viscosity and other parameters of the equation are adapted to this.
 
-Next we account for the different viscosity values in this stage. The forcing term is computed using \lccref{eq:forced_viscous_burgers}. The solution field \(u\) and forcing term \(f\) are modeled with Fourier series in \lccrefs{eq:fourier_field,eq:fourier_force} where \(k\) is a vector of spatial and temporal wave number such that \(k_t\) is the temporal wave number and \(k_x\) is the spatial wave number.
+Next we account for the different viscosity values in this stage. The forcing term is computed using \lccref{eq:forced_viscous_burgers}. The solution field \(u\) and forcing term \(f\) are modeled with Fourier series in \lccrefs{eq:fourier_field,eq:fourier_force} where \(k\) is a vector of spatial and temporal wave number such that \(k_t\) is the temporal wave number and \(k_x\) is the spatial wave number. The period in time is represented by \(T\) and in space it is \(L\).
 \begin{align}
-  u\left(x, t \right) & = \sum_{k_{x}} \sum_{k_{t}} \hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:fourier_field} \\
-  f\left(x, t \right) & = \sum_{k_{x}}\sum_{k_{t}} \hat{f}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:fourier_force}
+  u\left(x, t \right) & = \sum_{k_{x}} \sum_{k_{t}} \hat{u}_k e^{2\pi i(k_{x}x/L+k_{t}t/T)} \label{eq:fourier_field} \\
+  f\left(x, t \right) & = \sum_{k_{x}}\sum_{k_{t}} \hat{f}_k e^{2\pi i(k_{x}x/L+k_{t}t/T)} \label{eq:fourier_force}
 \end{align}
-Substituting the terms in \lccref{eq:forced_viscous_burgers} with the respective Fourier series, we get the equation \lccref{eq:forced_viscous_burgers_fourier_substitution}. A problem one notices is the nonlinear term \(u\pdv{u}{x}\). A naive approach would multiply all wave numbers terms with each other.
+Substituting the terms in \lccref{eq:forced_viscous_burgers} with the respective Fourier series, we get the equation \lccref{eq:forced_viscous_burgers_fourier_substitution}. A problem one notices is the nonlinear term \(u\pdv{u}{x}\). A naive approach would multiply all wave numbers terms with each other as shown in \lccref{eq:burgers_convolution}.
 \begin{align}
-  u\pdv{u}{x} = \left(\sum_{k_{x}} \sum_{k_{t}} \hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)}\right) \times \left(\sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{x})\hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)}\right)
+  u\pdv{u}{x} = \left(\sum_{k_{x}} \sum_{k_{t}} \hat{u}_k e^{2\pi i(k_{x}x/L+k_{t}t/T)}\right) \times \left(\sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{x}/L)\hat{u}_k e^{2\pi i(k_{x}x/L+k_{t}t/T)}\right)\label{eq:burgers_convolution}
 \end{align}
 This is computationally expensive operation with \(N^2\) multiplications \autocite{lariosMATH934BURGERS2021,robertsDealiasedConvolutionsPseudospectral2011,shenSpectralMethodsAlgorithms2011,orszagComparisonPseudospectralSpectral1972}. To avoid this complexity, the term is first reformulated into \(\pdv{x}(u^2/2)\). Then to avoid aliasing, the coefficients are padded with 50\% zeros such that the padded coefficients are 3/2 times the size of the original \autocite{orszagEliminationAliasingFiniteDifference1971, lariosMATH934BURGERS2021}. Then we use the padded coefficients to compute the function values in the physical domain using the inverse transform. And then, the point wise squaring operation is performed and transform the results back to spectral domain. The resulting coefficients are then trimmed back to their original size before padding. Finally, we multiply the resulting coefficients \(\hat{uu}_k\) by the derivative constants. This operation is much more efficient with only \(1.5 N\) multiplications. This is still more efficient than the naive approach even after taking into account the transforms involved adds \(O(2\times 1.5Nln(1.5N))\) operations if using a Fast Fourier Transform algorithm. Putting all the above together, results in \lccref{eq:forced_viscous_burgers_fourier_substitution}.
 \begin{equation}
   \begin{split}
-    \sum_{k_{x}} \sum_{k_{t}} \hat{f}_k e^{2\pi i(k_{x}x+k_{t}t)} =
-     & \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{t}) \hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)}                                                                \\
-     & + \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{x})\hat{uu}_k e^{2\pi i(k_{x}x+k_{t}t)}                                                              \\
-     & - \nu\sum_{k_{x}} \sum_{k_{t}} {(2\pi i k_{x})}^2\hat{u}_k e^{2\pi i(k_{x}x+k_{t}t)} \label{eq:forced_viscous_burgers_fourier_substitution}
+    \sum_{k_{x}} \sum_{k_{t}} \hat{f}_k e^{2\pi i(k_{x}x/L+k_{t}t/T)} =
+     & \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{t}/T) \hat{u}_k e^{2\pi i(k_{x}x/L+k_{t}t/T)}                                                                \\
+     & + \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{x}/L)\hat{uu}_k e^{2\pi i(k_{x}x/L+k_{t}t/T)}                                                              \\
+     & - \nu\sum_{k_{x}} \sum_{k_{t}} {(2\pi i k_{x}/L)}^2\hat{u}_k e^{2\pi i(k_{x}x/L+k_{t}t/T)} \label{eq:forced_viscous_burgers_fourier_substitution}
   \end{split}
 \end{equation}
 \begin{align}
-  \sum_{k_{x}} \sum_{k_{t}} \hat{f}_k & = \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{t}) \hat{u}_k + (2\pi i k_{x})\hat{uu}_k - \nu{(2\pi i k_{x})}^2\hat{u}_k \label{eq:forced_viscous_burgers_fourier} \\
-  \hat{f}_k                           & = (2\pi i k_{t}) \hat{u}_k + (2\pi i k_{x})\hat{uu}_k - \nu{(2\pi i k_{x})}^2\hat{u}_k \label{eq:forced_viscous_burgers_coeff}
+  \sum_{k_{x}} \sum_{k_{t}} \hat{f}_k & = \sum_{k_{x}} \sum_{k_{t}} (2\pi i k_{t}/T) \hat{u}_k + (2\pi i k_{x}/L)\hat{uu}_k - \nu{(2\pi i k_{x}/L)}^2\hat{u}_k \label{eq:forced_viscous_burgers_fourier} \\
+  \hat{f}_k                           & = (2\pi i k_{t}/T) \hat{u}_k + (2\pi i k_{x}/L)\hat{uu}_k - \nu{(2\pi i k_{x}/L)}^2\hat{u}_k \label{eq:forced_viscous_burgers_coeff}
 \end{align}
 After simplifying the equation, we get the coefficients as in \lccref{eq:forced_viscous_burgers_coeff}. Using this equation, the exact forcing term corresponding to the randomly generated solution can be computed with relatively low cost. Finally, the function values of both the solutions and forcing terms are perturbed by adding Gaussian noise with a mean of zero and standard deviation of 10\% of the function value standard deviation to the values of the inverse transform. The perturbed coefficients are then recomputed from the sum and the final perturbed functions are obtained.
 
@@ -1504,11 +1502,11 @@ The third scenario is designed to demonstrate the modeling capability of Spectra
   \centering
   \begin{tabular}{lrrrrrrrrr}
     \toprule
-    Noise level & MSE   & RMSE & MAE  & R\textsuperscript{2}   & sMAPE \\
+    Noise level & MSE   & RMSE & MAE  & R\textsuperscript{2} & sMAPE \\
     \midrule
-    5\%         & 0.86  & 0.93 & 0.57 & 0.96 & 0.31  \\
-    10\%        & 2.06  & 1.43 & 0.93 & 0.91 & 0.46  \\
-    50\%        & 15.59 & 3.95 & 3.04 & 0.50 & 1.04  \\
+    5\%         & 0.86  & 0.93 & 0.57 & 0.96                 & 0.31  \\
+    10\%        & 2.06  & 1.43 & 0.93 & 0.91                 & 0.46  \\
+    50\%        & 15.59 & 3.95 & 3.04 & 0.50                 & 1.04  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1517,7 +1515,7 @@ The scenario is implemented as a Jupyter notebook which imports relevant librari
 
 The kernel scaling hyperparameter sigma has the same value of 10 for all noise levels. This is because the inputs are all scaled to approximately have a standard deviation of one. The value itself is from the number of features which comes out to 100 total inputs to the LSSVR\@.
 
-\Cref{table:scenario_1_spectral_metrics} shows that the model is able to generalize from the training data and learn the simple linear antiderivative operator. Focusing on the coefficient of determination (R\textsuperscript{2}) scores, we can see that the model is off by 0.04 to the perfect score of 1.0 for the lowest noise level.  While increasing noise levels does degrade the performance, this is partly due to the target values also having been perturbed. This fact can be seen if we look at how predictions from the very same trained models on noisy inputs are compared to the noise-free versions of the antiderivative functions which is shown in \lccref{table:scenario_1_clean_spectral_metrics}. The metrics show that the model predictions are slightly closer to the unperturbed function coefficients compared to the perturbed versions. This can be seen as the influence of the independent synthetic measurement noise in the perturbed targets being removed from the testing metrics.
+\Cref{table:scenario_1_spectral_metrics} shows that the model is able to generalize from the training data and learn the simple linear antiderivative operator. Focusing on the coefficient of determination (R\textsuperscript{2}) scores, we can see that the model is off by 0.04 to the perfect score of 1.0 for the lowest noise level. While increasing noise levels does degrade the performance, this is partly due to the target values also having been perturbed. This fact can be seen if we look at how predictions from the very same trained models on noisy inputs are compared to the noise-free versions of the antiderivative functions which is shown in \lccref{table:scenario_1_clean_spectral_metrics}. The metrics show that the model predictions are slightly closer to the unperturbed function coefficients compared to the perturbed versions. This can be seen as the influence of the independent synthetic measurement noise in the perturbed targets being removed from the testing metrics.
 
 The higher noise levels shows that the model is still relatively accurate. Looking at the R\textsuperscript{2} score for the 50\% noise level, the model is more accurate than a baseline mean value model. The R\textsuperscript{2} score of 0.5 means that the model predictions has roughly half the error the baseline would produce.
 
@@ -1526,11 +1524,11 @@ The higher noise levels shows that the model is still relatively accurate. Looki
   \centering
   \begin{tabular}{lrrrrrrrr}
     \toprule
-    Noise level & MSE  & RMSE & MAE  & R\textsuperscript{2}   & sMAPE \\
+    Noise level & MSE  & RMSE & MAE  & R\textsuperscript{2} & sMAPE \\
     \midrule
-    5\%         & 0.79 & 0.89 & 0.51 & 0.96 & 0.28  \\
-    10\%        & 1.80 & 1.34 & 0.80 & 0.92 & 0.40  \\
-    50\%        & 9.30 & 3.05 & 2.23 & 0.62 & 0.90  \\
+    5\%         & 0.79 & 0.89 & 0.51 & 0.96                 & 0.28  \\
+    10\%        & 1.80 & 1.34 & 0.80 & 0.92                 & 0.40  \\
+    50\%        & 9.30 & 3.05 & 2.23 & 0.62                 & 0.90  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1541,11 +1539,11 @@ The function values are also evaluated and the values of the metrics between the
   \centering
   \begin{tabular}{lrrrrrrrr}
     \toprule
-    Noise level & MSE  & RMSE & MAE  & R\textsuperscript{2}   & sMAPE \\
+    Noise level & MSE  & RMSE & MAE  & R\textsuperscript{2} & sMAPE \\
     \midrule
-    5\%         & 0.03 & 0.18 & 0.15 & 0.97 & 0.39  \\
-    10\%        & 0.08 & 0.29 & 0.23 & 0.92 & 0.55  \\
-    50\%        & 0.62 & 0.79 & 0.63 & 0.49 & 1.05  \\
+    5\%         & 0.03 & 0.18 & 0.15 & 0.97                 & 0.39  \\
+    10\%        & 0.08 & 0.29 & 0.23 & 0.92                 & 0.55  \\
+    50\%        & 0.62 & 0.79 & 0.63 & 0.49                 & 1.05  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1556,11 +1554,11 @@ For the metrics between the predictions and the noise-free version of the target
   \centering
   \begin{tabular}{lrrrrrrr}
     \toprule
-    Noise level & MSE  & RMSE & MAE  & R\textsuperscript{2}   & sMAPE \\
+    Noise level & MSE  & RMSE & MAE  & R\textsuperscript{2} & sMAPE \\
     \midrule
-    5\%         & 0.03 & 0.18 & 0.14 & 0.97 & 0.38  \\
-    10\%        & 0.07 & 0.27 & 0.21 & 0.93 & 0.53  \\
-    50\%        & 0.37 & 0.61 & 0.49 & 0.62 & 0.94  \\
+    5\%         & 0.03 & 0.18 & 0.14 & 0.97                 & 0.38  \\
+    10\%        & 0.07 & 0.27 & 0.21 & 0.93                 & 0.53  \\
+    50\%        & 0.37 & 0.61 & 0.49 & 0.62                 & 0.94  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1621,11 +1619,11 @@ For inverse problems, we simply use the same testing set with the labels now use
   \centering
   \begin{tabular}{lrrrrr}
     \toprule
-    Noise level & MSE      & RMSE   & MAE    & R\textsuperscript{2}    & sMAPE \\
+    Noise level & MSE      & RMSE   & MAE    & R\textsuperscript{2} & sMAPE \\
     \midrule
-    5\%         & 1739.56  & 41.71  & 26.44  & 0.91  & 0.36  \\
-    10\%        & 3485.10  & 59.03  & 42.19  & 0.76  & 0.52  \\
-    50\%        & 49319.73 & 222.08 & 174.48 & -0.19 & 1.05  \\
+    5\%         & 1739.56  & 41.71  & 26.44  & 0.91                 & 0.36  \\
+    10\%        & 3485.10  & 59.03  & 42.19  & 0.76                 & 0.52  \\
+    50\%        & 49319.73 & 222.08 & 174.48 & -0.19                & 1.05  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1690,11 +1688,11 @@ The coefficient value predictions are shown in \lccref{table:scenario_2_spectral
   \centering
   \begin{tabular}{lrrrrr}
     \toprule
-    \(\nu \) & MSE      & RMSE     & MAE      & R\textsuperscript{2}   & sMAPE \\
+    \(\nu \) & MSE      & RMSE     & MAE      & R\textsuperscript{2} & sMAPE \\
     \midrule
-    0.0      & 3.46e-04 & 1.86e-02 & 1.24e-02 & 0.79 & 0.65  \\
-    0.01     & 3.56e-04 & 1.89e-02 & 1.27e-02 & 0.78 & 0.67  \\
-    0.1      & 9.17e-04 & 3.03e-02 & 2.32e-02 & 0.46 & 1.08  \\
+    0.0      & 3.46e-04 & 1.86e-02 & 1.24e-02 & 0.79                 & 0.65  \\
+    0.01     & 3.56e-04 & 1.89e-02 & 1.27e-02 & 0.78                 & 0.67  \\
+    0.1      & 9.17e-04 & 3.03e-02 & 2.32e-02 & 0.46                 & 1.08  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1704,11 +1702,11 @@ The coefficient value predictions are shown in \lccref{table:scenario_2_spectral
   \centering
   \begin{tabular}{lrrrrr}
     \toprule
-    \(\nu \) & MSE      & RMSE     & MAE      & R\textsuperscript{2}   & sMAPE \\
+    \(\nu \) & MSE      & RMSE     & MAE      & R\textsuperscript{2} & sMAPE \\
     \midrule
-    0.0      & 5.58e-05 & 7.47e-03 & 5.89e-03 & 0.82 & 0.70  \\
-    0.01     & 5.74e-05 & 7.58e-03 & 6.01e-03 & 0.81 & 0.71  \\
-    0.1      & 1.58e-04 & 1.26e-02 & 9.98e-03 & 0.51 & 1.04  \\
+    0.0      & 5.58e-05 & 7.47e-03 & 5.89e-03 & 0.82                 & 0.70  \\
+    0.01     & 5.74e-05 & 7.58e-03 & 6.01e-03 & 0.81                 & 0.71  \\
+    0.1      & 1.58e-04 & 1.26e-02 & 9.98e-03 & 0.51                 & 1.04  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1806,7 +1804,7 @@ Another observation we can see is that the difference between the target and rol
   \end{tabular}
 \end{table}
 
-The exact function \cref{eq:burgers_exact_solution} is computed for each viscosity value. The discrete Fourier transform of the values are then used for doing rollout with the model. For the forcing term, we just use a constant function with a value of zero. The rollout predictions are shown in \lccref{fig:scenario_2_interpretation}. The model is not successful in the rollout for the inviscid equation and for the viscosity of \(\nu=0.01\). Both of these cases, the model produces too much error that the original function is no longer recognizable in the predictions. For the higher viscosity value of \(\nu=0.1\) the rollout produces a recognizable prediction. The error stays to about half the maximum function value. We do see some more noticeable error in the flatter parts of the function. The error also take a very similar shape across the different viscosity values. Since we essentially used the same solutions for training the model for each viscosity, the similarity in error means that it can be alleviated with more diverse training samples. The error for the flatter functions may also be alleviated by including similar flatter functions during training.
+The exact function \cref{eq:burgers_exact_solution} is computed for each viscosity value. The discrete Fourier transform of the values are then used for doing rollout with the model. For the forcing term, we just use a constant function with a value of zero. The rollout predictions are shown in \lccref{fig:scenario_2_exact}. The model is not successful in the rollout for the inviscid equation and for the viscosity of \(\nu=0.01\). Both of these cases, the model produces too much error that the original function is no longer recognizable in the predictions. For the higher viscosity value of \(\nu=0.1\) the rollout produces a recognizable prediction. The error stays to about half the maximum function value. We do see some more noticeable error in the flatter parts of the function. The error also take a very similar shape across the different viscosity values. Since we essentially used the same solutions for training the model for each viscosity, the similarity in error means that it can be alleviated with more diverse training samples. The error for the flatter functions may also be alleviated by including similar flatter functions during training.
 \begin{figure}[H]
   \centering
   \begin{adjustwidth}{-0.1\linewidth}{-0.1\linewidth}
@@ -1961,10 +1959,10 @@ The testing results are shown in \lccrefs{table:sc3_test_anomaly_metrics,table:s
   \centering
   \begin{tabular}{lrrrrr}
     \toprule
-                   & MSE     & RMSE  & MAE   & R\textsuperscript{2}   & sMAPE \\
+                   & MSE     & RMSE  & MAE   & R\textsuperscript{2} & sMAPE \\
     \midrule
-    spectral       & 4189.16 & 64.72 & 32.47 & 0.35 & 1.19  \\
-    function value & 4.09    & 2.02  & 1.44  & 0.09 & 1.24  \\
+    spectral       & 4189.16 & 64.72 & 32.47 & 0.35                 & 1.19  \\
+    function value & 4.09    & 2.02  & 1.44  & 0.09                 & 1.24  \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1974,10 +1972,10 @@ The testing results are shown in \lccrefs{table:sc3_test_anomaly_metrics,table:s
   \centering
   \begin{tabular}{lrrrrr}
     \toprule
-                   & MSE     & RMSE  & MAE   & R\textsuperscript{2}   & sMAPE \\
+                   & MSE     & RMSE  & MAE   & R\textsuperscript{2} & sMAPE \\
     \midrule
-    spectral       & 4189.16 & 64.72 & 32.47 & 0.56 & 0.74  \\
-    function value & 4.09    & 2.02  & 1.44  & 0.75 & 0.01  \\
+    spectral       & 4189.16 & 64.72 & 32.47 & 0.56                 & 0.74  \\
+    function value & 4.09    & 2.02  & 1.44  & 0.75                 & 0.01  \\
     \bottomrule
   \end{tabular}
 \end{table}

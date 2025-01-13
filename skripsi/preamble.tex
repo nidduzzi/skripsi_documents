@@ -1,3 +1,4 @@
+% !TEX root = ./skripsi.tex
 \usepackage{geometry}
 \geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=4cm,rmargin=3cm}
 \usepackage[luatex,bookmarks=true,unicode=true,pdfusetitle,bookmarksnumbered=true,bookmarksopen=true,breaklinks=true,pdfborder={0 0 1},backref=none,colorlinks=false]{hyperref}
@@ -34,15 +35,15 @@
   pdfkeywords={\keywords}}
 \usepackage[titletoc]{appendix}
 
-\usepackage[utf8]{inputenc}
 \usepackage[american]{babel} %plugin english
 \usepackage{csquotes}
 \usepackage[backend=biber, style=apa]{biblatex} %TODO change style to apa or other style, backref=true
 \addbibresource{references.bib}
+% \usepackage{natbib}
+% \bibliographystyle{apa}
 \usepackage{xpatch}
 \usepackage{fontspec}   % biar bisa kombinasi font
 \setmainfont{Times New Roman}
-\usepackage{mathptmx}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{mathrsfs}
@@ -58,10 +59,12 @@
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 \usepackage{ragged2e}
 \usepackage{booktabs}
+\usepackage{stringstrings}% for text utils like titlecase
+\addlcwords{of and}% APA style lower case for title case
 % define a new column type for convenience
 \newcolumntype{L}[1]{>{\hsize=#1\hsize\RaggedRight} X}
 \usepackage{cleveref}
-%lowercase non abbreviation referece
+%lowercase non abbreviation reference
 \newcommand{\lccref}[1]{\lcnamecref{#1}~\labelcref{#1}}
 \makeatletter
 \def\lcfirstnamecrefs#1,#2\@nil{\lcnamecrefs{#1}}
@@ -113,7 +116,7 @@
 % \settowidth{\cftchapnumwidth}{\cftchappresnum}
 % \renewcommand{\cftchapaftersnumb}{\quad}
 % \addtocontents{toc}{
-%\renewcommand\protect*\protect\cftchappresnum{\MakeUppercase{\chaptername}~}}
+% \renewcommand\protect*\protect\cftchappresnum{\MakeUppercase{\chaptername}~}}
 % \protect\renewcommand*\protect\cftchappresnum{\MakeUppercase{\chaptername}~}}
 
 %Penomoran Bab berupa bilangan romawi
