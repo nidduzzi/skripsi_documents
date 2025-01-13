@@ -1,0 +1,453 @@
+% !TEX root = ./article.tex
+\documentclass[preprint,12pt,times,authoryear]{elsarticle}
+\input{preamble}
+\begin{document}
+\begin{frontmatter}
+  \title{\judul}
+  % \author{
+  %   Lala Septem Riza\\
+  %   \texttt{lala.s.riza@upi.edu}
+  %   \and
+  %   Ahmad Izzuddin\\
+  %   \texttt{ahmadizzuddin@upi.edu}
+  \author[upi]{Lala Septem Riza}
+  \ead{lala.s.riza@upi.edu}
+  \author[upi]{Ahmad Izzuddin}
+  \ead{ahmadizzuddin@upi.edu}
+
+  \affiliation[upi]{organization={Department of Computer Science Education Universitas Pendidikan Indonesia},%Department and Organization
+    addressline={Jl. Dr. Setiabudi No.229},
+    postcode={40154},
+    city={Bandung},
+    country={Indonesia}}
+  \begin{abstract}
+    Numerical models of systems are a crucial part of science and engineering. The use of machine learning in this space for operator learning provides an alternative as data-driven surrogates. The Fourier Transform provides a key component for learning the relationship between a function and its derivatives. Building on Spectral Neural Operators (SNO), we propose a Support Vector Machine (SVM) based framework to learn the underlying governing equations of a system based on data. We study the viability and interpretability of the proposed framework on the derivative equation and the Burgers' equation. The model is able to learn from mathematically correct random data and is able to partially generalize to an exact solution of the Burgers' equation. The learned model is interpreted and verified to have learned the correct contributions of the input function coefficients to the output function coefficients.
+  \end{abstract}
+  \begin{keyword}
+    %% keywords here, in the form: keyword \sep keyword
+    Operator Learning \sep LSSVR \sep PDE
+    % keyword one \sep keyword two
+    %% PACS codes here, in the form: \PACS code \sep code
+    % \PACS 0000 \sep 1111
+    %% MSC codes here, in the form: \MSC code \sep code
+    %% or \MSC[2008] code \sep code (2000 is the default)
+    \MSC 35-04 \sep 68T99
+  \end{keyword}
+
+\end{frontmatter}
+\section{Introduction}
+Governing equations have been a critical part of the technological revolution. They help us understand better the systems that exist in our world \citep{braunDifferentialEquationsTheir1993}. Typically, governing equations are differential equations. For systems with many variables, they are described by Partial Differential Equations (PDE). For example, the spread of heat on a cooking surface is described by the heat equation, with the temperature as a function of time and space. Differential equations are used because often, the behavior systems are easier to describe in the way they change.
+
+Typically, when modeling a system with PDEs, there are different problem types based on the conditions that are imposed on the solution. The main problem types are where the solutions are constrained by its boundaries. For equations with a temporal component, an initial value can be imposed as a restriction on solution's value at that initial point in time. This problem is called the Initial Value Problem (IVP). The Boundary Value Problem (BVP) on the other hand, defines the restrictions on the solution at the spatial boundary of the system being simulated, such as values or derivatives the solution must have at the boundary. The Initial-Boundary Value Problem (IBVP) combines both conditions imposed on the solution. These problems are considered part of the larger group of forward problems. This is because, the objective is to determine the system's response in terms of the solution towards causal factors, namely parameters and imposed conditions \citep{groetschInverseProblemsMathematical1993, vogelComputationalMethodsInverse2002}. The inverse problem, on the other hand, is the reverse process where parameters or conditions such as the initial value is the objective. Simply put, in inverse problems, the effects are used to compute the cause that led to it.
+
+While some PDEs have analytical solutions, they are restrictive in ways such as the initial condition, or other parameters \citep{selvaduraiPartialDifferentialEquations2000,koprivaImplementingSpectralMethods2009, olverIntroductionPartialDifferential2014, schiesserNumericalMethodLines2012, wazwazPartialDifferentialEquations2010}. Because of this, modeling a system with differential equations usually involve the use of numerical methods. With their long history, there are now several well established general methods such as Finite Difference Method (FDM), Finite Element Method (FEM), and the Spectral Method. With mesh based methods such as FDM, evaluating the solutions at higher resolutions means either recomputing the solution with a higher resolution which increases the computational cost, or interpolation which can depend on the problem. For multiscale problems like Numerical Weather Prediction (NWP), the complex interactions are very difficult to model due to the vast differences in scale \citep{frankCharacterizingDynamicsMultiscale2024}. Also, the user needs to know the equations involved before modeling the system. Which may not be available in some fields like ecology \citep{holmesPartialDifferentialEquations1994,turchinDoesPopulationEcology2001} and epidemiology \citep{brauerMathematicalModelsEpidemiology2019}.
+
+These challenges have spurred interest in modeling systems with the use of Machine Learning (ML) as surrogates. There are two types of modeling with ML models. The first kind is akin to function regression, where the model predicts solution values from coordinates and parameters. An example, \citet{raissiPhysicsinformedNeuralNetworks2019} proposed Physics-Informed Neural Networks (PINN). The specific implementation they used is a Feedforward Neural Network (FNN) as an approximation for the solution.  To enforce the PDE, the loss is computed with PDE residuals and other constraints. The partial derivatives for the residual are computed with ease using the automatic differentiation with respect to the input coordinates. Other works utilize convolutional neural networks (CNN) to compute the solution from input functions such as forcing terms or initial conditions. This approach generally means discretizing the functions on a grid and using these as training data. One study by \citet{wangPhysicsinformedDeepLearning2020} predicts turbulent flow using spatial and temporal decomposition and a specialized U-Net, an architecture based on CNNs, to predict the velocity field from the decomposition of the previous velocity field. Part of the loss function is a regularization term for zero divergence in the velocity field to enforce incompressible fluid flow. This term was calculated using finite differences since auto differentiation cannot be used without the coordinates in the model inputs. While the use of CNNs mean that discretization is implied, solutions of different initial conditions or parameter functions can be computed by inference and no retraining is required. This property is especially useful for many-query problems such as computing gradients for inverse problems.
+
+% TODO: talk about the relationship of derivatives in the fourier domain with an example equation
+This is where operator learning models that predicts basis function coefficients come in. Basis functions are collections of functions that share common properties and can be used to represent other functions in a linear combination. For example, the sine and cosines in the real Fourier series. This is the concept used by \citet{fanaskovSpectralNeuralOperators2023} for their proposed model, termed Spectral Neural Operator (SNO). The model Neural Network (NN) is trained on features of input function coefficients which are computed using Fourier or Chebyshev transforms and labels of output function coefficients using the same transforms. This separates the concern of discretization from the problem of learning the relationships enforced by some system between functions.\ \citet{du2024neural} extends the concept of mapping coefficients by proposing residuals in the spectral domain and leveraging Parseval's Identity to compute the spectral analog to the loss term in PINNs. This allows for self supervised learning in the spectral domain. The same benefits incorporating physics into PINNs also apply here without the pain points introduced by discretized model inputs and outputs. Another approach by \citet{luLearningNonlinearOperators2021}, essentially uses learned basis functions in the form of NNs. This has the benefit of the basis functions being custom-made to fit the problem and equations being modeled \citep{meurisMachinelearningbasedSpectralMethods2023}. These methods show promise and provide solutions to parameters via the relatively fast process of inference.
+
+The use of NNs does come with its own downsides. First, the loss functions used in their optimization represents a landscape with many local minima. This problem becomes worse with the addition of PDE residual terms that cause disparities in the gradients of each individual loss term and \citep{rathoreChallengesTrainingPINNs2024,NEURIPS2021_df438e52,basirCriticalInvestigationFailure2022}. This has motivated the use of ML algorithms with a convex loss landscape for modeling. Support Vector Machines (SVM) are one such family of algorithms \citep{vapnikNatureStatisticalLearning2000}. The appeal of SVMs is the fact that the model is formulated as a quadratic programming problem. This means there are strong guarantees for convergence, generalization, and complexity. Another formulation called Least-Squares Support Vector Machines (LSSVM) reformulates the problem as a linear system \citep{suykensLeastSquaresSupport2005}. This leads to an easier problem that can be computed faster by well established algorithms like the many implementations of least squares solvers. Another advantage of the linear formulation is that this can be easily parallelized to exploit hardware like graphics processing units more widely known as GPUs in contrast to the commonly used Sequential Minimal Optimization (SMO) used for SVMs with quadratic objective functions.
+
+An early work using SVMs to solve PDEs by \citet{youxiwuSVMSolvingForward2005} introduced a method for solving the forward problem of Electro-Impedance Tomography. This work solved for the mathematical model of EIT which is given by Maxwell's equations by modeling the trial function as using an \(\epsilon \)-SVR model. Another approach much more similar to PINNs was presented by \citet{mehrkanoonLearningSolutionsPartial2015}. The residual and initial/boundary conditions are imposed as equality constraints on an LSSVM objective function. A different study by \citet{leakeAnalyticallyEmbeddingDifferential2019}, the incorporation of physics into the model is done slightly differently by utilizing the theory of functional connections to directly embed constraints into the solution. This means that the proposed method would satisfy the boundary condition exactly. These approaches, however, only learn a function regression problem constrained by the PDE\@. Meaning they are also not practical for many-query problems.
+
+In this paper, we propose an operator learning model based on basis functions and LSSVM for regression, named SpectralSVR\@. Here we will focus on demonstrating the model's capability, starting with a proof of concept with the simple derivative equation. And then, the nonlinear PDE solving capabilities will be shown by approximating solutions to the Burgers' equation.% Finally, we will also use the ERA5 dataset, specifically the could optimized version provided by WeatherBench 2 \citep{raspWeatherBench2Benchmark2023}. %TODO: determine if the inverse problem need to be included
+
+\section{Methods}
+This section describes the proposed method and the case studies we used.
+\subsection{SpectralSVR}
+% Model design
+The design of the proposed model is built upon performing regression in the Fourier domain. This means that any function values that will be used by the model, should be transformed into their coefficients. And, any predictions from the model, which are coefficients, should be transformed back into function values. The training process is shown in \lccref{fig:spectralsvr_training}. The process starts with determining the feature and label functions. Typically, the feature functions would include the forcing term and other parameter functions such as the solution at the current time step. The label functions typically is the solution function or the solution function at the next time step. The Fourier coefficients are then computed using the DFT\@. The coefficients are then flattened for each sample. A scaling function is fitted on the flattened feature coefficients and the feature coefficients are then scaled using the fitted scaling function. Finally, Using the scaled feature and label coefficients, the training function computes the parameters of the model.
+
+\begin{figure}[H]
+  \centering
+  \tikzfig{figures/training_spectralsvr}
+  \caption{SpectralSVR training diagram}\label{fig:spectralsvr_training}
+\end{figure}
+
+The prediction process is shown in \lccref{fig:spectralsvr_prediction}. The process starts by transforming the feature functions into their coefficients with the DFT\@. These coefficients are then scaled with the scaling function fitted during training. The scaled feature coefficients are then used with the learned parameters to produce the predicted coefficients using the LSSVR prediction function. Finally, the inverse DFT is computed on the predicted coefficients to obtain the predicted function value.
+\begin{figure}[H]
+  \centering
+  \tikzfig{figures/prediction_spectralsvr}
+  \caption{SpectralSVR prediction diagram}\label{fig:spectralsvr_prediction}
+\end{figure}
+
+To interpret the relationship learned by the LSSVR between the feature and label coefficients, we use two tools called the correlation image and p-matrix introduced by \citet{ustunVisualisationInterpretationSupport2007}.
+
+\subsection{Case Studies}
+% case studies
+% antiderivative
+The model's ability will be verified and demonstrated using two equations. The data will be generated using the method of manufactured solutions \citep{roacheCodeVerificationMethod2002,salariCodeVerificationMethod2000,vedovotoApplicationMethodManufactured2011}. First, the model will be tasked to learn the basic relationship defined by the simple derivative \lccref{eq:fourier_series_derivative}. The solution functions are generated as Fourier polynomials with random coefficients sampled from a normal distribution. The generated solution function takes the form shown in \lccref{eq:fourier_speed}. The coefficients of the derivative function in \lccref{eq:fourier_acceleration} is computed using \lccref{eq:derivative_coeff}.
+
+\begin{align}
+  \dv{u\left( t \right)}{t}                                        & = a\left(t\right) \label{eq:fourier_series_derivative}                                                            \\
+  u\left( t \right)                                                & = \sum_{k} \hat{u}_k e^{2\pi ikt/T} \label{eq:fourier_speed}                                                      \\
+  a\left( t \right)                                                & = \sum_{k} \hat{a}_k e^{2\pi ikt/T} \label{eq:fourier_acceleration}                                               \\
+  \sum_{k} \hat{u}_k\times \left( 2\pi ik/T \right) e^{2\pi ikt/T} & = \sum_{k} \hat{a}_k e^{2\pi ikt/T} \label{eq:example_spectral_method_fourier_substituted}                        \\
+  \hat{a}_k                                                        & = \hat{u}_k\left(2\pi ik/T \right)                                                    \label{eq:derivative_coeff}
+\end{align}
+
+In total, we generate \num{5000} unique functions with \num{50} complex coefficients each. We also add noise to the function values at three levels of the average function standard deviation. The entire set has three versions with different levels of noise which are 5\%, 10\% and 50\%.
+
+% burgers
+The second problem the model will be presented with is solving the Burgers' equation by stepping through time. Because of the nonlinearity of this equation, it is often used to test the capability of numerical solvers \citep{woodExactSolutionBurgers2006,wazwazPartialDifferentialEquations2010,koprivaImplementingSpectralMethods2009}. The formulation of the Burgers' equation we use is the forced viscous Burgers' equation in 1-dimension as shown in \lccref{eq:forced_viscous_burgers} where the viscosity is \(\nu{}\).
+\begin{align}
+  \pdv{u}{t}+u\pdv{u}{x}-\nu\pdv[2]{u}{x} & = f \label{eq:forced_viscous_burgers}
+\end{align}
+
+Data generation is done similarly to the derivative equation. With the solution as in \lccref{eq:fourier_field} and the forcing term \lccref{eq:fourier_force}, the equation for the forcing term is shown in \lccref{eq:forced_viscous_burgers_coeff}. The nonlinear term is approximated, for efficiency, in the physical domain and the coefficients subsequently computed as \(\hat{uu}_k\).
+\begin{align}
+  u\left(x, t \right) & = \sum_{k_{x}} \sum_{k_{t}} \hat{u}_k e^{2\pi i(k_{x}x/L+k_{t}t/T)} \label{eq:fourier_field}                                         \\
+  f\left(x, t \right) & = \sum_{k_{x}}\sum_{k_{t}} \hat{f}_k e^{2\pi i(k_{x}x/L+k_{t}t/T)} \label{eq:fourier_force}                                          \\
+  \hat{f}_k           & = (2\pi i k_{t}/T) \hat{u}_k + (2\pi i k_{x}/L)\hat{uu}_k - \nu{(2\pi i k_{x}/L)}^2\hat{u}_k \label{eq:forced_viscous_burgers_coeff}
+\end{align}
+
+The functions generated for the Burgers' equation will use three different values of \(\nu{}\) to in order to be able to analyze how the model behaves with varying levels of stiffness and nonlinearity. The values for viscosity are \num{0.0} for the inviscid equation, \num{0.01}, and \num{0.1} for a more stiff PDE\@. For each viscosity level, we generate \num{500} unique solution functions and compute the corresponding forcing term using \lccref{eq:forced_viscous_burgers_coeff}. Each function has 8 modes in space and 8 in time.
+
+% WeatherBench 2
+% The final dataset we use is the ERA5 dataset. The cloud optimized version from WeatherBench 2 we use will have a grid size of 64 in longitude by 32 in latitude. The model will attempt to partially model the complex weather data using only the 2-meter temperature variable. For the reanalysis dataset, we limit the time range to the years 1995{-}2013 for training and 2020{-}2022 for testing. The specific time ranges for training are chosen to balance the diversity within the data and capacity of the machine the processing will be done on. We also use the climatology provided by WeatherBench 2 which is the averages for hours 0, 6, 12, and 18 for each day of the year from 1990 until 2019.
+
+\section{Results and Discussion}
+In this section, we will present the results of the experiments on each equation and the ERA5 dataset. The metrics we will show in this section are evaluated between the function values evaluated from the predicted coefficients and the function values of the test label coefficients.
+
+\subsection{Scenario 1: Derivative Equation}
+For the derivative equation, metrics between the noisy targets and predictions are shown in \lccref{table:scenario_1_function_metrics}. The metrics shows that the model is able to generalize from the training data and learn the simple linear antiderivative operator. Focusing on the R\textsuperscript{2} scores, we can see that the model is off by 0.04 to the perfect score of 1.0 for the lowest noise level. While increasing noise levels does degrade the performance, this is partly due to the target values also having been perturbed.
+
+For the function values of the 50\% noise dataset, the values range on average from \num{-2.5} to \num{2.49}. This was approximated since there is no direct way to compute the amplitude of the function from just the coefficients. Here we used the inverse transform and extracted the maximum and minimum values of each function from the discrete values. Since the RMSE in \lccref{table:scenario_1_function_metrics} for the 50\% noise dataset is \num{0.63}, the error ratio comes to \num{0.126}. One side note about \lccref{table:scenario_1_function_metrics} is that the kernel scaling hyperparameter is the same for all noise levels because of the scaling which is 10.
+\begin{table}[H]
+  \caption{Performance metrics of function value from evaluated coefficient prediction in scenario 1 by noise level.}\label{table:scenario_1_function_metrics}
+  \centering
+  \begin{tabular}{lrrrrrrrr}
+    \toprule
+    Noise level & MSE  & RMSE & MAE  & R\textsuperscript{2} & sMAPE \\
+    \midrule
+    5\%         & 0.03 & 0.18 & 0.15 & 0.97                 & 0.39  \\
+    10\%        & 0.08 & 0.29 & 0.23 & 0.92                 & 0.55  \\
+    50\%        & 0.62 & 0.79 & 0.63 & 0.49                 & 1.05  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The metrics between the predictions and the noise-free version of the target function values can be seen in \lccref{table:scenario_1_clean_function_metrics}. The metrics show that the model predictions are slightly closer to the unperturbed functions compared to the perturbed versions. This can be seen as the influence of the independent measurement noise in the perturbed targets being removed from the testing metrics. The metrics show that the model performs slightly better with more pronounced differences for the higher noise levels.
+\begin{table}[H]
+  \caption{Performance metrics of function value from evaluated coefficient prediction compared to unperturbed targets in scenario 1 by noise level.}\label{table:scenario_1_clean_function_metrics}
+  \centering
+  \begin{tabular}{lrrrrrrr}
+    \toprule
+    Noise level & MSE  & RMSE & MAE  & R\textsuperscript{2} & sMAPE \\
+    \midrule
+    5\%         & 0.03 & 0.18 & 0.14 & 0.97                 & 0.38  \\
+    10\%        & 0.07 & 0.27 & 0.21 & 0.93                 & 0.53  \\
+    50\%        & 0.37 & 0.61 & 0.49 & 0.62                 & 0.94  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The next part of this scenario is the results from predicting the exact solution of \(f(t)=2\pi\cos(2\pi t)\) which is \(u(t)=\sin(2\pi t)\). The function values will be computed, and the values put through the preprocessing steps as all other function values. The results are presented in \lccrefs{table:scenario_1_exact_function_metrics}. For 5\% and 10\% noise levels, the model shows that it has learned the relation. However, the 50\% noise level, the model has been unable to predict the results well enough. The marked difference in error across all metrics between the 50\% and the lower noise levels is more apparent for this specific exact problem compared to the test sets. A clear picture of this can be seen when we compare the sMAPE metric. For the test set, the predictions on average results in a value of 1, however, for this exact problem the sMAPE value is 0.23 to 1.65.
+\begin{table}[H]
+  \caption{Performance metrics of evaluated function values of coefficient prediction of exact antiderivative in scenario 1 by noise level.}\label{table:scenario_1_exact_function_metrics}
+  \centering
+  \begin{tabular}{lrrrr}
+    \toprule
+    Noise level & MSE  & RMSE & MAE  & sMAPE \\
+    \midrule
+    5\%         & 0.00 & 0.06 & 0.05 & 0.23  \\
+    10\%        & 0.03 & 0.18 & 0.15 & 0.36  \\
+    50\%        & 0.41 & 0.64 & 0.58 & 1.65  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The predictions of the exact equation is shown in \lccref{fig:antiderivative_exact}. Visually, we can see that as the noise level increases, the model predictions become worse. Another observation is how the higher the noise level, the more the predicted functions become closer to zero. This is explained by the double penalty phenomenon \citep{lledoScaledependentVerificationPrecipitation2023}. The loss function used for LSSVR penalizes the model for predicting a non-zero value that turns out to be wrong compared to predicting a zero value. This results in a model with predictions that are close to the mean of the training data.
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/antiderivative_exact_input.pgf}
+    \end{adjustbox}
+    \caption{}\label{fig:antiderivative_exact_input}
+  \end{subfigure}
+  \begin{subfigure}{\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/antiderivative_exact_prediction.pgf}
+    \end{adjustbox}
+    \caption{}\label{fig:antiderivative_exact_prediction}
+  \end{subfigure}
+  \caption{(\subref{fig:antiderivative_exact_input}) The perturbed exact input function values from \lccref{eq:sine_derivative}.\ (\subref{fig:antiderivative_exact_prediction}) Prediction of antiderivative from the input function that was perturbed.}\label{fig:antiderivative_exact}
+\end{figure}
+
+Next, we have the correlation image and p-matrix for the model of each noise level. The results are shown in \lccref{fig:scenario_1_interpretation}. Each row in the figure represent the results of a model trained on a different noise level. The correlation image for 5\% and 10\% noise show clear lines on the coefficient corresponding to the output coefficient that was sorted. We can also see that the negative wave number reflection also being sorted. This is because of the reflection that occurs with complex Fourier coefficients for real-valued functions. There are other faint vertical lines you are able to see for other input coefficients. These faint lines are not sorted like the corresponding coefficients we mentioned before. Meaning, while they don't affect the particular output coefficients that were sorted, they do show that there is information embedded in the kernel matrix for these input coefficients. However, if we look at the 50\% noise correlation image, even the corresponding coefficient does not show a clear line or gradient. The lines are more noisy compared to the other noise levels. But the kernel still manages to embed some information. The p-matrices show that The model itself is able to still learn some relationship between the input coefficients and the output coefficients. For the 5\% and 10\% noise levels, the p-matrices show very clearly the contributions of input coefficients to the output coefficients. However, looking at the p-matrix for 50\% noise level, the lower wave numbers show lower contribution of input coefficients to the output coefficients.
+\begin{figure}[H]
+  \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/antiderivative_ci_5.pgf}
+      \end{adjustbox}
+      \caption{Correlation image 5\% noise.}\label{fig:sc1_ci_5}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/antiderivative_pm_5.pgf}
+      \end{adjustbox}
+      \caption{The p-matrix for 5\% noise.}\label{fig:sc1_pm_5}
+    \end{subfigure}
+    % \\[\baselineskip]
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/antiderivative_ci_10.pgf}
+      \end{adjustbox}
+      \caption{Correlation image 10\% noise.}\label{fig:sc1_ci_10}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/antiderivative_pm_10.pgf}
+      \end{adjustbox}
+      \caption{The p-matrix for 10\% noise.}\label{fig:sc1_pm_10}
+    \end{subfigure}
+    % \\[\baselineskip]
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/antiderivative_ci_50.pgf}
+      \end{adjustbox}
+      \caption{Correlation image 50\% noise.}\label{fig:sc1_ci_50}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/antiderivative_pm_50.pgf}
+      \end{adjustbox}
+      \caption{The p-matrix for 50\% noise.}\label{fig:sc1_pm_50}
+    \end{subfigure}
+  \end{adjustwidth}
+  \caption{Correlation image (left column) and p-matrix (right column) for each model trained on a different noise level (row). The correlation image was sorted same order the values of the real component of wave number \(k=2\) were sorted in descending order.}\label{fig:scenario_1_interpretation}
+\end{figure}
+
+The final observation we make is how for all the p-matrices the pronounced contribution of the input wave number to their corresponding output wave number. This means that the majority of contributions to each output coefficients come from the corresponding input coefficients of the same wave number. Our knowledge on how the simple derivative equation for Fourier series relate the coefficients of the derivative function and the antiderivative function is shown in \lccref{eq:derivative_coeff}. This aligns with the contributions shown by the p-matrices. This confirms that the model is indeed learning the relations that is defined by the derivative equation.
+
+\subsection{Scenario 2: Burgers' Equation}
+The function value evaluated from the predictions is shown in \lccref{table:scenario_2_function_metrics}. The metrics across the board shows that the function value relative metrics are slightly better compared to the coefficients. Comparing the absolute metrics for the same table, we see the same general trend that the higher viscosity show the model performing worse. For reference, the maximum amplitude of the functions on average are \num{2.56e-02}. This puts the error in an order of magnitude less than the average maximum amplitude.
+\begin{table}[H]
+  \caption{Performance metrics of function values evaluated from coefficient prediction of next time step in scenario 2 by viscosity.}\label{table:scenario_2_function_metrics}
+  \centering
+  \begin{tabular}{lrrrrr}
+    \toprule
+    \(\nu \) & MSE      & RMSE     & MAE      & R\textsuperscript{2} & sMAPE \\
+    \midrule
+    0.0      & 5.58e-05 & 7.47e-03 & 5.89e-03 & 0.82                 & 0.70  \\
+    0.01     & 5.74e-05 & 7.58e-03 & 6.01e-03 & 0.81                 & 0.71  \\
+    0.1      & 1.58e-04 & 1.26e-02 & 9.98e-03 & 0.51                 & 1.04  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The testing results are complimented with a rollout experiment. The results from the rollout are shown in \lccref{fig:scenario_2_rollout}. The rollout starts from time \(t=0\). In all the plots, this is at the bottom. We have included this initial condition in the plots. From this initial condition in combination with the forcing term at the initial time step, the model predicts the first time step solution. The model then uses the predicted solution combined with the corresponding forcing term to predict the second time step. To see how well the model is performing relative to the actual target values, we compute the difference between the two as shown in \lccrefs{fig:sc2_rollout_diff_0.0,fig:sc2_rollout_diff_0.01,fig:sc2_rollout_diff_0.1}. Observe that errors are introduced relatively early around time \(t=1\). However, the model rollout stays stable until the end despite this error. This results in the model being able to finish the rollout for this sample.
+\begin{figure}[H]
+  \centering
+  \begin{adjustwidth}{-0.1\linewidth}{-0.1\linewidth}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_target_0.0.pgf}
+      \end{adjustbox}
+      \caption{The target for \(\nu=0.0\)}\label{fig:sc2_rollout_target_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_pred_0.0.pgf}
+      \end{adjustbox}
+      \caption{The prediction for \(\nu=0.0\)}\label{fig:sc2_rollout_pred_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.32\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_diff_0.0.pgf}
+      \end{adjustbox}
+      \caption{The difference for \(\nu=0.0\)}\label{fig:sc2_rollout_diff_0.0}
+    \end{subfigure}
+    \\[0.7\baselineskip]
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_target_0.01.pgf}
+      \end{adjustbox}
+      \caption{The target for \(\nu=0.01\)}\label{fig:sc2_rollout_target_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_pred_0.01.pgf}
+      \end{adjustbox}
+      \caption{The prediction for \(\nu=0.01\)}\label{fig:sc2_rollout_pred_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.32\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_diff_0.01.pgf}
+      \end{adjustbox}
+      \caption{The difference for \(\nu=0.01\)}\label{fig:sc2_rollout_diff_0.01}
+    \end{subfigure}
+    \\[0.7\baselineskip]
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_target_0.1.pgf}
+      \end{adjustbox}
+      \caption{The target for \(\nu=0.1\)}\label{fig:sc2_rollout_target_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{The prediction for \(\nu=0.1\)}\label{fig:sc2_rollout_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.32\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_rollout_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{The difference for \(\nu=0.1\)}\label{fig:sc2_rollout_diff_0.1}
+    \end{subfigure}
+    % \\[0.7\baselineskip]
+  \end{adjustwidth}
+  \caption{The rollout predictions for one of the test function. The difference is calculated as the targets subtracted by the predictions.}\label{fig:scenario_2_rollout}
+\end{figure}
+
+Another observation we can see is that the difference between the target and rollout predictions is much more pronounced for lower viscosity values. This result is aligned with metrics shown in \lccrefs{table:scenario_2_rollout_function_metrics}. The absolute metrics show that the models are performing several times worse in rollout compared to the single time step tests shown in \lccrefs{table:scenario_2_function_metrics}. This seems to be the same challenge that traditional solvers also face with the shocks that may be present with lower viscosity values. This means that for rollout scenarios, the model has a much harder time with lower viscosity values. The observation here is that for higher viscosity values, the error is dominated by the global error, and the lower viscosity value, the error is dominated by local errors and as such accumulates.
+\begin{table}[H]
+  \caption{Performance metrics of function values evaluated from coefficient rollout in scenario 2 by viscosity.}\label{table:scenario_2_rollout_function_metrics}
+  \centering
+  \begin{tabular}{lrrrr}
+    \toprule
+    \(\nu \) & MSE      & RMSE     & MAE      & sMAPE \\
+    \midrule
+    0.0      & 5.81e-02 & 2.41e-01 & 1.89e-01 & 1.04  \\
+    0.01     & 3.17e-02 & 1.78e-01 & 1.40e-01 & 0.94  \\
+    0.1      & 2.91e-02 & 1.71e-01 & 1.33e-01 & 0.92  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The exact function \cref{eq:burgers_exact_solution} is computed for each viscosity value. The discrete Fourier transform of the values are then used for doing rollout with the model. For the forcing term, we just use a constant function with a value of zero. The rollout predictions are shown in \lccref{fig:scenario_2_exact}. The model is not successful in the rollout for the inviscid equation and for the viscosity of \(\nu=0.01\). Both of these cases, the model produces too much error that the original function is no longer recognizable in the predictions. For the higher viscosity value of \(\nu=0.1\) the rollout produces a recognizable prediction. The error stays to about half the maximum function value. We do see some more noticeable error in the flatter parts of the function. The error also take a very similar shape across the different viscosity values. Since we essentially used the same solutions for training the model for each viscosity, the similarity in error means that it can be alleviated with more diverse training samples. The error for the flatter functions may also be alleviated by including similar flatter functions during training.
+\begin{figure}[H]
+  \centering
+  \begin{adjustwidth}{-0.1\linewidth}{-0.1\linewidth}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_target_0.0.pgf}
+      \end{adjustbox}
+      \caption{The target for \(\nu=0.0\)}\label{fig:sc2_exact_target_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_pred_0.0.pgf}
+      \end{adjustbox}
+      \caption{The prediction for \(\nu=0.0\)}\label{fig:sc2_exact_pred_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.32\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_diff_0.0.pgf}
+      \end{adjustbox}
+      \caption{The difference for \(\nu=0.0\)}\label{fig:sc2_exact_diff_0.0}
+    \end{subfigure}
+    \\[0.7\baselineskip]
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_target_0.01.pgf}
+      \end{adjustbox}
+      \caption{The target for \(\nu=0.01\)}\label{fig:sc2_exact_target_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_pred_0.01.pgf}
+      \end{adjustbox}
+      \caption{The prediction for \(\nu=0.01\)}\label{fig:sc2_exact_pred_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.32\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_diff_0.01.pgf}
+      \end{adjustbox}
+      \caption{The difference for \(\nu=0.01\)}\label{fig:sc2_exact_diff_0.01}
+    \end{subfigure}
+    \\[0.7\baselineskip]
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_target_0.1.pgf}
+      \end{adjustbox}
+      \caption{The target for \(\nu=0.1\)}\label{fig:sc2_exact_target_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.33\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{The prediction for \(\nu=0.1\)}\label{fig:sc2_exact_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.32\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/burgers_exact_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{The difference for \(\nu=0.1\)}\label{fig:sc2_exact_diff_0.1}
+    \end{subfigure}
+    % \\[0.7\baselineskip]
+  \end{adjustwidth}
+  \caption{The rollout predictions for one of the exact function in \lccref{eq:burgers_exact_solution}. The difference is calculated as the targets subtracted by the predictions.}\label{fig:scenario_2_exact}
+\end{figure}
+
+The correlation image and p-matrix for each viscosity can be seen in \lccref{fig:scenario_2_interpretation}. Analyzing the correlation images first, we see that some columns are sorted in correlation to how the samples are sorted based on the real component of the 4th output wave number. For the inviscid equation, this correlation is the strongest with multiple columns exhibiting the correlation. The highest and visually most sorted values are from the forcing term portion of the inputs. Different wave numbers in the inputs are also sorted differently, this indicates an inverse correlation. For a higher viscosity of \(\nu=0.01\), a weaker correlation is still present.
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_ci_0.0.pgf}
+    \end{adjustbox}
+    \caption{Correlation image \(\nu=0.0\).}\label{fig:sc2_ci_0.0}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_pm_0.0.pgf}
+    \end{adjustbox}
+    \caption{The p-matrix for \(\nu=0.0\).}\label{fig:sc2_pm_0.0}
+  \end{subfigure}
+  % \\[-0.7\baselineskip]
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_ci_0.01.pgf}
+    \end{adjustbox}
+    \caption{Correlation image \(\nu=0.01\).}\label{fig:sc2_ci_0.01}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_pm_0.01.pgf}
+    \end{adjustbox}
+    \caption{The p-matrix for \(\nu=0.01\).}\label{fig:sc2_pm_0.01}
+  \end{subfigure}
+  % \\[-0.7\baselineskip]
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_ci_0.1.pgf}
+    \end{adjustbox}
+    \caption{Correlation image \(\nu=0.1\).}\label{fig:sc2_ci_0.1}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_pm_0.1.pgf}
+    \end{adjustbox}
+    \caption{The p-matrix for \(\nu=0.1\).}\label{fig:sc2_pm_0.1}
+  \end{subfigure}
+  \caption{Correlation image (left column) and p-matrix (right column) for each model trained on a different viscosity (row). The correlation image was sorted same order the values of the real component of wave number \(k=2\) were sorted in descending order.}\label{fig:scenario_2_interpretation}
+\end{figure}
+
+Once we get to the highest viscosity, while the order is still present, we see a more random arrangement of the correlation image values. This observation and the lower scores can both be explained by the level of temporal discretization. This is the same issue we encounter when we use some traditional methods for higher viscosity values with the same time step for lower viscosity values \citep{kassamFourthOrderTimeSteppingStiff2005,seydaogluNumericalSolutionBurgers2016}. The issue arises in stiff differential equations. Stiff differential equations refer to the presence of a rapidly varying component. We can see that the larger amplitudes of high frequency components in the forcing term to represent the rapidly varying components as shown in \lccrefs{fig:burgers_forcing_0.0,fig:burgers_forcing_0.01,fig:burgers_forcing_0.1}. Traditionally, stiff equations would require specific numerical methods purpose built to efficiently solve the problem. Otherwise, the using a solver like FDM would require much finer time steps than the one we are using here.%TODO: add the data figures to the appendix
+
+The p-matrix shows the difference in contributions of both input functions. For the inviscid equation, the contributions mainly come from the forcing term. The current solution contributes a smaller amount in comparison. There is similarity with the antiderivative p-matrices in this case. The contributions to each output wave number mainly come from input coefficients with the same wave number. However, there is a noticeable contribution from other wave numbers too unlike the antiderivative case. The biggest contribution from the current solution is the constant/bias term. For higher viscosity values, notice that the contribution of the previous solution increases. The increase is more pronounced for higher frequencies. This aligns with the quadratic scaling from the wave number on the coefficients \citep{canutoSpectralMethodsEvolution2007}. The p-matrix for lower viscosity values show more structured contribution of other wave numbers in comparison to the higher wave numbers. This structure comes in the form of a grid pattern. For the real components of the output, the contribution of other wave numbers oscillate between higher and lower values depending on whether the input component is real or not. The imaginary output components on the other hand have a more constant contribution across the input components. The contribution once again become more pronounced the higher the absolute value of the wave number.
+\section{Conclusion}
+\noindent Based on the results of the research into \MakeLowercase{\judul}, several conclusions can be drawn.
+\begin{enumerate}
+  \item The proposed SpectralSVR model is able to learn the relationships defined by PDEs. This is done using a model that learns in the Fourier domain with Fourier Transforms and Inverse Transform bridging the Fourier domain and the physical domain.
+  \item Interpretation of the proposed model can be done to a certain extent using two tools which are the correlation image and p-matrix developed by \citet{alisationInterpretationSupport2007}. This interpretation shows that the model correctly attributes the relationship of the input coefficients to the output coefficients.
+  \item The proposed model is also capable in dealing with noise and partial data as shown in scenario 1.
+        % \item The model's capabilities are also verified using exact solution. This revealed that for some configurations the model is able to successfully generalize to exact solutions.
+\end{enumerate}
+
+To improve the model's predictive capabilities, several key areas of enhancement have been identified for future works. First, the synthetic data used in scenarios 1 and 2 lack realism, even though they are mathematically correct when generated using the method of manufactured solutions. Incorporating data derived from traditional numerical methods or other reliable sources could help the model produce more accurate and realistic predictions. Evaluating the performance of auto-regression in weather data compared to target data is another critical step. Additionally, the inverse prediction results should be compared with traditional methods, such as the spectral method or finite difference method (FDM), to assess accuracy and reliability.
+
+Further improvements include benchmarking the proposed method against comparable approaches and measuring computational efficiency in terms of time, relative to both traditional and machine learning-based methods. Expanding the range of basis functions, such as spherical harmonics or wavelet bases, and incorporating additional regression models, specifically support vector regression models, could enhance the utility of tools like the correlation image and p-matrix. The use of better performance metrics, such as the standard error of regression, is recommended, along with a detailed analysis of performance across varying hyperparameters, data sizes, and error trends by wave number. Addressing the issue of double penalties, which lead to overly smooth solutions \citep{brownForecastsSpatialFields2011,NIPS2017_44a2e080}, requires exploring stronger regularization for higher wave numbers. Finally, incorporating data assimilation techniques, such as the Lomb-Scargle periodogram \citep{vanderplasUnderstandingLombScargle2018} and 4D-Var assimilation \citep{puNumericalWeatherPrediction2018,parkDataAssimilationAtmospheric2013}, could enable support for sparse data. Finally, a study of contribution patterns for different terms in partial differential equations (PDEs) using methods like the p-matrix would provide deeper insights into model dynamics.
+
+These future directions build on the strengths of the proposed SpectralSVR model, which has demonstrated its ability to learn relationships defined by PDEs, interpret results using tools like the correlation image and p-matrix, and handle noise and partial data effectively. By addressing these identified areas of improvement, the model's robustness, accuracy, and applicability could be further enhanced, especially in real-world scenarios.
+
+Through these developments, the SpectralSVR model has the potential to not only refine its generalization capabilities, as evidenced by its partial success with exact solutions, but also to expand its utility across diverse and complex problems. These steps will contribute to advancing computational approaches for SciML-based modelling and establish the proposed framework as a versatile tool in this domain.
+\bibliographystyle{elsarticle-harv}
+\bibliography{references.bib}
+\end{document}

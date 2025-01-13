@@ -1,0 +1,75 @@
+
+% !TEX root = ./article.tex
+% globals
+% \bibliographystyle{plain}
+\providecommand{\judul}{Approximation of Solutions of Governing Equations using Support Vector Machine}
+%PENULIS:
+\providecommand{\penulis}{Ahmad Izzuddin}
+\linespread{1.5}
+\setlength{\emergencystretch}{3em}
+\usepackage{geometry}
+\geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=4cm,rmargin=3cm}
+\usepackage[luatex,bookmarks=true,unicode=true,bookmarksnumbered=true,breaklinks=true,pdfborder={0 0 1},backref=none,colorlinks=false]{hyperref}
+\usepackage{bookmark}
+\usepackage[none]{hyphenat}
+\sloppy
+
+
+\usepackage{listing}
+\usepackage{graphicx}      %menghandle gambar
+% \usepackage[inkscapelatex=false]{svg}   %handle svg with \includesvg
+\usepackage{pgf}
+\usepackage{lmodern}
+\usepackage{tikzit}
+\input{figures/tikz_styles/skripsi.tikzstyles}
+\usepackage{adjustbox}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{epsfig}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{changepage}
+\usepackage{pgfplots}
+\usepackage{shellesc}
+\pgfplotsset{compat=1.14}
+\usepackage{memoize}
+\mmzset{auto={adjustbox}{memoize}}
+% \mmznext{recompile} % use on specific tagets for memoize recompile
+% \mmzset{recompile} % use for global recompile
+%%%% identitas (kalo file pdf nya di klik kanan, info..)
+\usepackage[titletoc]{appendix}
+
+\usepackage[utf8]{inputenc}
+\usepackage[american]{babel} %plugin english
+\usepackage{csquotes}
+\usepackage{xpatch}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{dsfont}
+\usepackage{listings}
+\usepackage{relsize}
+\usepackage{physics}
+\usepackage{siunitx}
+\usepackage{optidef}  % for writing optimization problems easier
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+\usepackage{ragged2e}
+\usepackage{booktabs}
+\usepackage{stringstrings}% for text utils like titlecase
+\addlcwords{of and}% APA style lower case for title case
+% define a new column type for convenience
+\newcolumntype{L}[1]{>{\hsize=#1\hsize\RaggedRight} X}
+\usepackage{cleveref}
+%lowercase non abbreviation reference
+\newcommand{\lccref}[1]{\lcnamecref{#1}~\labelcref{#1}}
+\makeatletter
+\def\lcfirstnamecrefs#1,#2\@nil{\lcnamecrefs{#1}}
+\newcommand{\lcfirstnamecref}[1]{\lcfirstnamecrefs #1,\@nil}
+\makeatother
+\newcommand{\lccrefs}[1]{\lcfirstnamecref{#1}~\labelcref{#1}}
+
+%%% pengaturan global
+\graphicspath{figures/}   % letak direktori penyimpanan gambar
