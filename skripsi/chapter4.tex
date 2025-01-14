@@ -205,7 +205,7 @@ The dataset includes 62 variables with some variables also spanning 13 discrete 
     \end{adjustbox}
     \caption{2-meter temperature anomaly}\label{fig:wb2_train_anomaly}
   \end{subfigure}
-  \caption{Data retrieved:(\subref{fig:wb2_train_data}) 2-meter temperature at January 1, 1995 6:00 UTC\@. (\subref{fig:wb2_clim_data}) 2-meter temperature climatology for the first day of the year at hour 6 UTC\@. (\subref{fig:wb2_train_anomaly}) Anomaly for 2-meter temperature at January 1, 1995 6:00 UTC\@.}\label{fig:wb2_data}
+  \caption{Data retrieved: (\subref{fig:wb2_train_data}) 2-meter temperature at January 1, 1995 6:00 UTC\@. (\subref{fig:wb2_clim_data}) 2-meter temperature climatology for the first day of the year at hour 6 UTC\@. (\subref{fig:wb2_train_anomaly}) Anomaly for 2-meter temperature at January 1, 1995 6:00 UTC\@.}\label{fig:wb2_data}
 \end{figure}
 
 After filtering, our training set has the dimensions of \num{27760} time steps, \num{64} longitude, and \num{32} latitude. The testing set on the other hand has \num{4384} time steps and the same values for the other two dimensions. For uses, such as a validation set during hyperparameter optimization, one can use a subset of the training set. The dimensions of the climatology are 4 for hour (0, 6, 12,\& 18), \num{366} for day of year, \num{64} for longitude, and 32 for latitude.

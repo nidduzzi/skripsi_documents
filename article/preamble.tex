@@ -2,7 +2,7 @@
 % !TEX root = ./article.tex
 % globals
 % \bibliographystyle{plain}
-\providecommand{\judul}{Approximation of Solutions of Governing Equations using Support Vector Machine}
+\providecommand{\judul}{Approximation of Solutions of Governing Equations using Fourier Transform and Support Vector Machine}
 %PENULIS:
 \providecommand{\penulis}{Ahmad Izzuddin}
 \linespread{1.5}
@@ -17,6 +17,7 @@
 
 \usepackage{listing}
 \usepackage{graphicx}      %menghandle gambar
+\graphicspath{{figures/}}   % path need to be surounded by curly braces as the parameter
 % \usepackage[inkscapelatex=false]{svg}   %handle svg with \includesvg
 \usepackage{pgf}
 \usepackage{lmodern}
@@ -26,7 +27,7 @@
 \usepackage{tabularx}
 \usepackage{float}
 \usepackage{epsfig}
-\usepackage{caption}
+% \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{changepage}
 \usepackage{pgfplots}
@@ -70,6 +71,3 @@
 \newcommand{\lcfirstnamecref}[1]{\lcfirstnamecrefs #1,\@nil}
 \makeatother
 \newcommand{\lccrefs}[1]{\lcfirstnamecref{#1}~\labelcref{#1}}
-
-%%% pengaturan global
-\graphicspath{figures/}   % letak direktori penyimpanan gambar

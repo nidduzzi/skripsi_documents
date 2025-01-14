@@ -1,0 +1,69 @@
+% !TEX root = ./article.tex
+\appendix
+\section{Derivative Equation Generated Data Example}
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/antiderivative_clean_perturbed_solution.pgf}
+    \end{adjustbox}
+    \caption{}\label{fig:antiderivative_noise_levels}
+  \end{subfigure}
+  \begin{subfigure}{\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/antiderivative_clean.pgf}
+    \end{adjustbox}
+    \caption{}\label{fig:antiderivative}
+  \end{subfigure}
+  \begin{subfigure}{\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/antiderivative_derivative_clean.pgf}
+    \end{adjustbox}
+    \caption{}\label{fig:derivative}
+  \end{subfigure}
+  \caption{(\subref{fig:antiderivative_noise_levels}) A generated function with no noise (clean), low noise level (5\%), medium noise level (10\%), and high noise levels (50\%).\ (\subref{fig:antiderivative}) Antiderivative function with no noise.\ (\subref{fig:derivative}) Derivative function with no noise.}
+\end{figure}
+
+\section{Burgers' Equation Generated Data Example}
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_solution_0.0.pgf}
+    \end{adjustbox}
+    \caption{Solution function for \(\nu=0\).}\label{fig:burgers_solution_0.0}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_forcing_0.0.pgf}
+    \end{adjustbox}
+    \caption{Forcing function for \(\nu=0\).}\label{fig:burgers_forcing_0.0}
+  \end{subfigure}
+  % \\[-0.7\baselineskip]
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_solution_0.01.pgf}
+    \end{adjustbox}
+    \caption{Solution function for \(\nu=0.01\).}\label{fig:burgers_solution_0.01}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_forcing_0.01.pgf}
+    \end{adjustbox}
+    \caption{Forcing function for \(\nu=0.01\).}\label{fig:burgers_forcing_0.01}
+  \end{subfigure}
+  % \\[-0.7\baselineskip]
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_solution_0.1.pgf}
+    \end{adjustbox}
+    \caption{Solution function for \(\nu=0.1\).}\label{fig:burgers_solution_0.1}
+  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}
+    \begin{adjustbox}{width=\linewidth}
+      \input{figures/burgers_forcing_0.1.pgf}
+    \end{adjustbox}
+    \caption{Forcing function for \(\nu=0.1\).}\label{fig:burgers_forcing_0.1}
+  \end{subfigure}
+  \caption{Example sample pairs of solution and forcing terms for the Burgers' equation dataset.}\label{fig:burgers_data}
+\end{figure}

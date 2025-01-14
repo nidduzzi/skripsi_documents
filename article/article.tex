@@ -16,7 +16,7 @@
   \ead{ahmadizzuddin@upi.edu}
 
   \affiliation[upi]{organization={Department of Computer Science Education Universitas Pendidikan Indonesia},%Department and Organization
-    addressline={Jl. Dr. Setiabudi No.229},
+    addressline={Jl. Dr.\ Setiabudi No.229},
     postcode={40154},
     city={Bandung},
     country={Indonesia}}
@@ -25,13 +25,13 @@
   \end{abstract}
   \begin{keyword}
     %% keywords here, in the form: keyword \sep keyword
-    Operator Learning \sep LSSVR \sep PDE
+    Operator Learning \sep{} LSSVR \sep{} PDE
     % keyword one \sep keyword two
     %% PACS codes here, in the form: \PACS code \sep code
     % \PACS 0000 \sep 1111
     %% MSC codes here, in the form: \MSC code \sep code
     %% or \MSC[2008] code \sep code (2000 is the default)
-    \MSC 35-04 \sep 68T99
+    \MSC{} 35{-}04 \sep{} 68T99
   \end{keyword}
 
 \end{frontmatter}
@@ -157,6 +157,12 @@ The next part of this scenario is the results from predicting the exact solution
     \bottomrule
   \end{tabular}
 \end{table}
+
+To test the generalization capabilities of the model, we use the sine function with a period of one shown in \lccref{eq:sine_function}. The derivative is simply \lccref{eq:sine_derivative}. The functions are discretized and noise is added. Finally, the values go through the same transformations to become feature and target coefficients.
+\begin{align}
+  f(t) & = 2\pi \cos\left(2\pi t\right)\label{eq:sine_derivative} \\
+  u(t) & = \sin\left(2\pi t\right)\label{eq:sine_function}
+\end{align}
 
 The predictions of the exact equation is shown in \lccref{fig:antiderivative_exact}. Visually, we can see that as the noise level increases, the model predictions become worse. Another observation is how the higher the noise level, the more the predicted functions become closer to zero. This is explained by the double penalty phenomenon \citep{lledoScaledependentVerificationPrecipitation2023}. The loss function used for LSSVR penalizes the model for predicting a non-zero value that turns out to be wrong compared to predicting a zero value. This results in a model with predictions that are close to the mean of the training data.
 \begin{figure}[H]
@@ -320,6 +326,11 @@ Another observation we can see is that the difference between the target and rol
   \end{tabular}
 \end{table}
 
+To test the generalization capability of the model on other function families, we use an exact solution provided in the literature shown in \lccref{eq:burgers_exact_solution} \citep{woodExactSolutionBurgers2006,wazwazPartialDifferentialEquations2010,bentonTableSolutionsOnedimensional1972}.
+\begin{equation}
+  u(x,t) = \frac{2\nu\pi e^{-\pi^2\nu t}\sin(\pi x)}{a+e^{-\pi^2\nu t}\cos(\pi x)} \label{eq:burgers_exact_solution}
+\end{equation}
+
 The exact function \cref{eq:burgers_exact_solution} is computed for each viscosity value. The discrete Fourier transform of the values are then used for doing rollout with the model. For the forcing term, we just use a constant function with a value of zero. The rollout predictions are shown in \lccref{fig:scenario_2_exact}. The model is not successful in the rollout for the inviscid equation and for the viscosity of \(\nu=0.01\). Both of these cases, the model produces too much error that the original function is no longer recognizable in the predictions. For the higher viscosity value of \(\nu=0.1\) the rollout produces a recognizable prediction. The error stays to about half the maximum function value. We do see some more noticeable error in the flatter parts of the function. The error also take a very similar shape across the different viscosity values. Since we essentially used the same solutions for training the model for each viscosity, the similarity in error means that it can be alleviated with more diverse training samples. The error for the flatter functions may also be alleviated by including similar flatter functions during training.
 \begin{figure}[H]
   \centering
@@ -436,7 +447,7 @@ The p-matrix shows the difference in contributions of both input functions. For 
 \noindent Based on the results of the research into \MakeLowercase{\judul}, several conclusions can be drawn.
 \begin{enumerate}
   \item The proposed SpectralSVR model is able to learn the relationships defined by PDEs. This is done using a model that learns in the Fourier domain with Fourier Transforms and Inverse Transform bridging the Fourier domain and the physical domain.
-  \item Interpretation of the proposed model can be done to a certain extent using two tools which are the correlation image and p-matrix developed by \citet{alisationInterpretationSupport2007}. This interpretation shows that the model correctly attributes the relationship of the input coefficients to the output coefficients.
+  \item Interpretation of the proposed model can be done to a certain extent using two tools which are the correlation image and p-matrix developed by \citet{ustunVisualisationInterpretationSupport2007}. This interpretation shows that the model correctly attributes the relationship of the input coefficients to the output coefficients.
   \item The proposed model is also capable in dealing with noise and partial data as shown in scenario 1.
         % \item The model's capabilities are also verified using exact solution. This revealed that for some configurations the model is able to successfully generalize to exact solutions.
 \end{enumerate}
@@ -448,6 +459,9 @@ Further improvements include benchmarking the proposed method against comparable
 These future directions build on the strengths of the proposed SpectralSVR model, which has demonstrated its ability to learn relationships defined by PDEs, interpret results using tools like the correlation image and p-matrix, and handle noise and partial data effectively. By addressing these identified areas of improvement, the model's robustness, accuracy, and applicability could be further enhanced, especially in real-world scenarios.
 
 Through these developments, the SpectralSVR model has the potential to not only refine its generalization capabilities, as evidenced by its partial success with exact solutions, but also to expand its utility across diverse and complex problems. These steps will contribute to advancing computational approaches for SciML-based modelling and establish the proposed framework as a versatile tool in this domain.
+
+\input{apendix.tex}
+
 \bibliographystyle{elsarticle-harv}
 \bibliography{references.bib}
 \end{document}

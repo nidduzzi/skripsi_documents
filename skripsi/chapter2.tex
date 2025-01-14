@@ -302,7 +302,7 @@ LSSVMs have many benefits but also its own trade-offs. The main disadvantage of 
 
         The final metric is the symmetric Mean Absolute Percentage Error. This metric has a range of values between zero for no error and two for high error. The values can be scaled by multiplying by 100 to obtain the percentages. Given target values \(y_i\) and predictions \(y'_i\) such that the difference is \(e_{i} = y'_i-y_i\), the sMAPE is calculated using \lccref{eq:smape} where \(\epsilon \) is a small value to prevent divisions by zero.
         \begin{equation}
-          sMAPE = \frac{2}{N} \sum_{i=1}^{N}\frac{\abs{e_{i}}}{\max(\abs{y_{i}} + \abs{y'_{i}},\epsilon)}
+          sMAPE = \frac{2}{N} \sum_{i=1}^{N}\frac{\abs{e_{i}}}{\max(\abs{y_{i}} + \abs{y'_{i}},\epsilon)}\label{eq:smape}
         \end{equation}
 
         Despite the name, sMAPE does have issues with asymmetry arising from the denominator. For cases where the prediction overpredicts and underpredicts by the same amount, depending on the value of the target, the metric may penalize the prediction closer to zero more than the one that is further. This is despite both predictions being the same absolute difference away from the target value.

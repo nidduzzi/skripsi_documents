@@ -1,0 +1,24 @@
+% !TEX root = ./technical_doc.tex
+\chapter{TESTING}
+\noindent The implementation is followed by tests of the functionality core to this study. The testing is done using the PyTest library. The testing method used is a black box approach. The tests are written in a separate \verb|tests| directory. Each module is tested by a separate file. The tests are done to ensure compliance of the implementation to the requirements of the software. The final results are presented in \lccref{table:impl_test_result}. Each version and iteration of the development must ensure that the tests are passed before any changes are committed to the GitHub repository.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lm{0.2\linewidth}m{0.5\linewidth}l}
+        % \toprule
+        \toprule
+        No & Process                         & Test Target                                                                                                   & Test Result \\
+        \midrule
+        1  & Transform                       & Transform invertible with inverse transform                                                                   & Achieved    \\\addlinespace[0.5em]
+        2  & Evaluation                      & Transform coefficient evaluation close to original values                                                     & Achieved    \\\addlinespace[0.5em]
+        3  & Plot                            & Plotting function is run successfully                                                                         & Achieved    \\\addlinespace[0.5em]
+        4  & Perturb                         & Perturb function is run successfully                                                                          & Achieved    \\\addlinespace[0.5em]
+        5  & Operations                      & Operation functions is run successfully                                                                       & Achieved    \\\addlinespace[0.5em]
+        6  & Complex Coefficients Conversion & Conversion between real and complex coefficient representation is invertible for odd and even number of modes & Achieved    \\\addlinespace[0.5em]
+        7  & SpectralSVR Train               & Training function is run successfully                                                                         & Achieved    \\\addlinespace[0.5em]
+        8  & SpectralSVR Prediction          & Coefficient prediction error within tolerable range                                                           & Achieved    \\\addlinespace[0.5em]
+        9  & SpectralSVR Prediction          & Function value prediction error within tolerable range                                                        & Achieved    \\
+        \bottomrule
+    \end{tabular}
+    \caption{Testing results of the SpectralSVR Library implementation using black box method.}\label{table:impl_test_result}
+\end{table}

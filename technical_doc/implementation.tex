@@ -1,0 +1,1100 @@
+% !TEX root = ./technical_doc.tex
+\chapter{IMPLEMENTATION}
+\noindent The design in \lccref{sec:implementation_design} is implemented within the same iterative loop. As such, the feedback from tests is immediate, and any fixes can be implemented quickly. The implementation is done using the Python language and a number of Python libraries. To facilitate the management of dependencies, the implementation makes use of the package management tool Poetry \autocite{eustacePoetryPythonPackaging2024}. In addition, the Python version is managed using the tool PyEnv. The implementation process starts with installation of the required dependencies. The dependencies are specified in the \verb|pyproject.toml| as shown in \lccref{fig:poetry_add_deps}.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Toml]
+...
+[tool.poetry.dependencies]
+python = "^3.10.6"
+numpy = "^1.24.0"
+tqdm = "^4.65.0"
+jaxtyping = "^0.2.20"
+pandas = "^2.2.2"
+torchmetrics = "^1.4.2"
+scikit-learn = "^1.5.0"
+matplotlib = "^3.9.0"
+torch = {version = "^2.4.1+cu124", source = "pytorch-gpu"}
+torchvision = {version = "^0.19.1+cu124", source = "pytorch-gpu"}
+torchaudio = {version = "^2.4.1+cu124", source = "pytorch-gpu"}
+ray = {extras = ["tune"], version = "^2.37.0"}
+hyperopt = "^0.2.7"
+ipywidgets = "^8.1.5"
+torchdiffeq = "^0.2.4"
+xarray = "^2024.10.0"
+zarr = "^2.18.3"
+gcsfs = "^2024.10.0"
+
+[[tool.poetry.source]]
+name = "pytorch-gpu"
+url = "https://download.pytorch.org/whl/cu124"
+priority = "explicit"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+  \end{lstlisting}
+  \caption{Contents of pyproject.toml configuration file that define the dependencies using Poetry.}\label{fig:poetry_add_deps}
+\end{figure}
+
+After ensuring that the correct version of python is being used with pyenv, the dependencies specified in the \verb|pyproject.toml| file can be installed using the shell command \verb|poetry install|. At the end of each iteration, the dependencies are subject to change depending on whether any new ones are needed or old dependencies can be removed.
+
+In the following, we will discuss the implementation of each module and how the phases of computational model relates to each implemented functionality. The base data structure that is used in the implementation is the PyTorch Tensor \autocite{Ansel_PyTorch_2_Faster_2024}. Tensors are a generalization of scalars and array-like structures such as vectors and matrices. This is essential since many computations that is done in the proposed model are based on matrices and higher dimensional arrays. PyTorch Tensors allow the elements to be of different data types such as floating point numbers of different precision or even complex numbers. In addition to basic operations for working with the Tensors such as matrix multiplications, PyTorch also provides many algorithms for use when working with Tensors such as linear equation solvers or the Fast Fourier Transform. Another reason for choosing to use PyTorch is the ability to parallelize computation using specialized processors such as GPUs. Lastly, PyTorch is widely used in the machine learning community which reflects on its reliability, wealth of community knowledge and support, and active development.
+
+\subsubsection{Utilities}
+
+\noindent The utilities module provide common tools that are used when working with the developed software. First, because the basis function used in this study is the Fourier basis, a large proportion of concern is the storage of Fourier basis coefficients. The Fourier series representation that is used in this study is the complex representation as show in \lccref{eq:fourier_series}. However, as previously mentioned, least squares support vector machines is constructed to work with real numbers. In order for LSSVR to learn the relationship between complex numbers, a representation of complex numbers in terms of real numbers is necessary. Since sample features and labels for LSSVR need to be flattened into one dimension which result in a matrix with rows of samples, the representation of complex numbers using real numbers can be done after features and labels have been flattened. An example of such a matrix of two samples with four features each can be seen in \lccref{eq:complex_matrix}. To represent the complex number features as real numbers, once can simply split a single complex number into two real numbers. When this is done to the entire matrix of complex numbers, the result is \lccref{eq:complex_matrix_real_rep}.
+\begin{align}
+  \begin{bmatrix}
+    -1.03+0i & -0.52+0.39i & -0.54+0i & -0.52-0.39i \\
+    -0.85+0i & -0.39+0.19i & 0.87+0i  & -0.39-0.19i
+  \end{bmatrix}\label{eq:complex_matrix} \\
+  \begin{bmatrix}
+    -1.03 & 0 & -0.52 & 0.39 & -0.54 & 0 & -0.52 & -0.39 \\
+    -0.85 & 0 & -0.39 & 0.19 & 0.87  & 0 & -0.39 & -0.19
+  \end{bmatrix}\label{eq:complex_matrix_real_rep}
+\end{align}
+There are several ways to do this in PyTorch, such as extracting the real and imaginary element components into separate matrices and then interleaving the columns to create the real representation. However, a more performant version can be made by using built-in functions of the library that directly allows views of complex valued tensors as real tensors and vice versa. The \verb|view_as_real| and \verb|view_as_complex| functions allow the conversion between real and complex representations by representing complex valued tensors by adding a dimension of size two for each component of complex numbers. The resulting implementation can be seen in \lccref{fig:complex_matrix_conversion_implementation}.
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+def to_real_coeff(x: torch.Tensor) -> torch.Tensor:
+    return torch.view_as_real(x).flatten(-2)
+
+def to_complex_coeff(x: torch.Tensor) -> torch.Tensor:
+  return torch.view_as_complex(
+    x.reshape((*x.shape[:-1], -1, 2))
+  )
+  \end{lstlisting}
+  \caption{Utility function to convert between complex matrices and the real representations.}\label{fig:complex_matrix_conversion_implementation}
+\end{figure}
+
+Another important utility used on inputs for the proposed SpectralSVR is a scaling function. This utility has been implemented in a variety of ways and using different tools. However, as the standard scaling is not provided by PyTorch, we have also implemented our own version. The scaling function accepts PyTorch tensors or tuples of tensors of real or complex elements. First, the scaling function is implemented as a class that is instantiated. The scaling function is then fitted onto the reference data to obtain the standard deviation and mean of each feature. This information is stored as properties of the class. Any complex tensors are converted into their real representations using the functions in \lccref{fig:complex_matrix_conversion_implementation}. Once the scaling function instance is fitted, any set of tensors with the same number of features (columns) and element type (complex or real) can be roughly transformed into a standard deviation of one and mean of zero for every feature. This is done by subtracting the fitted mean of each feature from the elements in the column and then dividing with the feature's standard deviation. The implementation also provides a method to retrieve a scaling function fitted on a subset of the original tuple of tensors. Serialization for saving to and loading from disk is also implemented. This is done simply by using the PyTorch save and load functions on the scaling function instance itself. For some use cases, an inverse scaling operation to the original standard deviation and mean is also essential. The implementation is simply the reverse of the transformation process where the elements are multiplied by the standard deviation and the mean is the added.
+
+Another group of utility in the module is concerned with managing the number of modes a tensor of coefficients has. First, a function called \verb|resize_modes| accepts a tensor of coefficients and the target number of modes in each dimension. The first dimension is always assumed to represent the different samples. Because of this the target modes will only affect the dimensions after the first. The wave numbers are also assumed to be symmetric about zero such that the highest absolute values of the wave number is in the middle of each dimension. The wave number decreases symmetrically as you move towards the edges of the dimension and reaching the lowest absolute wave number at the edges. This is done to ensure compatibility with the way existing libraries such as PyTorch works with tensors of Fourier coefficients. Because of this, shrinking a tensor of coefficients along a dimension means removing the center of the tensor along that dimension. And expanding to a target number of modes that is larger means that the tensor is padded with zeros in the center along the desired dimension. In addition, the remaining coefficients may be rescaled in order to balance the effect of adding or removing coefficients. The implementation is presented in \lccrefs{fig:coefficient_shrink_impl,fig:coefficient_expand_impl}.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+for dim, (target_mode, current_mode) in enumerate(
+    zip(target_modes, current_modes), 1
+):
+    device = x.device
+    start_range = torch.tensor(
+        range((target_mode - 1) // 2 + 1), dtype=torch.int
+    ).to(device=device)
+    end_range = torch.tensor(
+        range(current_mode - target_mode // 2,
+          current_mode
+        ),
+        dtype=torch.int,
+    ).to(device=device)
+
+    x_resized = torch.concat(
+        (
+            x_resized.index_select(dim, start_range),
+            x_resized.index_select(dim, end_range),
+        ),
+        dim,
+    )
+  \end{lstlisting}
+  \caption{Example of shrinking a tensor of samples' coefficients to a target number of modes.}\label{fig:coefficient_shrink_impl}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+for dim, (target_mode, current_mode) in enumerate(
+    zip(target_modes, current_modes), 1
+):
+    device = x.device
+    start_range = torch.tensor(
+        range((current_mode - 1) // 2 + 1), dtype=torch.int
+    ).to(device=device)
+    # make sure that end range is empty if
+    # the coefficient is only size 1
+    end_range = torch.tensor(
+        range(current_mode // 2, current_mode)
+        if current_mode > 1
+        else range(0),
+        dtype=torch.int,
+    ).to(device=device)
+    padding_size = target_mode - current_mode
+    modes = list(x_resized.shape)
+    modes[dim] = padding_size
+    padding = torch.zeros(modes).to(x_resized)
+
+    x_resized = torch.concat(
+        (
+            x_resized.index_select(dim, start_range),
+            padding,
+            x_resized.index_select(dim, end_range),
+        ),
+        dim,
+    )
+  \end{lstlisting}
+  \caption{Example of expanding a tensor of samples' coefficients to a target number of modes.}\label{fig:coefficient_expand_impl}
+\end{figure}
+Next, the second way to manage the size of a tensor along a dimension is to interpolate the current values. The implementation uses simple linear interpolation. This is especially useful for situations such as coefficients that are themselves functions of time. This is a common application such as when solving the initial condition problem of a function in space and time. One might represent the function as a Fourier series with basis as functions of space and coefficients as functions of time. In this case, the coefficients for time values that are not available can be interpolated. The implementation of this is shown in \lccref{fig:coefficient_interpolation_impl}.
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+    index_floor = index_float.floor().to(torch.int)
+    index_ceil = index_float.ceil().to(torch.int)
+    x_ceil = x.index_select(dim, index_ceil)
+    x_floor = x.index_select(dim, index_floor)
+    # interpolate coefficients
+    index_shape = [1 for _ in range(x_floor.ndim)]
+    index_shape[1] = -1
+    index_scaler = (
+        ((index_float - index_floor) / (
+          index_ceil - index_floor
+        ))
+        .reshape(index_shape)
+        .nan_to_num()
+    )
+    # ynt + scaler * (ynt1 - ynt)
+    # (1 - scaler) * ynt + scaler * ynt1
+    x_interp = torch.lerp(x_floor, x_ceil, index_scaler.to(x))
+  \end{lstlisting}
+  \caption{Example of interpolating for indices (floating point indices) between the available ones (integer indices).}\label{fig:coefficient_interpolation_impl}
+\end{figure}
+
+Finally, this module also provides the types and reexports implementations of ordinary differential equation solvers from the torchdiffeq library \autocite{Chen_torchdiffeq_2021}. The implementation can be seen in \lccref{fig:solver_impl}.
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+RHSFuncType = Callable[[torch.Tensor, torch.Tensor],
+  torch.Tensor
+]
+SolverSignatureType = Callable[[
+        RHSFuncType, torch.Tensor, torch.Tensor,
+    ],
+    torch.Tensor
+]
+MixedRHSFuncType = Callable[[
+        torch.Tensor, torch.Tensor, torch.Tensor,
+    ],
+    torch.Tensor,
+]
+MixedSolverSignatureType = Callable[
+    [MixedRHSFuncType, torch.Tensor, torch.Tensor],
+    torch.Tensor,
+]
+
+def euler_solver(
+    rhs_func: RHSFuncType,
+    y0: torch.Tensor,
+    t: torch.Tensor,
+):
+    solution = torch.zeros((len(t), *y0.shape)).to(y0)
+
+    j = 1
+    solution[j - 1] = y0
+    for t0, t1 in zip(t[:-1], t[1:]):
+        dt = t1 - t0
+        y = solution[j - 1]
+        solution[j] = y + dt * rhs_func(t0, y)
+        assert (
+            solution.isnan().sum() == 0
+        ), f"solver encountered nan at timestep {j} (t={t0})"
+        j = j + 1
+    return solution
+
+implicit_adams_solver: SolverSignatureType = partial(
+    odeint, method="implicit_adams", options={"max_iters": 4}
+)  # type: ignore
+
+lsoda_solver: SolverSignatureType = partial(
+    odeint, method="scipy_solver", options={"solver": "LSODA"}
+)  # type: ignore
+  \end{lstlisting}
+  \caption{Implementation of ODE solvers and the types.}\label{fig:solver_impl}
+\end{figure}
+
+\subsubsection{Basis Functions}
+
+\noindent This module implements two classes. The first is the base Basis class. The second is a subclass implementing the Fourier basis specifically. These classes provide the functionality needed to have an easier time when working with basis functions and their coefficients. First, the core function of these classes is to provide a way to transition between the spectral domain and the physical domain. This is implemented in the base class by storing the coefficients of sample functions as a class property. The coefficients are assumed to be at least of one function.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    @staticmethod
+    def transform(
+        f: torch.Tensor,
+        res: TransformResType | None = None,
+        periodic: bool = True,
+        periods: PeriodsInputType = None,
+        allow_fft: bool = True,
+    ) -> torch.Tensor:
+        if not torch.is_complex(f):
+            f = f * (1 + 0j)
+        res = transformResType_to_tuple(res, tuple(f.shape[1:]))
+        periods = periodsInputType_to_tuple(periods, f.shape[1:])
+        # perform 1d transform over every dimension
+        F = f
+        for cdim in range(1, ndims):
+            F = FourierBasis._ndim_transform(
+                F,
+                dim=cdim,
+                func="forward",
+                res=res[cdim - 1],
+                periodic=periodic,
+                period=periods[cdim - 1],
+                allow_fft=allow_fft,
+            )
+
+        return F
+...
+  \end{lstlisting}
+  \caption{Implementation of forward Fourier transform.}\label{fig:fourier_transform_impl}
+\end{figure}
+
+The transitions between the coefficients and functions values are implemented as a function to transform function values to coefficients and an inverse transform function to compute function values from coefficients. The base class enforces this by defining abstract methods which any subclass will need to implement. The FourierBasis subclass then implements the transform and inverse transform functions specific for transitioning between function values and Fourier basis coefficients. As before, the implementation assumes that the first dimension indexes the samples and the rest represent the coefficient wave numbers. This means that the implementation must allow for multidimensional functions. For the Fourier transform and inverse transform, the multidimensional version is relatively simple to implement. The multidimensional Fourier transform essentially performs the one dimensional Fourier transform along one dimension. And then, using the result to perform the one dimensional Fourier transform along the next dimension. This process is repeated until the last dimension. The implementation of the forward transform is presented in \lccref{fig:fourier_transform_impl}. The inverse transform simply changes the \verb|func| parameter to \enquote{inverse}.
+
+The Fourier transform along each dimension is done by flattening every other dimension into the sample dimension. This essentially means that the function values are \enquote{sliced} along the dimension currently being transformed, and that each \enquote{slice} is its own \enquote{sample}. Mathematically, this is simply due to the matrix multiplication of basis functions along one dimension with every other dimension. The implementation of this is shown in \lccref{fig:ndim_fourier_transform_impl}.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    @staticmethod
+    def _ndim_transform(
+        f: torch.Tensor,
+        dim: int,
+        func: Literal["forward", "inverse"],
+        res: slice,
+        periodic: bool,
+        period: float,
+        allow_fft: bool,
+    ) -> torch.Tensor:
+        # flatten so that each extra dimension is
+        # treated as a separate "sample"
+        # move dimension to transform to the end
+        # so that it can stay intact after f is flatened
+        f_transposed = f.moveaxis(dim, -1)
+        # flatten so that the last dimension is intact
+        f_flatened = f_transposed.flatten(0, -2)
+
+        F_flattened = FourierBasis._raw_transform(
+            f_flatened,
+            func=func,
+            res=res,
+            periodic=periodic,
+            period=period,
+            allow_fft=allow_fft,
+        )
+        # unflatten so that the correct shape is returned
+        F_transposed = F_flattened.reshape(
+          (*f_transposed.shape[:-1], res.step)
+        )
+        F = F_transposed.moveaxis(-1, dim)
+
+        return F
+...
+  \end{lstlisting}
+  \caption{Implementation of n-dimensional Fourier transform for a specific dimension.}\label{fig:ndim_fourier_transform_impl}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    @staticmethod
+    def _raw_transform(
+        f: torch.Tensor,
+        func: Literal["forward", "inverse"],
+        res: slice,
+        periodic: bool,
+        period: float,
+        allow_fft: bool,
+    ) -> torch.Tensor:
+        match func:
+            case "forward":
+                sign = -1
+            case "inverse":
+                sign = 1
+        mode = f.shape[1]
+        domain_starts_at_0 = res.start == 0
+        domain_end_equal_to_period = res.stop == period
+        can_use_fft = (
+            domain_starts_at_0
+            and domain_end_equal_to_period
+            and periodic
+            and allow_fft
+        )
+        if can_use_fft:
+            if func == "forward":
+                F = torch.fft.fft(
+                  f, dim=1, n=res.step, norm="backward"
+                )
+            elif func == "inverse":
+                F = torch.fft.ifft(
+                  f, dim=1, n=res.step, norm="forward"
+                )
+        else:
+            if periodic:
+                n = res.start + torch.arange(res.step).to(f)
+                n = n / res.step * period
+            else:
+                n = torch.linspace(
+                    res.start, res.stop, res.step
+                ).to(f)
+            e = FourierBasis.fn(
+                n.view(-1, 1),
+                mode,
+                periods=period,
+                constant=sign * 2j * torch.pi,
+            )
+
+            F = torch.mm(f, e.T)
+        return F
+...
+  \end{lstlisting}
+  \caption{Implementation of the one dimensional Fourier Transform.}\label{fig:1d_fourier_transform_impl}
+\end{figure}
+
+The one dimensional Fourier transform itself is implemented as a raw transform function. This function accepts input of a matrix of values to transform, a parameter to indicate the type of transformation (inverse transform or forward transform), the evaluation boundary and number of grid points, whether the evaluation should assume the function is periodic, the size of the function domain, and if the Fast Fourier Transform is allowed to be used. The evaluation boundaries, actual function domain size, whether the function can be assumed to be periodic, and if FFTs is allowed to be used together determine the Discrete Fourier Transform algorithm that is used. The FFT algorithm is used if the following are all true: the evaluation starts at zero and ends with the same value as the period, the function can be assumed to be periodic, and FFT is allowed. Otherwise, the transform is computed naively using \lccrefs{eq:discrete_fourier_transform,eq:inverse_discrete_fourier_transform}. The naive approach allows for evaluating function values of coefficients at various grid sizes and evaluation boundaries. This is useful for being able to evaluate at resolutions other than that of the original discretized function or coefficients. One use for this is plotting the function at different parts or resolutions. The relationship with the physical domain means that the boundaries of the domain is important. This is because the function values that will be used may only be valid within certain boundaries. Because of this, the information of physical domain bounds must also be stored. This is done by storing the span of the function in each dimension. The implementation we have gone with doesn't store any other information than the span in each dimension. Because of this, the information would need to be stored outside the Basis class instance and any outputs or operations with the classes will need to take this into account. The implementation of the one dimensional Fourier transform is presented in \lccref{fig:1d_fourier_transform_impl}.
+
+The secondary set of functionality provided by the basis classes are mathematical operators on the functions the coefficients represent. There are four operators implemented, which are the addition, subtraction, derivative, and antiderivative operators. These four operations can be further categorized into arithmetic and calculus operations. The arithmetic operations, which are addition and subtraction, are implemented by following how the actual mathematical operations would be carried out on two functions which are Fourier series as shown in \lccref{eq:fourier_series_addition}. For subtraction, the plus sign is simply replaced with the minus sign.
+\begin{align}
+  \sum_{k} \hat{u}_k e^{2\pi ikx} + \sum_{k} \hat{f}_k e^{2\pi ikx} =
+  \sum_{k} \left(\hat{u}_k + \hat{f}_k\right) e^{2\pi ikx} \label{eq:fourier_series_addition}
+\end{align}
+The implementation leverages the operator overloading in Python classes. In addition, the overload should be done to the \verb|__add__| function. This function adds the current instance to another object which is the other basis instance for our use case. We also want the operation to return an independent instance without any references to the previous instances. To do this, all properties are copied into a new instance. This is then used to perform the arithmetic operation. The implementation in \lccref{fig:basis_addition_impl} demonstrates the addition operation. For subtraction, a similar implementation is done using the \verb|__sub__| function and switching the plus sign with the minus sign.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def __add__(self, other: Self):
+        if isinstance(other, self.__class__):
+            if other.coeff is None:
+                return self.copy()
+            elif self.coeff is None:
+                return other.copy()
+            else:
+                result = self.resize_modes(other)
+                result.coeff = result.coeff + other.coeff
+                return result
+        else:
+            raise TypeError(
+                f"unsupported operand type(s) for +: '{
+                    self.__class__
+                }' and '{type(other)}'"
+            )
+...
+  \end{lstlisting}
+  \caption{Implementation of basis addition function.}\label{fig:basis_addition_impl}
+\end{figure}
+
+The calculus operations for Fourier basis take advantage of the properties of the Fourier series. As discussed in \lccref{sec:fourier_discussion}, derivatives and integration become multiplication and division in the spectral space of Fourier series. Our implementation takes advantage of this as shown in \lccref{fig:basis_grad_impl}. Similar to how subtraction is just a modification of the addition operation, the integral or antiderivative operator is also implemented simply by changing the operation with the term multiplier from multiplication to division.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def grad(self, dim: int = 0, ord: int = 1) -> Self:
+        copy = self.copy()
+        if dim == 0 and self.time_dependent:
+            # time dependent use finite differences
+            dt = self.periods[0] / (self.time_size - 1)
+            coeff = copy.coeff
+            for o in range(ord):
+                coeff = torch.gradient(coeff, spacing=dt, dim=1)[0]
+            copy.coeff = coeff
+        else:
+            if self.time_dependent:
+                # disregard time dimension
+                dim = dim - 1
+            k = copy.wave_number(copy.modes[dim])
+            multiplier_dims = [1 for _ in range(copy.ndim)]
+            multiplier_dims[dim] = copy.modes[dim]
+            if self.time_dependent:
+                multiplier_dims = (1, *multiplier_dims)
+            multiplier = (
+                2
+                * torch.pi
+                * 1j
+                * k.reshape(multiplier_dims).to(copy.coeff)
+                / self.periods[dim]
+            )
+            multiplier = multiplier.pow(ord)
+            coeff = copy.coeff.mul(multiplier)
+            coeff[:, ..., 0] = torch.tensor(0 + 0j)
+            copy.coeff = coeff
+        return copy
+...
+  \end{lstlisting}
+  \caption{Implementation of basis grad function.}\label{fig:basis_grad_impl}
+\end{figure}
+
+The last group of functionality implemented in the Basis and FourierBasis classes provides convenience and often used procedures when working with basis functions. First, random coefficient generation for the Fourier basis is implemented. This is done as discussed in step 3 of the data generation process discussed in \lccref{sec:data_generation}. The implemented function shown in \lccref{fig:generate_coeff_impl} is then wrapped in another function that creates a new FourierBasis instance with the generated coefficients.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    @classmethod
+    def generate_coeff(
+        cls,
+        n: int,
+        modes: int | tuple[int, ...],
+        generator: torch.Generator | None = None,
+        random_func: Callable[..., torch.Tensor] = torch.randn,
+        complex_funcs: bool = False,
+        scale: bool = True,
+    ) -> torch.Tensor:
+        if isinstance(modes, int):
+            modes = (modes,)
+        n_modes = len(modes)
+        assert n_modes > 0, "modes should have at least one element"
+        random_func = partial(random_func, generator=generator)
+        if complex_funcs:
+            coeff = random_func((n, *modes), dtype=torch.complex64)
+        else:
+            coeff = random_func((n, *modes), dtype=torch.complex64)
+
+            vals = cls.inv_transform(coeff)
+            coeff = cls.transform(vals.real + 0j)
+        if scale:
+            scaler = torch.tensor(modes).sum() * 0.2
+            coeff = coeff.mul(scaler)
+        return coeff
+...
+  \end{lstlisting}
+  \caption{Implementation of Fourier Basis coefficient generation function.}\label{fig:generate_coeff_impl}
+\end{figure}
+
+Other convenience functionality also provided include plotting, function value perturbation, and function value evaluation based on domain span information that has been stored in the class instance. The function value evaluation is especially useful for experimenting and for the plotting functionality itself. This is because, the span was given to the constructor and does not need to be composed again with the inverse transform function.
+
+\subsubsection{Model}\label{sec:impl_model}
+
+\noindent The SpectralSVR model is implemented in this module. There are two components in this module. First, there is the implementation of least-squares support vector regression (LSSVR) using PyTorch. This implementation is a reimplementation and modification of an LSSVR implementation using scikit-learn by \textcite{florencioLssvr2020}. The modifications are mainly concerned with using PyTorch in place of scikit-learn. Other modifications are concerned with the performance side of things, which are computing the kernel matrix in batches to avoid memory spikes and the ability to compute on hardware accelerators supported by PyTorch such as GPUs. The LSSVR implementation starts with the constructor which accepts model hyperparameters which include the regularization parameter, kernel function and any kernel parameters, verbosity level, kernel matrix computation batch size, and device to perform computations on. The received parameters are then stored as properties of the class instance. For the kernel specifically, it will be initialized with the correct default parameters when the fitting function is called. This is because if the kernel of choice is the radial basis function, the default scaling parameter needs to be computed from the training features as the square root of the sum of feature variance values.
+
+The optimization function that fits the model to the training data solves \lccref{eq:lssvr_solution}. This function is shown in \lccref{fig:lssvr_fit_function_impl}. The first half of the function sets up the left and right hand side matrices. The left hand side matrix is constructed in part with the kernel matrix. The kernel function used is batched to reduce the peak memory footprint. These matrices are then used in the second half to compute the solution using the least squares solver function from PyTorch called lstq. Finally, the result is split into the biases and Lagrange multipliers which are then returned as a tuple. The optimizing function is wrapped in a more user-friendly function which allows the use of NumPy arrays in addition to the PyTorch Tensor used in the optimizing function. The wrapper function is named fit. It conforms the inputs provided by the user into the expected types and matrix shapes of rows for samples and columns for input features or output targets. The processed inputs and outputs are also stored as support vectors for use during prediction. The fit function returns the class instance once training is done. This is for method chaining purposes for ease of use when using the fit function in a chain with other functions we will discuss next, such as the prediction function.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def _optimize_parameters(
+      self,
+      X: torch.Tensor,
+      y_values: torch.Tensor,
+    ):
+
+        A = torch.empty(
+          (X.shape[0] + 1,) * 2,
+          device=self.device,
+          dtype=self.dtype,
+        )
+        A[1:, 1:] = self._batched_K(X, X)
+        A[1:, 1:].diagonal().copy_(
+            A[1:, 1:].diagonal()
+            + torch.ones(
+                (A[1:, 1:].shape[0],),
+                device=self.device,
+                dtype=self.dtype,
+            ).to()
+            / self.C
+        )
+        A[0, 0] = 0
+        A[0, 1:] = 1
+        A[1:, 0] = 1
+        shape = np.array(y_values.shape)
+        shape[0] += 1
+        B = torch.empty(
+          list(shape), device=self.device, dtype=self.dtype
+        )
+        B[0] = 0
+        B[1:] = y_values
+
+        solution: torch.Tensor = torch.linalg.lstsq(
+            A.to(dtype=torch.float), B.to(dtype=torch.float)
+        ).solution.to(dtype=self.dtype)
+
+        b = solution[0, :]
+        alpha = solution[1:, :]
+
+        return (b, alpha)
+...
+  \end{lstlisting}
+  \caption{Implementation of Least-squares Support Vector Regression fitting function.}\label{fig:lssvr_fit_function_impl}
+\end{figure}
+
+The learned multipliers and bias parameters are then used for predicting outputs from unseen sample features. \Cref{eq:lssvr_prediction_vectorized} shows the computation that needs to be done to compute the predicted output. The prediction process first constructs both matrices on the left-hand side of the equation. This is done by computing the kernel matrix between the prediction features and the training features, otherwise known as support vectors. The prediction function therefore is very straight forward with an input of unseen features and the learned parameters. The function output is simply the predicted outputs. The implementation of this function is shown in \lccref{fig:lssvr_predict_function_impl}.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+NumpyArrayorTensor = (
+    np.ndarray[typing.Any, np.dtype[np.float_]] |
+    torch.Tensor
+)
+...
+    def predict(
+        self,
+        X: NumpyArrayorTensor,
+    ) -> NumpyArrayorTensor:
+        """Predicts the labels of data X given a trained model.
+        - X: ndarray of shape (n_samples, n_attributes)
+        """
+        is_torch = isinstance(X, torch.Tensor)
+        if is_torch:
+            if X.ndim == 1:
+                X_reshaped_torch = X.reshape(-1, 1)
+            else:
+                X_reshaped_torch = X
+            X_= X_reshaped_torch.clone().to(
+                self.device, dtype=self.dtype
+            )
+        else:
+            if X.ndim == 1:
+                X_reshaped_np = X.reshape(-1, 1)
+            else:
+                X_reshaped_np = X
+            X_ = torch.from_numpy(X_reshaped_np).to(
+                self.device, dtype=self.dtype
+            )
+
+        KxX = self._batched_K(X_, self.sv_x)
+
+        y_pred = KxX @ self.alpha + self.b
+        predictions: NumpyArrayorTensor
+        if is_torch:
+            predictions = y_pred.to(X)
+        else:
+            predictions = y_pred.cpu().numpy()
+
+        if X.ndim == 1:
+            return predictions.reshape(-1)
+        else:
+            return predictions
+...
+  \end{lstlisting}
+  \caption{Implementation of Least-squares Support Vector Regression prediction function.}\label{fig:lssvr_predict_function_impl}
+\end{figure}
+
+Aside from these core functions, interpretation of the model using the methods introduced by \textcite{ustunVisualisationInterpretationSupport2007} are also implemented in the LSSVR class. First, using the support vectors and the kernel matrix computed between each support vectors, the correlation image is computed. This image, which is a correlation matrix, is intended to visualize the importance of features within kernel functions. This is simply computed with matrix multiplication between the kernel matrix and the support vectors. The implementation is shown in \lccref{fig:lssvr_correlation_image_function_impl}. The batched kernel function is used in this case to mitigate the memory footprint.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def get_correlation_image(self):
+        return self._batched_K(
+            self.sv_x, self.sv_x
+        ).mm(self.sv_x)
+...
+  \end{lstlisting}
+  \caption{Implementation of Least-squares Support Vector Regression correlation image function.}\label{fig:lssvr_correlation_image_function_impl}
+\end{figure}
+
+The other interpretation method introduced by \textcite{ustunVisualisationInterpretationSupport2007} visualizes the relationship learned between the input features and the outputs. This visualization is computed as the matrix multiplication between the support vectors and the learned Lagrange multipliers. The support vector matrix is transposed so that the multiplication is done on the dimension that indexes each sample. This computation is implemented as shown in \lccref{fig:lssvr_p_matrix_function_impl}. The resulting matrix is termed the p-matrix. The columns of this matrix represents the outputs and the rows represents the input features. The p-matrix values show how each feature contribute to the output learned by the model.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def get_p_matrix(self):
+        return self.sv_x.T.mm(self.alpha)
+...
+  \end{lstlisting}
+  \caption{Implementation of Least-squares Support Vector Regression p-matrix function.}\label{fig:lssvr_p_matrix_function_impl}
+\end{figure}
+
+The second component of the model modules is the SpectralSVR implementation that uses a multi-output support vector regression (SVR) model to learn in the spectral domain, such as the LSSVR implementation in the first component. The SpectralSVR is implemented as a class that extends the LSSVR to be able to learn from features and labels which are complex valued, which is the case for Fourier series coefficients. First, the constructor used to initialize each SpectralSVR instance accepts a Basis instance, an SVR instance which is the implemented LSSVR by default, and the verbosity of the model. These parameters are then used when the training function shown in \lccref{fig:spectralsvr_train_impl} is called. Training the SpectralSVR model begins by calling the train function with parameters of the input function representation, output function representation, and an indicator of whether the output function is time dependent. Then, the function ensures that the features and labels are matrices. And then, if the input or output function representations are complex, they are transformed into the real representation. These formatted training data features and labels are then used to train the LSSVR model itself. Finally, to again allow for chaining methods, the function returns the current class instance.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def train(
+        self,
+        f: torch.Tensor,
+        u_coeff: torch.Tensor,
+        u_time_dependent: bool = False,
+    ):
+        self.basis.time_dependent = u_time_dependent
+        if self.basis.coeff_dtype.is_complex:
+            u_coeff = to_complex_coeff(u_coeff)
+
+        if f.ndim > 2:
+            f = f.flatten(1)
+        if u_coeff.ndim > 2:
+            u_coeff = u_coeff.flatten(1)
+
+        if torch.is_complex(u_coeff):
+            u_coeff = to_real_coeff(u_coeff)
+        if torch.is_complex(f):
+            f = to_real_coeff(f)
+        self.svr.fit(f, u_coeff)
+        return self
+...
+  \end{lstlisting}
+  \caption{Implementation of SpectralSVR training function.}\label{fig:spectralsvr_train_impl}
+\end{figure}
+
+Using the learned data to predict other output function representations from unseen input functions can be done by directly calling the predict function of the LSSVR\@. This results in the real representation which needs to be converted into the complex representation for the FourierBasis. Once the conversion is done, the coefficients can be used to construct a new FourerBasis instance of the predictions. From there, the predicted functions can be evaluated and  plotted. However, if one simply wants to evaluate the value of the predicted function at arbitrary points, another function is implemented to provide ease of use for this exact case. The implemented function is called forward as displayed in \lccref{fig:spectralsvr_forward_impl}. The arguments to this function are the input functions, the evaluation points, and the domain span. The function first predicts the output function coefficients. Then, the predicted coefficients are multiplied with the basis function values at each point to compute the final predicted point values.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def forward(
+        self,
+        f: torch.Tensor,
+        x: torch.Tensor,
+        periods: tuple[float, ...]
+        | None = None,
+    ) -> torch.Tensor:
+        if len(x.shape) == 1:
+            x = x.unsqueeze(-1)
+
+        # compute coefficients
+        if torch.is_complex(f):
+            f = to_real_coeff(f)
+        coeff = self.svr.predict(f)
+        # convert to complex if basis needs complex values so that the reshaping is correct
+        if self.basis.coeff_dtype.is_complex:
+            coeff = to_complex_coeff(coeff)
+
+        return self.basis.evaluate(
+            coeff=coeff.reshape((f.shape[0], *self.modes)),
+            x=x,
+            periods=periods,
+            time_dependent=self.basis.time_dependent,
+        )
+...
+  \end{lstlisting}
+  \caption{Implementation of SpectralSVR forward function (pointwise prediction).}\label{fig:spectralsvr_forward_impl}
+\end{figure}
+
+The final core piece of functionality the SpectralSVR class provides is the inverse parameter estimation. This is implemented to solve inverse problems such as predicting the initial conditions for the Burgers' equation or heat equation. This function essentially does the gradient descent on a loss function in such a way that the output function matches some expected output. The loss function is simply a measure of how far the outputs of the current predicted inputs are from the target outputs. The loss function is formulated as the mean squared error of the difference between the predicted output and expected output. Using some randomly initialized values as the inputs, the predicted output is then used to compute the loss. The gradient of the loss with respect to the inputs are then computed and then used to perform optimization of the inputs using the ADAM optimizer. This is implemented as the inverse function shown in \lccref{fig:spectralsvr_inverse_impl}. The function arguments are the expected output function coefficients, evaluation points, the loss function used, how many optimization loops are done, the random number generator, and the gain which is used in generating the random initial input functions. The function returns the estimated input function coefficients in the real representation. For Fourier coefficients this means that the predicted input coefficients need to first be converted to complex valued tensors and then used to construct a FourierBasis instance. For convenience, a wrapper like the forward function is also implemented for evaluating the function values of the predicted input coefficients.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def inverse_coeff(
+        self,
+        u_coeff: torch.Tensor,
+        loss_fn: Callable[
+            [torch.Tensor, torch.Tensor], torch.Tensor
+        ] = mean_squared_error,
+        epochs=100,
+        generator=torch.Generator().manual_seed(42),
+        gain=0.05,
+        **optimizer_params,
+    ):
+        f_shape = (u_coeff.shape[0], self.svr.sv_x.shape[1])
+        complex_coeff = u_coeff.is_complex()
+        original_device = u_coeff.device
+        u_coeff = to_real_coeff(u_coeff.flatten(1)).to(self.svr.device)
+
+        # inverse problem
+        f_coeff_pred = (
+            torch.randn(f_shape, generator=generator).to(self.svr.device) * gain
+        )
+        f_coeff_pred.requires_grad_()
+        optim = torch.optim.Adam([f_coeff_pred], **optimizer_params)
+
+        for epoch in range(epochs):
+            optim.zero_grad()
+            u_coeff_pred = self.svr.predict(f_coeff_pred)
+            loss = loss_fn(u_coeff_pred, u_coeff)
+            loss.backward()
+            optim.step()
+        optim.zero_grad()
+        f_coeff_pred.requires_grad_(False)
+        if complex_coeff:
+            f_coeff_pred = to_complex_coeff(f_coeff_pred)
+        return f_coeff_pred.to(original_device)
+...
+  \end{lstlisting}
+  \caption{Implementation of SpectralSVR inverse coeff function (parameter estimation).}\label{fig:spectralsvr_inverse_impl}
+\end{figure}
+
+The SpectralSVR class also provides a convenience function for testing the performance of the learned model. This function is shown in \lccref{fig:spectralsvr_test_impl}. The function arguments are the testing inputs, expected testing outputs, and a resolution for evaluation of function values. The first step is to convert the testing input into real representations and then predicting the output function. The predicted output are then compared to the testing outputs using many metrics including RMSE, MSE, MAE, R\textsuperscript{2}, sMAPE, RRSE, and the number of Nan values present in the predicted output. The same comparison process is carried out again for the function values which are evaluated at the specified resolution. Finally, the function returns the metric values as a nested tuple for both the coefficients predictions and the function value predictions.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def test(
+        self,
+        f: torch.Tensor,
+        u_coeff_targets: torch.Tensor,
+        res: ResType = 200,
+    ):
+        if torch.is_complex(f):
+            logger.debug("transform f to real")
+            f = to_real_coeff(f)
+        u_coeff_preds = self.svr.predict(f)
+        if torch.is_complex(u_coeff_targets):
+            logger.debug("transform u_coeff to real")
+            u_coeff_targets = to_real_coeff(u_coeff_targets)
+
+        grid = self.basis.grid(res).flatten(0, -2)
+        u_preds = self.basis.evaluate(
+            coeff=to_complex_coeff(u_coeff_preds),
+            x=grid,
+            time_dependent=self.basis.time_dependent,
+        ).real
+        u_targets = self.basis.evaluate(
+            coeff=to_complex_coeff(u_coeff_targets),
+            x=grid,
+            time_dependent=self.basis.time_dependent,
+        ).real
+        return {
+            "spectral": get_metrics(
+                u_coeff_preds, u_coeff_targets
+            ),
+            "function value": get_metrics(u_preds, u_targets),
+        }
+...
+  \end{lstlisting}
+  \caption{Implementation of SpectralSVR test function.}\label{fig:spectralsvr_test_impl}
+\end{figure}
+
+\subsubsection{Problems}
+
+\noindent The final module implements the PDEs that will serve as problems the proposed modules will solve. The implementation is mainly responsible for generating datasets from the PDEs and computing the PDE residuals. This implementation is focused on the two synthetic datasets which are the antiderivative problem and the Burgers' equation problem. The problem base class is implemented as an abstract class that the specific problems will subclass. The base class requires any subclass to implement three methods. First, the data generation method which receives specifications such as what basis functions to use, how many function samples to create, how many modes are needed for each sample, and a PyTorch generator that will be used in generating the random basis coefficients. Other arguments more specific to each problem will be implemented by the specific subclass. This function is then expected to return a tuple of Basis instances. The second and third functions are the spectral and function value residuals for the PDE of each subclass, respectively. These three functions make up the functionality that is offered by all Problem subclasses. The implementation of the Problem subclass can be seen in \lccref{fig:problem_impl}.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+import abc
+import torch
+from ..basis import BasisSubType
+
+class Problem(abc.ABC):
+    def __init__(self) -> None:
+        super().__init__()
+
+    @abc.abstractmethod
+    def generate(
+        self,
+        basis: type[BasisSubType],
+        n: int,
+        modes: int | tuple[int, ...],
+        *args,
+        generator: torch.Generator | None = None,
+        **kwargs,
+    ) -> tuple[BasisSubType, ...]:
+        pass
+
+    @abc.abstractmethod
+    def spectral_residual(
+        self, u: BasisSubType, *args, **kwargs
+    ) -> BasisSubType:
+        pass
+
+    @abc.abstractmethod
+    def residual(
+        self, u: BasisSubType, *args, **kwargs
+    ) -> BasisSubType:
+        pass
+  \end{lstlisting}
+  \caption{Implementation of Problem base class.}\label{fig:problem_impl}
+\end{figure}
+
+The antiderivative problem is relatively simple to implement. The generation function takes advantage of the gradient operation and generate function provided by the Basis subclasses. The arguments to this function are the same as the base class with the addition of an integration constant parameter. By default, the value of the integration constant is zero. The function then returns the tuple of basis subclass instances representing the derivative and antiderivative functions. This function can be seen in \lccref{fig:antiderivative_generate_impl}.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def generate(
+        self,
+        basis: Type[BasisSubType],
+        n: int,
+        modes: int | tuple[int, ...],
+        u0: float | int | complex,
+        *args,
+        generator: torch.Generator | None = None,
+        **kwargs,
+    ) -> tuple[BasisSubType, BasisSubType]:
+        if isinstance(modes, int):
+            modes = (modes,)
+        # generate solution functions
+        u = basis.generate(
+            n, modes, generator=generator, *args, **kwargs
+        )
+        # compute derivative functions
+        ut = u.grad()
+        # set the integration coefficient
+        if isinstance(u0, complex):
+            if u.coeff.is_complex():
+                u.coeff[:, 0] = torch.tensor(u0)
+            else:
+                u.coeff[:, 0] = torch.tensor(u0).real
+        elif isinstance(u0, float) or isinstance(u0, int):
+            if u.coeff.is_complex():
+                u.coeff[:, 0] = torch.tensor(u0 + 0j)
+            else:
+                u.coeff[:, 0] = torch.tensor(u0)
+        else:
+            u.coeff[:, 0] = u0
+
+        return (u, ut)
+...
+  \end{lstlisting}
+  \caption{Implementation of Antiderivative generate function.}\label{fig:antiderivative_generate_impl}
+\end{figure}
+
+The residual functions are similarly easy to implement as shown in \lccref{fig:antiderivative_residual_impl}.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def spectral_residual(
+        self, u: BasisSubType, ut: BasisSubType
+    ) -> BasisSubType:
+        residual = u.grad() - ut
+        if residual.coeff is not None:
+            residual.coeff[:, 0].mul_(0)
+
+        return residual
+
+    def residual(
+        self, u: BasisSubType, ut: BasisSubType
+    ) -> BasisSubType:
+        u_val, grid = u.get_values_and_grid()
+        ut_val = ut.get_values()
+        dt = grid[1, 0] - grid[0, 0]
+        u_grad = torch.gradient(
+            u_val, spacing=dt.item(), dim=1
+        )[0]
+        residual_val = u_grad - ut_val
+        residual = u.copy()
+        residual.coeff = u.transform(residual_val)
+        return residual
+...
+  \end{lstlisting}
+  \caption{Implementation of Antiderivative residual functions.}\label{fig:antiderivative_residual_impl}
+\end{figure}
+
+For the Burgers' equation, the problem subclass for this PDE implemented a generate function with two generation paths. But before discussing the specifics of the two paths, the function has some extra arguments and preprocessing of those arguments. This time the function asks for the kind of functions the initial condition and the forcing term needs to be, whether they are random or constant. The combination of the kind of functions the initial conditions and forcing terms are will determine the path of generation that the function will take. The function also requires the viscosity parameter nu which is 0.01 by default. The domain also needs to be specified with a default value of 0 to 1 with 200 grid points for both space and time. The solver which is used for one of the generation procedures is also an argument with a default of the implicit Adams solver from torchdiffeq \autocite{Chen_torchdiffeq_2021}. Finally, whether the output basis coefficients are time dependent or not is passed in as an argument alongside with the PyTorch generator. The implementation of this portion of the function can be seen in \lccref{fig:burgers_generate_impl}.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def generate(
+        self,
+        basis: Type[BasisSubType],
+        n: int,
+        modes: int | tuple[int, ...],
+        u0: ParamInput | BasisSubType = "random",
+        f: ParamInput | BasisSubType = 0,
+        nu: float = 0.01,
+        space_domain=slice(0, 1, 200),
+        time_domain=slice(0, 1, 200),
+        solver: SolverSignatureType = implicit_adams_solver,
+        time_dependent_coeff: bool = True,
+        *args,
+        generator: torch.Generator | None = None,
+        **kwargs,
+    ) -> tuple[BasisSubType, BasisSubType]:
+        if isinstance(modes, int):
+            modes = (modes,)
+
+        device = "cuda:0" if torch.cuda.is_available() else "cpu"
+
+        L = space_domain.stop - space_domain.start
+        x = (
+            basis.grid(slice(
+                space_domain.start, space_domain.stop, modes[0]
+            )).flatten(0, -2)
+            .to(device=device)
+        )
+        T: float = time_domain.stop - time_domain.start
+        nt = int(time_domain.step)
+        # nt = int(T / (0.01 * nu) + 2)
+        dt = T / (nt - 1)
+        t = basis.grid(time_domain).flatten().to(device=device)
+        periods = (T, L)
+...
+  \end{lstlisting}
+  \caption{Implementation of Burgers generate function.}\label{fig:burgers_generate_impl}
+\end{figure}
+
+The first generation path and most similar to the antiderivative case is when both the initial condition and forcing terms are random. This branch of the generate function utilizes the residual function to compute the forcing term from the randomly generated solution function. This method of generating the solution and forcing term is stable and relatively straightforward. The implementation of this branch is shown in \lccref{fig:burgers_generate_manufactured_impl}.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+        if u0 == "random" and f == "random":
+            # use method of manufactured solution
+            time_mode = modes[0]
+            if len(modes) > 1:
+                modes = modes[1:]
+            u = basis.generate(
+                n,
+                (time_mode, *modes),
+                periods=periods,
+                generator=generator,
+            )
+            res_modes = tuple(slice(0, L, mode) for mode in modes)
+            fst = self.spectral_residual(
+                u,
+                basis(
+                    basis.generate_empty(n, (time_mode, *modes))
+                ),
+                nu,
+            )
+            u_gen = u
+            f_gen = fst
+            # convert to timed dependent coeffs
+            if time_dependent_coeff:
+                u_val = u.get_values(res=(time_domain, *res_modes))
+                u_coeff = basis.transform(
+                    u_val.flatten(0, 1)
+                ).reshape((n, nt, *modes))
+                u_gen = basis(
+                    coeff=u_coeff,
+                    time_dependent=True,
+                    periods=periods
+                )
+
+                f_val = fst.get_values(
+                    res=(time_domain, *res_modes)
+                )
+                f_coeff = basis.transform(
+                    f_val.flatten(0, 1)
+                ).reshape((n, nt, *modes))
+                f_gen = basis(
+                    coeff=f_coeff,
+                    time_dependent=True,
+                    periods=periods
+                )
+...
+  \end{lstlisting}
+  \caption{Implementation of Burgers generate function manufactured method.}\label{fig:burgers_generate_manufactured_impl}
+\end{figure}
+
+The second case is when at least one of the initial condition or forcing term is not random. This second case requires solving the Burgers' equation using traditional numerical methods. The generate function calls a function that has the responsibility of setting up the constant initial conditions or constant forcing terms and then calls the ODE solver specified in the generate function arguments. The right-hand side function computes the time derivative based on \lccref{eq:time_derivative_time_step_function}. The implementation of this is show in \lccref{fig:burgers_generate_dt_impl}. Putting the above together gives us the implementation of the method of lines generation of Burgers' equation solution and forcing term as show in \lccref{fig:burgers_generate_mol_impl}.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    @staticmethod
+    def rhs(
+        basis: type[Basis],
+        nu: float,
+        u_hat: torch.Tensor,
+        f_hat: torch.Tensor,
+    ) -> torch.Tensor:
+        u = basis(u_hat)
+        dealias_modes = tuple(
+            int(mode * 1.5) for mode in u.modes
+        )
+        u_dealiased = u.resize_modes(
+            dealias_modes, rescale=False
+        )
+        u_val = basis.inv_transform(u_dealiased.coeff)
+        uu_x_hat_dealiased = 0.5 * basis.transform(u_val**2)
+        uu_x = basis(
+            uu_x_hat_dealiased
+        ).resize_modes(u.modes, rescale=False).grad()
+
+        u_u_x_hat = uu_x.coeff
+        u_xx_hat = u.grad().grad().coeff
+        u_t_hat = nu * u_xx_hat + f_hat - u_u_x_hat
+        return u_t_hat
+...
+  \end{lstlisting}
+  \caption{Implementation of Burgers generate function time derivative.}\label{fig:burgers_generate_dt_impl}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+        u0.coeff = u0.coeff.to(device=device)
+        fst.coeff = fst.coeff.to(device=device)
+        print(f"generating with {len(t)} time steps")
+
+        def f_func(t: torch.Tensor, x: torch.Tensor = x):
+            x = x.tile((1, 2))
+            x[:, 0] = t
+            return basis.transform(
+                fst(x).reshape((-1, modes[0]))
+            )
+
+        def rhs_func(t: torch.Tensor, y0: torch.Tensor):
+            y0 = to_complex_coeff(y0)
+            return to_real_coeff(
+                cls.rhs(basis, nu, y0, f_func(t))
+            )
+
+        u_hat = solver(rhs_func, to_real_coeff(u0.coeff), t)
+        if basis.coeff_dtype.is_complex:
+            u_shape = u_hat.shape
+            u_hat = to_complex_coeff(
+                u_hat.flatten(0, 1)
+            ).reshape(
+                (*u_shape[:2], *u0.coeff.shape[1:])
+            )
+
+        u_hat = u_hat.movedim(0, 1)
+        if timedependent_solution:
+            u = basis(u_hat, **kwargs, time_dependent=True)
+        else:
+            u_hat = u_hat.reshape((n * nt, modes[0]))
+            u = basis(
+                basis.transform(
+                    basis.inv_transform(u_hat).reshape(
+                        (n, nt, modes[0])
+                    )
+                ),
+                **kwargs,
+            )
+        u.coeff = u.coeff.cpu()
+        fst.coeff = fst.coeff.cpu()
+        return (u, fst)
+...
+  \end{lstlisting}
+  \caption{Implementation of Burgers generate function method of lines.}\label{fig:burgers_generate_mol_impl}
+\end{figure}
+
+The spectral residual of the Burgers' equation which is used in the method of manufactured solution generation approach is implemented as shown in \lccref{fig:burgers_spectral_residual_impl}. As with the right-hand side function, we use the pseudospectral approach for computing the convolution term to avoid large computational expenses for higher number of modes. The function value residual is also implemented similarly to the antiderivative version. The derivatives are computed with the PyTorch gradient function. And then using \lccref{eq:forced_viscous_burgers}, the residual is computed by subtracting the forcing term from both sides.
+
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def spectral_residual(
+        self, u: BasisSubType, f: BasisSubType, nu: float
+    ) -> BasisSubType:
+        u_t = u.grad(dim=0, ord=1)
+
+        dealias_modes = tuple(
+            int(mode * 1.5) for mode in u.modes
+        )
+        u_dealiased = u.resize_modes(
+            dealias_modes, rescale=False
+        )
+        u_val = u.inv_transform(u_dealiased.coeff)
+        uu_dealiased = u.copy()
+        uu_dealiased.coeff = u.transform(u_val.pow(2).mul(0.5))
+        uu_x = uu_dealiased.resize_modes(
+            u.modes, rescale=False
+        ).grad(dim=1)
+
+        u_xx = u.grad(dim=1, ord=2)
+        nu_u_xx = u_xx
+        nu_u_xx.coeff = nu_u_xx.coeff * nu
+
+        residual = u_t + uu_x - nu_u_xx - f
+        return residual
+...
+  \end{lstlisting}
+  \caption{Implementation of Burgers spectral residual function.}\label{fig:burgers_spectral_residual_impl}
+\end{figure}

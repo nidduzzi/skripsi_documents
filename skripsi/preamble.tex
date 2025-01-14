@@ -9,6 +9,7 @@
 
 \usepackage{listing}
 \usepackage{graphicx}      %menghandle gambar
+\graphicspath{{figures/}}   % the function needs the path need to be surounded by curly braces
 \usepackage[inkscapelatex=false]{svg}   %handle svg with \includesvg
 \usepackage{pgf}
 \usepackage{lmodern}
@@ -73,7 +74,6 @@
 \newcommand{\lccrefs}[1]{\lcfirstnamecref{#1}~\labelcref{#1}}
 
 %%% pengaturan global
-\graphicspath{{figures/}}   % letak direktori penyimpanan gambar
 
 %format judul
 \usepackage{titlesec}
@@ -196,7 +196,7 @@
 \lstdefinelanguage{Toml}{
   comment = [l]{\#},
   keywords = {true, false},
-  morestring = [b]{"},
+  morestring = [b]{''},
 }
 \lstset{
   tabsize = 2,
