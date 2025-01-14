@@ -1,5 +1,0 @@
-\mmzMemo 
-\global \mmzContextExtra {}%
-%
-\mmzSource 
-\begin {adjustbox}{width=\linewidth } \input {figures/wb2_pm_zoom2.pgf} \end {adjustbox}

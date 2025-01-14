@@ -1,5 +1,0 @@
-\mmzMemo 
-\global \mmzContextExtra {}%
-%
-\mmzSource 
-\begin {adjustbox}{width=\linewidth } \input {figures/burgers_ci_0.1.pgf} \end {adjustbox}

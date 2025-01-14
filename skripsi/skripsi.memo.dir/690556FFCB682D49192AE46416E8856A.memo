@@ -1,5 +1,0 @@
-\mmzMemo 
-\global \mmzContextExtra {}%
-%
-\mmzSource 
-\begin {adjustbox}{width=\linewidth } \input {figures/wb2_train_data.pgf} \end {adjustbox}

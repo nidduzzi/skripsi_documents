@@ -1,5 +1,0 @@
-\mmzMemo 
-\global \mmzContextExtra {}%
-%
-\mmzSource 
-\begin {adjustbox}{max width=\textwidth } \tikzfig {figures/computational_model} \end {adjustbox}
