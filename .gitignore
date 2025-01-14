@@ -12,6 +12,10 @@
 *.cb2
 .*.lb
 
+# memoize cache
+**/*.memo.dir/
+*.mmz
+
 ## Intermediate documents:
 *.dvi
 *.xdv
