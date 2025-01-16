@@ -7,7 +7,7 @@
 \tikzstyle{Process}=[fill=white, draw=black, shape=rectangle, tikzit category=Flowchart, minimum height=3.5em, align=center, minimum width=10em]
 \tikzstyle{Decision}=[fill=white, draw=black, shape=diamond, tikzit category=Flowchart, aspect=2, align=center]
 \tikzstyle{Data}=[fill=white, draw=black, shape=trapezium, tikzit category=Flowchart, trapezium left angle=70, trapezium right angle=-70, align=center]
-\tikzstyle{Termination Point}=[fill=white, draw=black, shape=circle, tikzit category=Flowchart]
+\tikzstyle{Termination Point}=[fill=white, draw=black, shape=circle, tikzit category=Flowchart, minimum height=3.5em, align=center, minimum width=3.5em]
 \tikzstyle{Label}=[fill=white, tikzit category=Flowchart, minimum height=1.5em,minimum width=10em]
 
 % Edge styles

@@ -1,18 +1,22 @@
 \begin{tikzpicture}
 	\begin{pgfonlayer}{nodelayer}
-		\node [style=Process] (initial planning) {Initial Planning};
+		\node [style=Termination Point] (start) {Start};
+		\node [style=Process,anchor=north,yshift=-3em] (initial planning) at (start.south) {Initial Planning};
 		\node [style=Process,anchor=west,xshift=3em] (requirements) at (initial planning.east) {Requirements};
 		\node [style=Process,anchor=north,yshift=-3em] (analysis and design) at (requirements.south) {Analysis and Design};
 		\node [style=Process,anchor=north,yshift=-3em] (implementation) at (analysis and design.south) {Implementation};
 		\node [style=Process,anchor=north,yshift=-3em] (testing and evaluation) at (implementation.south) {Testing and Evaluation};
 		\node [style=Process,anchor=west,xshift=3em] (release) at (testing and evaluation.east) {Release};
+		\node [style=Termination Point,anchor=north,yshift=-3em] (stop) at (release.south) {Stop};
 	\end{pgfonlayer}
 	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (start) to (initial planning);
 		\draw [style=Single arrow] (initial planning) to (requirements);
 		\draw [style=Single arrow] (requirements) to (analysis and design);
 		\draw [style=Single arrow] (analysis and design) to (implementation);
 		\draw [style=Single arrow] (implementation) to (testing and evaluation);
 		\draw [style=Single arrow] (testing and evaluation) -- +(5.5,0) |- (requirements);
 		\draw [style=Single arrow] (testing and evaluation) to (release);
+		\draw [style=Single arrow] (release) to (stop);
 	\end{pgfonlayer}
 \end{tikzpicture}

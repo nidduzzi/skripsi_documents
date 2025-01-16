@@ -1,17 +1,20 @@
 % !TEX root = ./article.tex
 \begin{tikzpicture}
 	\begin{pgfonlayer}{nodelayer}
-		\node[style=Label] (preprocessing label) {Data Preprocessing};
-		\node[style=Data,anchor=north,xshift=-5em,yshift=-1em] (feature functions) at (preprocessing label.south) {Feature Functions};
-		\node[style=Data,anchor=north,xshift=5em,yshift=-1em] (label functions) at (preprocessing label.south) {Label Functions};
-		\node[style=Process,anchor=north,xshift=5em,yshift=-1em] (DFT) at (feature functions.south) {DFT};
+		\node[style=Label] (preprocessing label) {Data Transformation};
+		\node[style=Data,anchor=north,xshift=-6em,yshift=-1em] (feature functions) at (preprocessing label.south) {Feature Functions};
+		\node[style=Data,anchor=north,xshift=6em,yshift=-1em] (label functions) at (preprocessing label.south) {Label Functions};
+		\node[style=Process,anchor=north,xshift=6em,yshift=-1em] (DFT) at (feature functions.south) {DFT};
 		\node[draw,dashed,inner sep=0.5em,fit={(preprocessing label) (DFT) (feature functions) (label functions)}] (preprocessing) {};
-		\node[style=Data,anchor=north,xshift=-5em,yshift=-1em] (feature coefficients) at (DFT.south) {Feature Coefficients};
-		\node[style=Data,anchor=north,xshift=5em,yshift=-1em] (label coefficients) at (DFT.south) {Label Coefficients};
-		\node[style=Process,anchor=north,xshift=5em,yshift=-1em] (train) at (feature coefficients.south) {LSSVR Training};
+		\node[style=Data,anchor=north,xshift=-6em,yshift=-1em] (feature coefficients) at (DFT.south) {Feature Coefficients};
+		\node[style=Data,anchor=north,xshift=6em,yshift=-1em] (label coefficients) at (DFT.south) {Label Coefficients};
+		\node[style=Process,anchor=north,xshift=6em,yshift=-1em] (train) at (feature coefficients.south) {LSSVR Training};
 		\node[style=Data,anchor=north,yshift=-1em] (lssvr params) at (train.south) {LSSVR Parameters};
+		\node[style=Termination Point,anchor=south,yshift=1em] (start) at (preprocessing.north) {Start};
+		\node[style=Termination Point,anchor=north,yshift=-1em] (stop) at (lssvr params.south) {Stop};
 	\end{pgfonlayer}
 	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (start) to (preprocessing);
 		\draw [style=Single arrow] (feature functions) to (DFT);
 		\draw [style=Single arrow] (DFT) to (feature coefficients);
 		\draw [style=Single arrow] (feature coefficients) to (train);
@@ -19,5 +22,6 @@
 		\draw [style=Single arrow] (DFT) to (label coefficients);
 		\draw [style=Single arrow] (label coefficients) to (train);
 		\draw [style=Single arrow] (train) to (lssvr params);
+		\draw [style=Single arrow] (lssvr params) to (stop);
 	\end{pgfonlayer}
 \end{tikzpicture}

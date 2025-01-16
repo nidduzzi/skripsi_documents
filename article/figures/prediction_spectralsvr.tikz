@@ -2,7 +2,7 @@
 \begin{tikzpicture}
 	\begin{pgfonlayer}{nodelayer}
 		% Data preparation
-		\node[style=Label] (prepostprocessing label) {Data Pre \& Post Processing};
+		\node[style=Label] (prepostprocessing label) {Data Transformation};
 		\node[style=Data,anchor=north,xshift=-6em,yshift=-1em] (feature functions) at (prepostprocessing label.south) {Feature Functions};
 		\node[style=Data,anchor=north,xshift=6em,yshift=-1em] (predicted functions) at (prepostprocessing label.south) {Predicted Functions};
 		\node[style=Process,anchor=north,yshift=-1em] (DFT) at (feature functions.south) {DFT};
@@ -12,14 +12,18 @@
 		\node[style=Data,anchor=north,yshift=-1em] (predicted coefficients) at (IDFT.south) {Predicted Coefficients};
 		\node[style=Process,anchor=north,xshift=6em,yshift=-1em] (predict) at (feature coefficients.south) {LSSVR Prediction};
 		\node[style=Data,anchor=north,yshift=-1em] (lssvr params) at (train.south) {LSSVR Parameters};
+		\node[style=Termination Point,anchor=south,yshift=1em] (start) at (feature functions |- prepostprocessing.north) {Start};
+		\node[style=Termination Point,anchor=south,yshift=1em] (stop) at (predicted functions |- prepostprocessing.north) {Stop};
 	\end{pgfonlayer}
 	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (start) to (feature functions);
 		\draw [style=Single arrow] (feature functions) to (DFT);
 		\draw [style=Single arrow] (DFT) to (feature coefficients);
 		\draw [style=Single arrow] (feature coefficients) to (predict);
-		\draw [style=Single arrow] (IDFT) to (predicted functions);
-		\draw [style=Single arrow] (predicted coefficients) to (IDFT);
-		\draw [style=Single arrow] (predict) to (predicted coefficients);
 		\draw [style=Single arrow] (lssvr params) to (predict);
+		\draw [style=Single arrow] (predict) to (predicted coefficients);
+		\draw [style=Single arrow] (predicted coefficients) to (IDFT);
+		\draw [style=Single arrow] (IDFT) to (predicted functions);
+		\draw [style=Single arrow] (predicted functions) to (stop);
 	\end{pgfonlayer}
 \end{tikzpicture}
