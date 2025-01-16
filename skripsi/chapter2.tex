@@ -73,7 +73,7 @@ There are currently different model architectures for the learning operators. Mo
 The Fourier series can be represented in two ways, the first is the real representation by using sine and cosines as the basis functions in the series shown in \lccref{eq:fourier_series_sine_cosine}, where \(k\) is the wave number, \(L\) is the period, and \(\hat{a}_{k}\) and \(\hat{b}_{k}\) are the coefficients for the \(k\)-th wave number. The second representation is the complex representation which uses Euler's formula as the basis functions shown in \lccref{eq:fourier_series_complex} with complex valued coefficients \(\hat{c}_{k}\). Both of these are equivalent and are just the different representations. The relationship between the two representations is defined in \lccref{eq:fourier_coefficient_equivalency}.
 \begin{align}
   f(x)=       & \hat{a}_0 + \sum_{k=0}^{\infty} \hat{a}_k\cos(2\pi kx/L) + \hat{b}_k\sin(2\pi kx/L)\label{eq:fourier_series_sine_cosine} \\
-  f(x)=       & \sum_{k=-\infty}^{\infty} \hat{c}_k e^{2\pi ikx/L}\label{eq:fourier_series_complex}                                    \\
+  f(x)=       & \sum_{k=-\infty}^{\infty} \hat{c}_k e^{2\pi ikx/L}\label{eq:fourier_series_complex}                                      \\
   \hat{c}_k = & \begin{cases}
                   \hat{a}_0,               & k = 0 \\
                   (\hat{a}_k-\hat{b}_k)/2, & k > 0 \\
@@ -97,7 +97,7 @@ The implementation of the DFT and inverse DFT can affect the performance of the 
 The Fourier series has an important property that is very important to this study. Taking the derivative of the Fourier series in \lccref{eq:fourier_series_complex} with respect to \(x\) results in \lccref{eq:fourier_series_complex_derivative}. Assuming we represent the derivative function is represented as another Fourier series with coefficients \(\hat{f'}_k\), the derivative coefficients can be computed from the coefficients of the original function \(f\) as shown in \lccref{eq:fourier_coeff_derivative}. This shows that the derivative of a Fourier series can be obtained trivially by simply multiplying the coefficients with the coefficients of the basis function exponents. The antiderivative can similarly be obtained by using the same relation and dividing the coefficients of the original function with the same scaling factor. Notice that the wave number is included in the scaling factor. This means that higher frequency coefficients get scaled more. For derivatives this amplifies the higher frequencies more and the antiderivative will smooth out the function by suppressing the higher frequencies.
 \begin{align}
   \dv{x}f(x)=  & \sum_{k=-N/2}^{N/2-1} \hat{c}_k (2\pi ik/L) e^{2\pi ikx/L} \label{eq:fourier_series_complex_derivative} \\
-  =            & \sum_{k=-N/2}^{N/2-1} \hat{f'}_k e^{2\pi ikx/L}\nonumber                                              \\
+  =            & \sum_{k=-N/2}^{N/2-1} \hat{f'}_k e^{2\pi ikx/L}\nonumber                                                \\
   \hat{f'}_k = & (2\pi ik/L)\hat{c}_k\label{eq:fourier_coeff_derivative}
 \end{align}
 
@@ -217,7 +217,7 @@ The construction of matrices in \lccref{eq:lssvr_solution} and the solving proce
     \For{\(k=0 \to n\)}
     \State{\(\vb{\alpha}_{k} \gets \vb{S}_{k+1}\)}
     \EndFor{}
-    \State{\textbf{return}\(\vb{\alpha}, b\)}
+    \State{\textbf{return} \(\vb{\alpha}, b\)}
     \EndProcedure{}
   \end{algorithmic}
 \end{algorithm}
@@ -226,8 +226,7 @@ After training the model can be used for prediction of unseen features. The pseu
 \begin{algorithm}[H]
   \caption{LSSVR Prediction}\label{alg:lssvr_prediction}
   \begin{algorithmic}[1]
-    \Require{\(\vb{U}, \vb{\alpha}, \vb{X}, b\)}
-    \Ensure{\(\vb{v}\)}
+    \Procedure{PredictionLSSVR}{$\vb{U}, \vb{\alpha}, \vb{X}, b $}
     \State{\(\Omega \gets [[]]\)} \Comment{Construct matrix of inner products in high dimensional space}
 
     \For{\(k=0 \to p\)}
@@ -236,30 +235,31 @@ After training the model can be used for prediction of unseen features. The pseu
     \EndFor{}
     \EndFor{}
     \State{\(\vb{v} \gets \Omega\vb{\alpha} + \vb{1}_{m}b\)}
+    \State{\textbf{return} \(\vb{v}\)}
+    \EndProcedure{}
   \end{algorithmic}
 \end{algorithm}
 
 The choice of kernel used to construct the kernel matrix is problem specific. Three kernels are most commonly used in SVMs. These kernels are:
-\begin{enumerate}
-  \item Linear Kernel
+\begin{numdesc}
+  \item[Linear Kernel]
+  This kernel is the simplest with it being the dot product. It is recommended for cases where the number of features overwhelm the number of samples. The kernel is shown in \lccref{eq:linear_kernel}. Because this kernel operates in the original feature space, it is effective for linear problems.
+  \begin{equation}
+    K(\vb{x}_k,\vb{x}_l) = \vb{x}_k\cdot\vb{x}_l\label{eq:linear_kernel}
+  \end{equation}
+  \item[Polynomial Kernel]
 
-        This kernel is the simplest with it being the dot product. It is recommended for cases where the number of features overwhelm the number of samples. The kernel is shown in \lccref{eq:linear_kernel}. Because this kernel operates in the original feature space, it is effective for linear problems.
-        \begin{equation}
-          K(\vb{x}_k,\vb{x}_l) = \vb{x}_k\cdot\vb{x}_l\label{eq:linear_kernel}
-        \end{equation}
-  \item Polynomial Kernel
+  The polynomial kernel is shown in \lccref{eq:poly_kernel}. This kernel allows the model to learn more complex nonlinear decision boundaries. The parameter \(c\) is a constant and \(d\) is the degree of the polynomial. The degree of the polynomial need to be monitored closely in order to avoid overfitting.
+  \begin{equation}
+    K\left(\vb{x}_k,\vb{x}_l\right) = {\left(\vb{x}_k\cdot\vb{x}_l+c\right)}^{d} \label{eq:poly_kernel}
+  \end{equation}
+  \item[Radial Basis Function Kernel]
 
-        The polynomial kernel is shown in \lccref{eq:poly_kernel}. This kernel allows the model to learn more complex nonlinear decision boundaries. The parameter \(c\) is a constant and \(d\) is the degree of the polynomial. The degree of the polynomial need to be monitored closely in order to avoid overfitting.
-        \begin{equation}
-          K\left(\vb{x}_k,\vb{x}_l\right) = \left(\vb{x}_k\cdot\vb{x}_l+c\right)^{d} \label{eq:poly_kernel}
-        \end{equation}
-  \item Radial Basis Function Kernel
-
-        The RBF kernel is presented in \lccref{eq:rbf_kernel}. This kernel maps the inputs to infinite dimensional space. This enables the SVM to create decision boundaries which are not rigid. The RBF kernel is especially effective for nonlinear relationships between features and labels. The kernel has a parameter \(\sigma \) which is the scale parameter. This parameter affects how the kernel treats structures of different scales in the features. This parameter can be approximated roughly from the average variance of across all features multiplied by the number of features.
-        \begin{equation}
-          K(\vb{x}_k,\vb{x}_l) = \exp\left(-\frac{\lVert\vb{x}_k,\vb{x}_l\rVert^2}{2\sigma^2}\right) \label{eq:rbf_kernel}
-        \end{equation}
-\end{enumerate}
+  The RBF kernel is presented in \lccref{eq:rbf_kernel}. This kernel maps the inputs to infinite dimensional space. This enables the SVM to create decision boundaries which are not rigid. The RBF kernel is especially effective for nonlinear relationships between features and labels. The kernel has a parameter \(\sigma \) which is the scale parameter. This parameter affects how the kernel treats structures of different scales in the features. This parameter can be approximated roughly from the average variance of across all features multiplied by the number of features.
+  \begin{equation}
+    K(\vb{x}_k,\vb{x}_l) = \exp\left(-\frac{\lVert\vb{x}_k,\vb{x}_l\rVert^2}{2\sigma^2}\right) \label{eq:rbf_kernel}
+  \end{equation}
+\end{numdesc}
 
 % SVR Interpretation
 After an SVM model is trained, it can be dissected and analyzed to interpret the decisions the model came up with using the work of \textcite{ustunVisualisationInterpretationSupport2007}. There are two tools that \autocite{ustunVisualisationInterpretationSupport2007} introduced, which are the Correlation Image (CI) and the p-vector. First, the correlation image is aimed to present the contribution of each input feature to the kernel matrix. This is because of the loss of input feature information after computing the inner product using the kernel function. Given \(N\) training samples and \(m\) input features, the correlation image matrix can be computed as the matrix multiplication between the kernel matrix of the training input features with a shape of \((N,N)\) and the matrix of all training input features with a shape of \((N,m)\). The matrix multiplication results in a matrix with the same shape as the matrix of training samples. To show the correlation, the rows of the result matrix will need to be sorted according to the output values.
@@ -273,41 +273,37 @@ LSSVMs have many benefits but also its own trade-offs. The main disadvantage of 
 
 \section{Regression Metrics}\label{sec:evaluation_metrics}
 \noindent In order to evaluate the prediction of the model, four metrics are used. The metrics are divided into absolute metrics and relative metrics. Absolute metrics require context of scale to interpret their meaning \autocite{botchkarevNewTypologyDesign2019,alpaydinIntroductionMachineLearning2020}. Meanwhile, relative metrics often have a set range of values that it can have. This allows for quick interpretation of the severity of prediction errors. The metrics we discuss here are:
-\begin{enumerate}
-  \item MSE and RMSE
+\begin{numdesc}
+  \item[MSE and RMSE]
+  The Mean Squared Error (MSE) and its root RMSE, are both very popular metrics. Given target values \(y_i\) and predictions \(y'_i\) such that the difference is \(e_{i} = y'_i-y_i\), the MSE is shown in \lccref{eq:mse}.
+  \begin{equation}
+    MSE = \frac{1}{n}\sum_{i=1}^{n}e_{i}^{2}\label{eq:mse}
+  \end{equation}
 
-        The Mean Squared Error (MSE) and its root RMSE, are both very popular metrics. Given target values \(y_i\) and predictions \(y'_i\) such that the difference is \(e_{i} = y'_i-y_i\), the MSE is shown in \lccref{eq:mse}.
-        \begin{equation}
-          MSE = \frac{1}{n}\sum_{i=1}^{n}e_{i}^{2}\label{eq:mse}
-        \end{equation}
+  For The RMSE is simply the square root of the MSE\@. The MSE has the property of inflating large errors. The squaring also makes it so that the values are positive. This means that the absolute lowest error value is zero. However, the squaring does complicate the interpretation because the units are no longer the same as the predictions. Here the RMSE comes into play, because of the root square, the units are back to the original target units. This makes the MSE and RMSE very useful.
+  \item[MAE]
+  The second metric is the MAE\@. This metric is calculated as the mean of the absolute differences between the prediction and the target. The MAE is calculated as shown in \lccref{eq:mae}.
+  \begin{equation}
+    MAE = \frac{1}{n}\sum_{i=1}^{n}\abs{e_{i}}\label{eq:mae}
+  \end{equation}
 
-        For The RMSE is simply the square root of the MSE\@. The MSE has the property of inflating large errors. The squaring also makes it so that the values are positive. This means that the absolute lowest error value is zero. However, the squaring does complicate the interpretation because the units are no longer the same as the predictions. Here the RMSE comes into play, because of the root square, the units are back to the original target units. This makes the MSE and RMSE very useful.
-  \item MAE
+  This metric is good at representing the errors without any distortions. Because there is no nonlinear components, the metric is very straightforward to interpret. Due to the use of the absolute value, the minimum value of the metric is also zero.
+  \item[R\textsuperscript{2}]
+  The third metric is the coefficient of determination. This metric can be seen as the ratio between the model's accuracy and a baseline model of mean values. Mathematically, this metric is calculated using \lccref{eq:r2} given target values \(y_i\) and predictions \(y'_i\).
+  \begin{equation}
+    {R}^{2} = 1 - \frac{\sum_{i=1}^{n}{(y_{i} - y'_{i})}^{2}}{\sum_{i=1}^{n}{(y_{i} - \bar{y})}^{2}}\label{eq:r2}
+  \end{equation}
 
-        The second metric is the MAE\@. This metric is calculated as the mean of the absolute differences between the prediction and the target. The MAE is calculated as shown in \lccref{eq:mae}.
-        \begin{equation}
-          MAE = \frac{1}{n}\sum_{i=1}^{n}\abs{e_{i}}\label{eq:mae}
-        \end{equation}
+  Because the R\textsuperscript{2} is a relative metric, there is a range of possible values. First, the highest value possible is one. This happens when the predictions are exactly the same as the targets. For predictions that are no better than the average value, the score is zero. Scores below zero mean that the predictions are worse than the average value.
+  \item[sMAPE]
+  The final metric is the symmetric Mean Absolute Percentage Error. This metric has a range of values between zero for no error and two for high error. The values can be scaled by multiplying by 100 to obtain the percentages. Given target values \(y_i\) and predictions \(y'_i\) such that the difference is \(e_{i} = y'_i-y_i\), the sMAPE is calculated using \lccref{eq:smape} where \(\epsilon \) is a small value to prevent divisions by zero.
+  \begin{equation}
+    sMAPE = \frac{2}{N} \sum_{i=1}^{N}\frac{\abs{e_{i}}}{\max(\abs{y_{i}} + \abs{y'_{i}},\epsilon)}\label{eq:smape}
+  \end{equation}
 
-        This metric is good at representing the errors without any distortions. Because there is no nonlinear components, the metric is very straightforward to interpret. Due to the use of the absolute value, the minimum value of the metric is also zero.
-  \item R\textsuperscript{2}
+  Despite the name, sMAPE does have issues with asymmetry arising from the denominator. For cases where the prediction overpredicts and underpredicts by the same amount, depending on the value of the target, the metric may penalize the prediction closer to zero more than the one that is further. This is despite both predictions being the same absolute difference away from the target value.
 
-        The third metric is the coefficient of determination. This metric can be seen as the ratio between the model's accuracy and a baseline model of mean values. Mathematically, this metric is calculated using \lccref{eq:r2} given target values \(y_i\) and predictions \(y'_i\).
-        \begin{equation}
-          r2 = 1 - \frac{\sum_{i=1}^{n}(y_{i} - y'_{i})^{2}}{\sum_{i=1}^{n}(y_{i} - \bar{y})^{2}}\label{eq:r2}
-        \end{equation}
-
-        Because the R\textsuperscript{2} is a relative metric, there is a range of possible values. First, the highest value possible is one. This happens when the predictions are exactly the same as the targets. For predictions that are no better than the average value, the score is zero. Scores below zero mean that the predictions are worse than the average value.
-  \item sMAPE
-
-        The final metric is the symmetric Mean Absolute Percentage Error. This metric has a range of values between zero for no error and two for high error. The values can be scaled by multiplying by 100 to obtain the percentages. Given target values \(y_i\) and predictions \(y'_i\) such that the difference is \(e_{i} = y'_i-y_i\), the sMAPE is calculated using \lccref{eq:smape} where \(\epsilon \) is a small value to prevent divisions by zero.
-        \begin{equation}
-          sMAPE = \frac{2}{N} \sum_{i=1}^{N}\frac{\abs{e_{i}}}{\max(\abs{y_{i}} + \abs{y'_{i}},\epsilon)}\label{eq:smape}
-        \end{equation}
-
-        Despite the name, sMAPE does have issues with asymmetry arising from the denominator. For cases where the prediction overpredicts and underpredicts by the same amount, depending on the value of the target, the metric may penalize the prediction closer to zero more than the one that is further. This is despite both predictions being the same absolute difference away from the target value.
-
-\end{enumerate}
+\end{numdesc}
 
 \section{Python Language and PyTorch Library}
 \noindent The origins of the Python programming language began in the late 1980s as with its designer Guido van Rossum \autocite{rossumHistoryPythonBrief2009}. The language began with internal releases at the designer's workplace. Over thirty years later, today, the language has reached the stable version of \num{3.14}. Many today use Python as a high level language with very convenient features. Python is a multi-paradigm language with support for many styles of programs from standalone scripts to entire applications that use paradigms like object-oriented programming. Python also acts as a bridge for using software components written in other languages \autocite{rossumGlueItAll1998}. The language has a syntax that is relatively easy to understand. This has brought many people to the ecosystem and has consistently ranked the language as one of the most used programming languages in the world \autocite{stackoverflowTechnology2024Stack2024}. Specifically for the field of machine learning, Python enjoys a wide following \autocite{jetbrainsLanguagesStateDeveloper2023}. The machine learning ecosystem within python leverages Python's capability to interact with other languages to provide performant code that is still easy to use. This can be seen across different Machine Learning libraries in Python, such as Tensorflow, PyTorch, and Jax.

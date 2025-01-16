@@ -75,18 +75,30 @@
 
 %%% pengaturan global
 
-%format judul
+% format enumitem
+\usepackage{enumitem}
+\usepackage{calc}
+\newcounter{descriptcount}
+\renewcommand*\thedescriptcount{\arabic{descriptcount}.}
+\newlist{numdesc}{description}{1}
+\setlist[numdesc]{%
+  before={\setcounter{descriptcount}{0}},%
+  font=\normalfont\stepcounter{descriptcount}\thedescriptcount\hspace{4ex-\widthof{\thedescriptcount}},%
+  style=nextline,           % Places the description text on the next line
+  leftmargin=4ex,           % No extra left margin
+}
+% format judul
 \usepackage{titlesec}
 \titleformat{\chapter}[display]
-{\bfseries\Large}
+{\bfseries}
 {%
   % \vskip-5em
-  \filcenter
-  \LARGE\MakeUppercase \chaptertitlename\
-  \LARGE\thechapter}
+  \filcenter{}
+  \MakeUppercase{\chaptertitlename}
+  \thechapter}
 {0mm}
 {\filcenter}
-\titleformat*{\section}{\bfseries\large}
+\titleformat*{\section}{\bfseries}
 \titleformat*{\subsection}{\bfseries}
 \titlespacing*{\chapter}{0pt}{-1.5\baselineskip}{1em}
 
@@ -193,12 +205,12 @@
 
 \usepackage{xcolor}
 \usepackage[listings,skins]{tcolorbox}
-\lstdefinelanguage{Toml}{
+\lstdefinelanguage{Toml}{%
   comment = [l]{\#},
   keywords = {true, false},
   morestring = [b]{''},
 }
-\lstset{
+\lstset{%
   tabsize = 2,
   frame = tb,
   breaklines = true,

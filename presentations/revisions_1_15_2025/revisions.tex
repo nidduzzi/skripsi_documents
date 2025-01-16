@@ -1,0 +1,57 @@
+% !TEX root = ./revisions.tex
+\documentclass[a4paper,12pt]{scrreprt}
+\usepackage[english]{babel}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{booktabs}
+\usepackage{cleveref}
+\usepackage{enumitem}
+\usepackage{csquotes}
+\usepackage{lipsum}
+\usepackage{calc}
+\newcounter{descriptcount}
+\renewcommand*\thedescriptcount{\arabic{descriptcount}.}
+% \newlist{numdesc}{description}{1}
+% \setlist[numdesc]{
+%     labelindent=0pt,       % No indentation for the label
+%     labelsep=1em,          % Space between the label and the description text
+%     itemindent=!,          % Align the text with the label
+%     leftmargin=0pt,        % Start at the left margin
+%     style=nextline,        % Force the description text to start on the next line
+% }
+\begin{document}
+% \lipsum[1]
+
+% \lipsum[2]
+
+% \lipsum[3]
+
+% \lipsum[4]
+
+% \lipsum[4]
+% asjjkan sdkjan sdiajkns diajksn daijskdn
+% asijdaknlsd aisk mdasj. aisud asdnajsid aasdna smd aksnd asd. asdjasd ans k d,askjd.
+% ajskja akjsdna fldcv,xmc kxc xcvs.
+
+\begin{description}[%
+        before={\setcounter{descriptcount}{0}},%
+        font=\normalfont\stepcounter{descriptcount}\thedescriptcount\hspace{4ex-\widthof{\thedescriptcount}},%
+        style=nextline,           % Places the description text on the next line
+        leftmargin=4ex,           % No extra left margin
+    ]
+    \item[Comparison with a baseline model] Compare with SNO model described in Fasankov paper
+    \item[Why not use time series model]
+    \item[Specific contribution that is irrefutable] Like how my proposed model is better than the state of the art or a baseline like SNO
+    \item[Change ch4 to separate the discussion from the results] Discuss things like why the interpretation of p-matrix for Burgers' and ERA5 is considered nonlinear. Maybe analyze the error on a frequency basis to understand if the error differ for different parts of the predicted coefficients. Further analysis into the implications of the metrics including the new comparisons.
+    \item[Conclusion in chapter 5 must be the answer to the problem statements]
+    \item[Add a literature map to chapter 2]
+    \item[Mention the weaknesses of the proposed model]
+    \item[Use Case or Rich Picture diagram for the Technical Document] Add rich picture diagram
+    \item[Sequence diagram instead of code in design] Add sequence diagram for the design chapter of TD
+    \item[Add data matrices in transformation steps to appendix and reference in ch4]
+    \item[Add \enquote{sistematika penulisan} to chapter 1]
+    \item[Fix enumerate/itemize lists with descriptions with content flowing to other pages] Use description with enumitem package to customize the behavior \textbf{[DONE]}
+    \item[Font size for chapter headings need to conform to standard] Change chapter heading font size to guideline \textbf{[DONE]}
+    \item[Add start and stop in all flowcharts]
+\end{description}
+\end{document}
