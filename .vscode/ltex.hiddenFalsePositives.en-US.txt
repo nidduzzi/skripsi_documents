@@ -26,3 +26,4 @@
 {"rule":"COMMA_PERIOD","sentence":"^\\Qcomment = [l]., keywords = true, false., morestring = [b]\"., .\\E$"}
 {"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\Q.\\E$"}
 {"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\Q[display] .\\E$"}
+{"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\QBased on the results of the research into , several conclusions can be drawn.\\E$"}
