@@ -11,14 +11,13 @@
 \usepackage{calc}
 \newcounter{descriptcount}
 \renewcommand*\thedescriptcount{\arabic{descriptcount}.}
-% \newlist{numdesc}{description}{1}
-% \setlist[numdesc]{
-%     labelindent=0pt,       % No indentation for the label
-%     labelsep=1em,          % Space between the label and the description text
-%     itemindent=!,          % Align the text with the label
-%     leftmargin=0pt,        % Start at the left margin
-%     style=nextline,        % Force the description text to start on the next line
-% }
+\newlist{numdesc}{description}{1}
+\setlist[numdesc]{
+        before={\setcounter{descriptcount}{0}},%
+        font=\normalfont\stepcounter{descriptcount}\thedescriptcount\hspace{4ex-\widthof{\thedescriptcount}},%
+        style=nextline,           % Places the description text on the next line
+        leftmargin=4ex,           % No extra left margin
+}
 \begin{document}
 % \lipsum[1]
 
@@ -32,26 +31,28 @@
 % asjjkan sdkjan sdiajkns diajksn daijskdn
 % asijdaknlsd aisk mdasj. aisud asdnajsid aasdna smd aksnd asd. asdjasd ans k d,askjd.
 % ajskja akjsdna fldcv,xmc kxc xcvs.
+\section*{Revisions}
+The points for revisions and my responses:
+\begin{numdesc}
+    \item[Comparison with a baseline model:] Add comparison with numerical methods for synthetic data with known equation. No comparison with ML model in this case because traditional numerical methods are better and has a mathematical guarantee. ML models do not possess this guarantee. Maybe compare with NN-based SNO model described in Fasankov paper for data-only env like weather.
+    \item[Contribution specific to modeling PDEs with ML:] The examiners say that currently, the contributions mentioned are too general and not specific like improvement of prediction accuracy by some percent compared to SoTA in some specific way.
 
-\begin{description}[%
-        before={\setcounter{descriptcount}{0}},%
-        font=\normalfont\stepcounter{descriptcount}\thedescriptcount\hspace{4ex-\widthof{\thedescriptcount}},%
-        style=nextline,           % Places the description text on the next line
-        leftmargin=4ex,           % No extra left margin
-    ]
-    \item[Comparison with a baseline model] Compare with SNO model described in Fasankov paper
-    \item[Why not use time series model]
-    \item[Specific contribution that is irrefutable] Like how my proposed model is better than the state of the art or a baseline like SNO
-    \item[Change ch4 to separate the discussion from the results] Discuss things like why the interpretation of p-matrix for Burgers' and ERA5 is considered nonlinear. Maybe analyze the error on a frequency basis to understand if the error differ for different parts of the predicted coefficients. Further analysis into the implications of the metrics including the new comparisons.
-    \item[Conclusion in chapter 5 must be the answer to the problem statements]
-    \item[Mention the weaknesses of the proposed model]
-    \item[Use Case or Rich Picture diagram for the Technical Document] Add rich picture diagram
-    \item[Sequence diagram instead of code in design] Add sequence diagram for the design chapter of TD
-    \item[Add a literature map to chapter 2]
-    \item[Add data matrices in transformation steps to appendix and reference in ch4]
-    \item[Add \enquote{sistematika penulisan} to chapter 1] Added outline of all chapters and moved all relevant information to the outline section in the introduciton chapter. \textbf{[DONE]}
-    \item[Fix enumerate/itemize lists with descriptions with content flowing to other pages] Use description with enumitem package to customize the behavior \textbf{[DONE]}
-    \item[Font size for chapter headings need to conform to standard] Change chapter heading font size to guideline \textbf{[DONE]}
-    \item[Add start and stop in all flowcharts] Added to all flowcharts in skripsi and article \textbf{[DONE]}
-\end{description}
+    Like how my proposed model is better than the state of the art or a baseline like SNO\@. The LSSVR strikes a good balance between simpler models like kernel regression that can overfit easier because of the lack of a regularization term and more complex models like NNs that may be harder to use because of the lack of a guarantee that trained parameters are the most optimized.
+
+    \item[Change chapter 4 to separate the discussion from the results:] Discuss things like why the interpretation of p-matrix for Burgers' and ERA5 is considered nonlinear. Maybe analyze the error on a frequency basis to understand if the error differ for different parts of the predicted coefficients. Further analysis into the implications of the metrics including the new comparisons.
+    \item[Conclusion in chapter 5 must be the answer to the problem statements:] Reword the conclusion into answers. Currently, it does answer but not directly and not in individual points as answers to the problem statement.
+    \item[Mention the weaknesses of the proposed model? how to fix it?:] Double penalty from the squared error in the LSSVR optimization. This can be fixed by weighting or relaxing the error constraint for higher frequencies. For the synthetic data, this can be analyzed by looking at the differences between the coefficients of the noisy data and the noise-free data. Or preprocessing the noise via methods like Lomb-Scargale Periodogram. This is partially mentioned already but may need to be emphasized.
+    \item[Use Case or Rich Picture diagram for the Technical Document:] Add rich picture diagram
+    \item[Sequence diagram instead of code in design chapter of TD:] Add sequence diagram for the design chapter of TD
+    \item[Mark areas of code that I did by myself:] The original quote is \enquote{\emph{maybe you can give the mark or something about which one you use the library and which one you code by yourself... so you can show your contribution. The challenge of using library is show the researcher contribution.}}
+
+    I wrote a library using the tools for tensor manipulation provided by PyTorch. I think this is similar to using tools like the cos or sin function in the math library. Because the main point of the study isn't the tools, but the proposed model. We used the tools for matrix operations to create the LSSVR model, generating synthetic data, basis function operations like transform are made by hand and a faster version provided by the PyTorch is also available and used if conditions are right. Possible things to do is highlight the areas I use high level functionality from PyTorch like FFT\@.
+    \item[Add a literature map to chapter 2:] added tikz figure. \textbf{[DONE]}
+    \item[Add data matrices in transformation steps to appendix and reference in ch4:]
+    \item[Add \enquote{sistematika penulisan} to chapter 1:] Added outline of all chapters and moved all relevant information to the outline section in the introduction chapter. \textbf{[DONE]}
+    \item[Fix enumerate/itemize lists with descriptions with content flowing to other pages:] Use description with enumitem package to customize the behavior \textbf{[DONE]}
+    \item[Font size for chapter headings need to conform to standard:] Change chapter heading font size to guideline \textbf{[DONE]}
+    \item[Add start and stop in all flowcharts:] Added to all flowcharts in thesis and article \textbf{[DONE]}
+\end{numdesc}
+
 \end{document}

@@ -1,0 +1,43 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node[style=Process] (literature_map) {%
+			\begin{varwidth}{21em}%
+				\begin{center}%
+					\judulcapitalized%
+				\end{center}%
+			\end{varwidth}};
+		% Fourier
+		\node[style=Process,xshift=-0.5em,yshift=-4em,anchor=north east] (fourier) at (literature_map.south) {Fourier Transform\\and Series};
+		% Governing Equation
+		\node[style=Process,xshift=-1em,anchor=east] (governing_equations) at (fourier.west) {Governing Equations};
+		\node[style=Process,xshift=1em,yshift=-1em,anchor=north west] (derivative) at (governing_equations.south) {Derivative Equation};
+		\node[style=Process,yshift=-1em,anchor=north] (burgers) at (derivative.south) {Burgers' Equation};
+		\node[style=Process,yshift=-1em,anchor=north] (weather) at (burgers.south) {Weather};
+		\node[style=Process,yshift=-1em,anchor=north] (mms) at (weather.south) {Method of\\Manufactured\\Solutions};
+		\node[style=Process,yshift=-1em,anchor=north] (nm) at (mms.south) {Numerical Methods};
+		% ML
+		\node[style=Process,xshift=1em,anchor=west] (ml regression) at (fourier.east) {Machine Learning\\Regression};
+		\node[style=Process,xshift=1em,yshift=-1em,anchor=north west] (lssvr) at (ml regression.south) {LSSVR};
+		\node[style=Process,yshift=-1em,anchor=north] (metrics) at (lssvr.south) {Regression Metrics};
+		\node[style=Process,yshift=-1em,anchor=north] (python) at (metrics.south) {Python \& PyTorch};
+		% Operator Learning
+		\node[style=Process,xshift=1em,anchor=west] (operator learning) at (ml regression.east) {Operator Learning};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		% \draw [style=Single arrow] (data transformation.east) -| ($(model training.west)!0.5!(data transformation.east)$) |- (model training.west);
+		% \draw (literature_map.south) -- (ml regression.north);
+		\draw (literature_map.south) -- ++(0em,-4em) -| (governing_equations.north);
+		\draw ([xshift=-2em] derivative.west) -- (derivative.west);
+		\draw ([xshift=-2em] burgers.west) -- (burgers.west);
+		\draw ([xshift=-2em] weather.west) -- (weather.west);
+		\draw ([xshift=-2em] mms.west) -- (mms.west);
+		\draw (governing_equations.south) |- (nm.west);
+		\draw ([yshift=4em] fourier.north) -- (fourier.north);
+		\draw ([yshift=-4em] literature_map.south) -| (operator learning.north);
+		\draw ([yshift=4em] ml regression.north) -- (ml regression.north);
+		\draw ([xshift=-2em] lssvr.west) -- (lssvr.west);
+		\draw ([xshift=-2em] metrics.west) -- (metrics.west);
+		\draw (ml regression.south) |- (python.west);
+
+	\end{pgfonlayer}
+\end{tikzpicture}
