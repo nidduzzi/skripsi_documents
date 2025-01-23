@@ -1462,18 +1462,20 @@ The spectral residual of the Burgers' equation which is used in the method of ma
   \centering
   \begin{tabularx}{\textwidth}{L{0.75}*{3}{L{1.09}}} % compute these using approx barycentric coords (x + 3y = 4, x = 0.8y)
     \toprule
-    Configuration                    & Scenario 1                                          & Scenario 2                                                          & Scenario 3                                 \\
+    Configuration                    & Scenario 1                                          & Scenario 2                                                                                            & Scenario 3                                   \\
     \midrule
-    Data Source                      & Synthetic (computed from equations)                 & Synthetic (computed from equations) with three viscosity values     & ERA5 dataset                               \\\addlinespace[0.5em]
-    Data Augmentations               & Perturbations of three different noise levels       & Perturbation of 10\% the mean standard deviation of function values &                                            \\\addlinespace[0.5em]
-    Data Sample Size                 & 5000 unique functions for each noise level          & 500 unique functions for each viscosity value                       & 7000 time steps                            \\\addlinespace[0.5em]
-    Number of Modes                  &                                                     &                                                                     &                                            \\\addlinespace[0.5em]
-    Scaling                          & Standard scaling                                    & Standard scaling                                                    & Standard scaling                           \\\addlinespace[0.5em]
-    Dataset Split                    & 80\% Training and 20\% Testing for each noise level & 80\% Training and 20\% Testing for each viscosity value             & 80\% Training and 20\% Testing             \\\addlinespace[0.5em]
-    Regularization Parameter (\(C\)) & 1.0                                                 & 1.0                                                                 & 1.0                                        \\\addlinespace[0.5em]
-    Kernel                           & RBF (\(\sigma = features \times X.var()\))          & RBF (\(\sigma = features \times X.var()\))                          & RBF (\(\sigma = features \times X.var()\)) \\\addlinespace[0.5em]
-    Additional Tests                 & Exact solutions                                     & Exact solutions                                                     &                                            \\\addlinespace[0.5em]
-    Interpretation                   & p-matrix and correlation image                      & p-matrix and correlation image                                      & p-matrix and correlation image             \\
+    Data Source                      & Synthetic (computed from equations)                 & Synthetic (computed from equations) with three viscosity values                                       & ERA5 dataset                                 \\\addlinespace[0.5em]
+    Data Augmentations               & Perturbations of three different noise levels       & Perturbation of 10\% the mean standard deviation of function values                                   &                                              \\\addlinespace[0.5em]
+    Data Sample Size                 & 5000 unique functions for each noise level          & 500 unique functions for each viscosity value                                                         & 7000 time steps                              \\\addlinespace[0.5em]
+    Number of Modes                  &                                                     &                                                                                                       &                                              \\\addlinespace[0.5em]
+    Scaling                          & Standard scaling                                    & Standard scaling                                                                                      & Standard scaling                             \\\addlinespace[0.5em]
+    Dataset Split                    & 80\% Training and 20\% Testing for each noise level & 80\% Training and 20\% Testing for each viscosity value                                               & 1995{-}2013 Training and 2020{-}2022 Testing \\\addlinespace[0.5em]
+    Regularization Parameter (\(C\)) & 1.0                                                 & 1.0                                                                                                   & 1.0                                          \\\addlinespace[0.5em]
+    Kernel                           & RBF (\(\sigma = features \times X.var()\))          & RBF (\(\sigma = features \times X.var()\))                                                            & RBF (\(\sigma = features \times X.var()\))   \\\addlinespace[0.5em]
+    Additional Tests                 & Exact solutions and Inverse Problem                 & Exact solution in \cref{eq:burgers_exact_solution} and in initial value problem formulation (rollout) &                                              \\\addlinespace[0.5em]
+    Comparisons                      &                                                     & Method of Lines with FDM in space                                                                     &                                              \\\addlinespace[0.5em]
+    Machine                          & Local CPU                                           & Local CPU                                                                                             & Kaggle CPU                                   \\\addlinespace[0.5em]
+    Interpretation                   & p-matrix and correlation image                      & p-matrix and correlation image                                                                        & p-matrix and correlation image               \\
     \bottomrule
   \end{tabularx}
 \end{table}
@@ -1484,7 +1486,7 @@ Each scenario serves a different purpose. The first scenario is constructed to e
   f(x) & = \sin\left(2\pi x\right)\label{eq:sine_function}
 \end{align}
 
-The second scenario extends the goal of the first scenario by examining the model and its behavior when learning a nonlinear PDE\@. The data subsets with different viscosity values are intended to allow us to learn more about how this will affect the performance on the exact solutions for lower viscosity numbers. The model will learn to predict future states of systems governed by the Burgers' equation from past states. The model for each viscosity will be used to predict \lccref{eq:burgers_exact_solution} from initial conditions at time equals zero and the corresponding forcing term of a constant value of zero. The exact equation prediction will be done using a rollout method. The initial condition along with the initial forcing term will be given to the model to predict the solution at the first time step. The model will then use the predicted solution with the forcing term at the first time step to predict the solution at the second time step. This is repeated until the stopping condition of time \(t=10\). The forcing term for the exact solution is a constant zero. Along with the rollout of the exact solution, we also perform roll out on one of the test solution.
+The second scenario extends the goal of the first scenario by examining the model and its behavior when learning a nonlinear PDE\@. The data subsets with different viscosity values are intended to allow us to learn more about how this will affect the performance on the exact solutions for lower viscosity numbers. The model will learn to predict future states of systems governed by the Burgers' equation from past states. The model for each viscosity will be used to predict \lccref{eq:burgers_exact_solution} from initial conditions at time equals zero and the corresponding forcing term of a constant value of zero. The exact equation prediction will be done using a initial value problem formulation, also described as a rollout. The initial solution value along with the forcing term will be given to the model to predict the solution at the first time step. The model will then use the predicted solution with the forcing term to predict the solution at the second time step. This is repeated until the stopping condition of time \(t=10\). The forcing term for the exact solution is a constant zero. In addition to the rollout of the exact solution, we also perform rollout on of the test set. This will be done in comparison to traditional numerical methods, namely the commonly used method of lines in time using SciPy and torchdiffeq and finite differences in space with NumPy gradient and PyTorch gradient respectively. Specifically, the SciPy odeint function uses lsoda from the FORTRAN library odepack. And, the torchdiffeq version will use Implicit Adams-Bashforth-Moulton (IABM) method. Both of these were chosen for their availability for use in Python and therefore the kind of numerical solver one could set up with relative reliability.
 
 The third scenario is designed to demonstrate the modeling capability of SpectralSVR on a more practical problem of weather prediction. The earth weather system is a complex collection of processes. Using the ERA5 dataset, the model will be used to predict future states of the atmosphere from previous states. Specifically, the model will learn to predict the temperature 2 meters above the surface. That means that other than the time and spatial resolution not being the highest, the model will also learn from partial information of the relationships defined by the equation since no other variables will be included. This choice was made as an analog for situation with unknown PDEs and therefore unknown variables. With these situations, there is no guarantee that the variables measured have any relation with the system. These three scenarios together address the last two aims of this study.
 
@@ -1492,7 +1494,11 @@ The third scenario is designed to demonstrate the modeling capability of Spectra
 \noindent In this section, the results of each experimental scenario is presented and analyzed. The results come in the form of testing metrics mentioned in \lccref{sec:evaluation_metrics}. The model interpretations are displays of the correlation image and the p-matrix. The function values and coefficients themselves will also be plotted depending on the number of dimensions.
 
 \subsection{Scenario 1}
-\noindent The first scenario results are presented in four parts. The first is the coefficient prediction metrics which is shown in \lccref{table:scenario_1_spectral_metrics}. The table shows the noise level and the performance metrics.
+\noindent The scenario is implemented as a Jupyter notebook which imports relevant libraries and our SpectralSVR library. The notebook starts with creating the data with the Antiderivative problem subclass. All random processes use the same PyTorch Generator instance with a seed of 42. The data is then augmented by perturbing the function values to create three versions with the noise levels mentioned in the scenario. Looping through each version, the training and testing subsets are randomly sampled to result in 80\% and 20\% of the original dataset respectively. Then the scaling function is fitted on the training subset inputs. And then, both the training and testing inputs are transformed using the fitted scaling function. Next, an instance of SpectralSVR is trained and tested. Finally, the metrics are stored and the next noise level is processed.
+
+The kernel scaling hyperparameter sigma has the same value of 10 for all noise levels. This is because the inputs are all scaled to approximately have a standard deviation of one. The value itself is from the number of features which comes out to 100 total inputs to the LSSVR\@. This was multiplied with the average standard deviation of all features across samples of 1 and then squared to get our current scaling hyperparameter value of 10.
+
+The first scenario results are presented in four parts. The first is the coefficient prediction metrics which is shown in \lccref{table:scenario_1_spectral_metrics}. The table shows the noise level and the performance metrics. Focusing on the coefficient of determination (R\textsuperscript{2}) scores, we can see that the model is off by 0.04 to the perfect score of 1.0 for the lowest noise level. For higher noise levels, the model performance gets worse with the R\textsuperscript{2} score of 0.5 for the highest noise level.
 \begin{table}[H]
   \caption{Performance metrics of coefficient prediction in scenario 1 by noise level.}\label{table:scenario_1_spectral_metrics}
   \centering
@@ -1507,13 +1513,7 @@ The third scenario is designed to demonstrate the modeling capability of Spectra
   \end{tabular}
 \end{table}
 
-The scenario is implemented as a Jupyter notebook which imports relevant libraries and our SpectralSVR library. The notebook starts with creating the data with the Antiderivative problem subclass. All random processes use the same PyTorch Generator instance with a seed of 42. The data is then augmented by perturbing the function values to create three versions with the noise levels mentioned in the scenario. Looping through each version, the training and testing subsets are randomly sampled to result in 80\% and 20\% of the original dataset respectively. Then the scaling function is fitted on the training subset inputs. And then, both the training and testing inputs are transformed using the fitted scaling function. Next, an instance of SpectralSVR is trained and tested. Finally, the metrics are stored and the next noise level is processed. Next the 5\% noise model is used to predict the antiderivative of a sine function.
-
-The kernel scaling hyperparameter sigma has the same value of 10 for all noise levels. This is because the inputs are all scaled to approximately have a standard deviation of one. The value itself is from the number of features which comes out to 100 total inputs to the LSSVR\@.
-
-\Cref{table:scenario_1_spectral_metrics} shows that the model is able to generalize from the training data and learn the simple linear antiderivative operator. Focusing on the coefficient of determination (R\textsuperscript{2}) scores, we can see that the model is off by 0.04 to the perfect score of 1.0 for the lowest noise level. While increasing noise levels does degrade the performance, this is partly due to the target values also having been perturbed. This fact can be seen if we look at how predictions from the very same trained models on noisy inputs are compared to the noise-free versions of the antiderivative functions which is shown in \lccref{table:scenario_1_clean_spectral_metrics}. The metrics show that the model predictions are slightly closer to the unperturbed function coefficients compared to the perturbed versions. This can be seen as the influence of the independent synthetic measurement noise in the perturbed targets being removed from the testing metrics.
-
-The higher noise levels shows that the model is still relatively accurate. Looking at the R\textsuperscript{2} score for the 50\% noise level, the model is more accurate than a baseline mean value model. The R\textsuperscript{2} score of 0.5 means that the model predictions has roughly half the error the baseline would produce.
+The metrics against the non perturbed values are shown in \lccref{table:scenario_1_clean_spectral_metrics}. The results show that the model performs best with lower noise levels, with the highest R\textsuperscript{2} value of 0.96 achieved at noise of 5\% average function value standard deviation. Higher noise levels sees the model performing worse with an R\textsuperscript{2} value of 0.62 at the highest noise level.
 
 \begin{table}[H]
   \caption{Performance metrics of coefficient prediction compared to unperturbed targets in scenario 1 by noise level.}\label{table:scenario_1_clean_spectral_metrics}
@@ -1544,7 +1544,7 @@ The function values are also evaluated and the values of the metrics between the
   \end{tabular}
 \end{table}
 
-For the metrics between the predictions and the noise-free version of the target function values, the results parallel the outcomes of the coefficient predictions. The metrics show that the model performs slightly better with more pronounced differences for the higher noise levels. This echoes our previous statement on the effect of independent \enquote{measurement} noise in the target values on the evaluation metrics.
+For the metrics between the predictions and the noise-free version of the target function values shown in \lccref{table:scenario_1_clean_function_metrics}, the results parallel the outcomes of the coefficient predictions. The metrics show that the model performs slightly better with more pronounced differences for the higher noise levels.
 \begin{table}[H]
   \caption{Performance metrics of function value from evaluated coefficient prediction compared to unperturbed targets in scenario 1 by noise level.}\label{table:scenario_1_clean_function_metrics}
   \centering
@@ -1589,7 +1589,7 @@ The next part of this scenario is the results from predicting the exact solution
   \end{tabular}
 \end{table}
 
-The predictions of the exact equation is shown in \lccref{fig:antiderivative_exact}. Visually, we can see that as the noise level increases, the model predictions become worse. Another observation is how the higher the noise level, the more the predicted functions become closer to zero. This is explained by the double penalty phenomenon \autocite{lledoScaledependentVerificationPrecipitation2023}. The loss function used for LSSVR penalizes the model for predicting a non-zero value that turns out to be wrong compared to predicting a zero value. This results in a model with predictions that are close to the mean of the training data.
+The predictions of the exact equation is shown in \lccref{fig:antiderivative_exact}. Visually, we can see that as the noise level increases, the model predictions become worse. Another observation is how the higher the noise level, the more the predicted functions become closer to zero.
 
 \begin{figure}[H]
   \centering
@@ -1608,7 +1608,7 @@ The predictions of the exact equation is shown in \lccref{fig:antiderivative_exa
   \caption{(\subref{fig:antiderivative_exact_input}) The perturbed exact input function values from \lccref{eq:sine_derivative}.\ (\subref{fig:antiderivative_exact_prediction}) Prediction of antiderivative from the input function that was perturbed.}\label{fig:antiderivative_exact}
 \end{figure}
 
-For inverse problems, we simply use the same testing set with the labels now used to predict the features. The model instances are still the same as before. With the implementation shown in \lccref{fig:spectralsvr_inverse_impl}, we run the inverse function for predicting coefficients with 2000 epochs, a learning rate of 0.02, and randomized starting point from a normal distribution multiplied by a factor of 0.05. The results of inverse prediction for all three noise levels are shown in \lccref{table:scenario_1_inv_spectral_metrics}. These metrics were computed after both the target and predicted input functions are scaled back using the same scaling functions they were scaled down with. Because the scales of the input and output functions are different, the absolute metrics are much larger in these results compared to the forward problem results. For reference, the target input coefficients on average range from -695.65 to 694.9. The relative metrics show that for the lower noise levels, the accuracy is still relatively good. However, the values are lower than the values for the forward test. The difference with the antiderivative prediction becomes more pronounced with the higher noise levels. For the highest noise level, the performance has degraded so far that the predictions are worse than a baseline model from the mean of the target input functions. One must also note that despite the much worse results of the other metrics for the highest noise level, at this time we're unable to explain why sMAPE results in roughly the same performance as in the forward problem.
+For inverse problems, we simply use the same testing set with the labels now used to predict the features. The model instances are still the same as before. With the implementation shown in \lccref{fig:spectralsvr_inverse_impl}, we run the inverse function for predicting coefficients with 2000 epochs, a learning rate of 0.02, and randomized starting point from a normal distribution multiplied by a factor of 0.05. The results of inverse prediction for all three noise levels are shown in \lccref{table:scenario_1_inv_spectral_metrics}. These metrics were computed after both the target and predicted input functions are scaled back using the same scaling functions they were scaled down with. Because the scales of the input and output functions are different, the absolute metrics are much larger in these results compared to the forward problem results. For reference, the target input coefficients on average range from -695.65 to 694.9. The relative metrics show that for the lower noise levels, the accuracy is still relatively good. However, the values are lower than the values for the forward test. The difference with the antiderivative prediction becomes more pronounced with the higher noise levels. For the highest noise level, the performance has degraded so far that the predictions are worse than a baseline model from the mean of the target input functions.
 
 \begin{table}[H]
   \caption{Performance metrics of coefficient inverse prediction of derivative in scenario 1 by noise level.}\label{table:scenario_1_inv_spectral_metrics}
@@ -1670,12 +1670,8 @@ Next, we have the correlation image and p-matrix for the model of each noise lev
   \caption{Correlation image (left column) and p-matrix (right column) for each model trained on a different noise level (row). The correlation image was sorted same order the values of the real component of wave number \(k=2\) were sorted in descending order.}\label{fig:scenario_1_interpretation}
 \end{figure}
 
-The final observation we make is how for all the p-matrices the pronounced contribution of the input wave number to their corresponding output wave number. This means that the majority of contributions to each output coefficients come from the corresponding input coefficients of the same wave number. Our knowledge on how the simple derivative equation for Fourier series relate the coefficients of the derivative function and the antiderivative function is shown in \lccref{eq:derivative_coeff}. This aligns with the contributions shown by the p-matrices. This confirms that the model is indeed learning the relations that is defined by the derivative equation.
-
-In summary, the model is able to learn the linear relationship defined by the derivative equation. This is true even for high noise levels. The model also learns the actual relationship between each wave number which is shown in the p-matrix. Inverse prediction of the input function is also successfully done for lower noise levels. At high noise levels, the noise overwhelms the model.
-
 \subsection{Scenario 2}
-\noindent The second scenario results are presented in two parts which are the coefficient predictions and function value predictions. The functions are first preprocessed in order to format them into current and next values in time as discussed in \lccref{sec:data_transformation}. The sample pairs are first divided into two for the training and testing sets. Each function is then discretized into 200 time steps. Then, the features are put together as the coefficients of the solution and forcing term at the current time step. The labels are the solution at the next time step. Since there is too much data to fit into memory all at once at the end of this process, we randomly sample the feature and label pairs. This result in a maximum of 8000 samples for the training set and 2000 samples for the testing set. As mentioned in \lccref{sec:data_transformation}, the training features are used to fit a scaling function. And then, all features are scaled using the fitted scaling function.
+\noindent The second scenario results are presented in two parts which are the coefficient predictions and function value predictions. The functions are first preprocessed in order to format them into current and next values in time as discussed in \lccref{sec:data_transformation}. The sample pairs are first divided into two for the training and testing sets. Each function is then discretized into 200 time steps. Then, the features are put together as the coefficients of the solution and forcing term at the current time step. The labels are the solution at the next time step. Since there is too much data to fit into memory all at once at the end of this process, we randomly sample the feature and label pairs. This result in a maximum of 8000 features and labels for the training set and 2000 features and labels from the testing set. As mentioned in \lccref{sec:data_transformation}, the training features are used to fit a scaling function. And then, all features are scaled using the fitted scaling function.
 
 The coefficient value predictions are shown in \lccref{table:scenario_2_spectral_metrics}. The RBF kernel parameter computed from the data is once again the same for all versions of the dataset with a value of 5.66. The testing metrics show that the performance of the model vary with the viscosity value \(\nu \). Starting with the inviscid Burgers' equation, with \(\nu=0\), the model performs the best with a close second from the model for the \(\nu = 0.01 \) dataset version. The function value evaluated from the predictions is shown in \lccref{table:scenario_2_function_metrics}. The metrics across the board shows that the function value relative metrics are slightly better compared to the coefficients. Comparing the absolute metrics for the same table, we see the same general trend that the higher viscosity show the model performing worse. For reference, the maximum amplitude of the functions on average are \num{2.56e-02}. This puts the error in an order of magnitude less than the average maximum amplitude. For the coefficients, on average, the maximum absolute value at each time step is \num{9.29e-02}. This means for the viscosity of 0.0 and \num{0.01}, the error is roughly 1 to 9 of the maximum absolute value.
 
@@ -1772,7 +1768,7 @@ The testing results are complimented with a rollout experiment. The results from
   \caption{The rollout predictions for one of the test function. The difference is calculated as the targets subtracted by the predictions.}\label{fig:scenario_2_rollout}
 \end{figure}
 
-Another observation we can see is that the difference between the target and rollout predictions is much more pronounced for lower viscosity values. This result is aligned with metrics shown in \lccrefs{table:scenario_2_rollout_spectral_metrics,table:scenario_2_rollout_function_metrics}. The absolute metrics show that the models are performing several times worse in rollout compared to the single time step tests shown in \lccrefs{table:scenario_2_spectral_metrics,table:scenario_2_function_metrics}. This seems to be the same challenge that traditional solvers also face with the shocks that may be present with lower viscosity values. This means that for rollout scenarios, the model has a much harder time with lower viscosity values.
+Another observation we can see is that the difference between the target and rollout predictions is much more pronounced for lower viscosity values. This result is aligned with metrics shown in \lccrefs{table:scenario_2_rollout_spectral_metrics,table:scenario_2_rollout_function_metrics}. The absolute metrics show that the models are performing several times worse in rollout compared to the single time step tests shown in \lccrefs{table:scenario_2_spectral_metrics,table:scenario_2_function_metrics}.
 \begin{table}[H]
   \caption{Performance metrics of coefficient rollout in scenario 2 by viscosity.}\label{table:scenario_2_rollout_spectral_metrics}
   \centering
@@ -1799,8 +1795,7 @@ Another observation we can see is that the difference between the target and rol
     \bottomrule
   \end{tabular}
 \end{table}
-
-The exact function \cref{eq:burgers_exact_solution} is computed for each viscosity value. The discrete Fourier transform of the values are then used for doing rollout with the model. For the forcing term, we just use a constant function with a value of zero. The rollout predictions are shown in \lccref{fig:scenario_2_exact}. The model is not successful in the rollout for the inviscid equation and for the viscosity of \(\nu=0.01\). Both of these cases, the model produces too much error that the original function is no longer recognizable in the predictions. For the higher viscosity value of \(\nu=0.1\) the rollout produces a recognizable prediction. The error stays to about half the maximum function value. We do see some more noticeable error in the flatter parts of the function. The error also take a very similar shape across the different viscosity values. Since we essentially used the same solutions for training the model for each viscosity, the similarity in error means that it can be alleviated with more diverse training samples. The error for the flatter functions may also be alleviated by including similar flatter functions during training.
+The exact function \cref{eq:burgers_exact_solution} is computed for each viscosity value. The discrete Fourier transform of the values are then used for doing rollout with the model. For the forcing term, we just use a constant function with a value of zero. The rollout predictions are shown in \lccref{fig:scenario_2_exact}. The model is not successful in the rollout for the inviscid equation and for the viscosity of \(\nu=0.01\). Both of these cases, the model produces too much error that the original function is no longer recognizable in the predictions. For the higher viscosity value of \(\nu=0.1\) the rollout produces a recognizable prediction. The error stays to about half the maximum function value.
 \begin{figure}[H]
   \centering
   \begin{adjustwidth}{-0.1\linewidth}{-0.1\linewidth}
@@ -1893,7 +1888,7 @@ The metrics for the exact rollout further solidifies our observations from the p
   \end{tabular}
 \end{table}
 
-The correlation image and p-matrix for each viscosity can be seen in \lccref{fig:scenario_2_interpretation}. Analyzing the correlation images first, we see that some columns are sorted in correlation to how the samples are sorted based on the real component of the 4th output wave number. For the inviscid equation, this correlation is the strongest with multiple columns exhibiting the correlation. The highest and visually most sorted values are from the forcing term portion of the inputs. Different wave numbers in the inputs are also sorted differently, this indicates an inverse correlation. For a higher viscosity of \(\nu=0.01\), a weaker correlation is still present.
+The correlation image and p-matrix for each viscosity can be seen in \lccref{fig:scenario_2_interpretation}. Analyzing the correlation images first, we see that some columns are sorted in correlation to how the samples are sorted based on the real component of the 4th output wave number. For the inviscid equation, this correlation is the strongest with multiple columns exhibiting the correlation. The highest and visually most sorted values are from the forcing term portion of the inputs. Different wave numbers in the inputs are also sorted differently, this indicates an inverse correlation. For a higher viscosity of \(\nu=0.01\), a weaker correlation is still present. Once we get to the highest viscosity, while the order is still present, we see a more random arrangement of the correlation image values.
 
 \begin{figure}[H]
   \centering
@@ -1938,11 +1933,7 @@ The correlation image and p-matrix for each viscosity can be seen in \lccref{fig
   \caption{Correlation image (left column) and p-matrix (right column) for each model trained on a different viscosity (row). The correlation image was sorted same order the values of the real component of wave number \(k=2\) were sorted in descending order.}\label{fig:scenario_2_interpretation}
 \end{figure}
 
-Once we get to the highest viscosity, while the order is still present, we see a more random arrangement of the correlation image values. This observation and the lower scores can both be explained by the level of temporal discretization. This is the same issue we encounter when we use some traditional methods for higher viscosity values with the same time step for lower viscosity values \autocite{kassamFourthOrderTimeSteppingStiff2005,seydaogluNumericalSolutionBurgers2016}. The issue arises in stiff differential equations. Stiff differential equations refer to the presence of a rapidly varying component. We can see that the larger amplitudes of high frequency components in the forcing term to represent the rapidly varying components as shown in \lccrefs{fig:burgers_forcing_0.0,fig:burgers_forcing_0.01,fig:burgers_forcing_0.1}. Traditionally, stiff equations would require specific numerical methods purpose built to efficiently solve the problem. Otherwise, the using a solver like FDM would require much finer time steps than the one we are using here.
-
-The p-matrix shows the difference in contributions of both input functions. For the inviscid equation, the contributions mainly come from the forcing term. The current solution contributes a smaller amount in comparison. There is similarity with the antiderivative p-matrices in this case. The contributions to each output wave number mainly come from input coefficients with the same wave number. However, there is a noticeable contribution from other wave numbers too unlike the antiderivative case. The biggest contribution from the current solution is the constant/bias term. For higher viscosity values, notice that the contribution of the previous solution increases. The increase is more pronounced for higher frequencies. This aligns with the quadratic scaling from the wave number on the coefficients \autocite{canutoSpectralMethodsEvolution2007}. The p-matrix for lower viscosity values show more structured contribution of other wave numbers in comparison to the higher wave numbers. This structure comes in the form of a grid pattern. For the real components of the output, the contribution of other wave numbers oscillate between higher and lower values depending on whether the input component is real or not. The imaginary output components on the other hand have a more constant contribution across the input components. The contribution once again become more pronounced the higher the absolute value of the wave number.
-
-To summarize, Low viscosity values are a challenge to the model as with traditional methods. Despite that, this scenario confirms the model's ability to learn the nonlinear relationship defined by the Burgers' equation. The model is also able to stay stable with a relatively large time step. This concludes the synthetic data portion of the study.
+The p-matrix shows the difference in contributions of both input functions. For the inviscid equation, the contributions mainly come from the forcing term. The current solution contributes a smaller amount in comparison. There is similarity with the antiderivative p-matrices in this case. The contributions to each output wave number mainly come from input coefficients with the same wave number. However, there is a noticeable contribution from other wave numbers too unlike the antiderivative case. The biggest contribution from the current solution is the constant/bias term. For higher viscosity values, notice that the contribution of the previous solution increases.
 
 \subsection{Scenario 3}
 \noindent This final scenario tests the model on a much more complex dataset. As said previously, this dataset, which is computed using real observations of Earth's weather system, will be used to represent the model learning a very complex system with many unknown contributing variables. For our case, this means the data used will be limited to the 2-meter temperature. The anomaly is computed by subtracting the climatology from the corresponding day of years and hours of the atmospheric state. For example, the temperature on the 6\textsuperscript{th} of January 1998 at 18:00 UTC is subtracted with the average temperature for the 6\textsuperscript{th} day of the year at 18:00 hour UTC\@. For any anomaly predictions, the corresponding atmospheric state can simply be computed as the inverse process described before by adding the climatology to the predicted anomaly.
@@ -1976,7 +1967,7 @@ The testing results are shown in \lccrefs{table:sc3_test_anomaly_metrics,table:s
   \end{tabular}
 \end{table}
 
-The predictions from test features are processed through the Fourier inverse transform to evaluate the function values. The direct predictions, which is the anomaly, is shown in \lccref{fig:sc3_anomaly_predictions}. The model seem to be predicting less extreme values that are noticeable in the target. Specifically areas over North America, Central Asia, and parts of Antarctica show lower temperature anomaly than expected. We also loose detail in areas which should have a lower anomaly such as northern areas of Africa, Greenland, and South Asia. The lack of detail seems to be a problem of underestimation. We believe this is caused by the so-called \enquote{double penalty} issue caused by the loss function used for the LSSVR \autocite{lledoScaledependentVerificationPrecipitation2023}. The predictions tend to be closer to the mean of the data to avoid the extra penalty from a wrong prediction with a high value. One way to allow for finer details that are less accurate is to penalize the higher frequency wave numbers less compared to the lower frequency wave numbers. For our case this means the LSSVR for each output will have their regularization parameter decreased to allow the model to focus less on the errors for higher frequencies.
+The predictions from test features are processed through the Fourier inverse transform to evaluate the function values. The direct predictions, which is the anomaly, is shown in \lccref{fig:sc3_anomaly_predictions}. The model seem to be predicting less extreme values that are noticeable in the target. Specifically areas over North America, Central Asia, and parts of Antarctica show lower temperature anomaly than expected. We also loose detail in areas which should have a lower anomaly such as northern areas of Africa, Greenland, and South Asia.
 \begin{figure}[H]
   \centering
   \begin{subfigure}{\linewidth}
@@ -1996,7 +1987,7 @@ The predictions from test features are processed through the Fourier inverse tra
   \caption{2-meter temperature anomaly prediction for the 1\textsuperscript{st} of January 2020 at 6:00 UTC based on the previous anomaly at 0:00 UTC.}\label{fig:sc3_anomaly_predictions}
 \end{figure}
 
-The state predictions which is obtained by adding the climatology to the predicted anomaly is shown in \lccref{fig:sc3_state_predictions}. This further shows areas of discrepancy between the prediction and the target. The area in the South Pacific show that the target has a higher difference temperature compared to the prediction. This smoothness in the prediction is easier to see for areas in the ocean. Many sharp features are lost and the state prediction start to resemble averaged view of the climatology. We must also take into account that the model only used temperature distribution data. Other pieces of information we know to be crucial to weather prediction such as wind speed or pressure was not included in the inputs. With this in consideration the model was still able to learn some relationships defined by governing equations of weather. %TODO: decide to mention the results of this or not (https://sites.research.google/weatherbench/deterministic-scores/)
+The state predictions which is obtained by adding the climatology to the predicted anomaly is shown in \lccref{fig:sc3_state_predictions}. This further shows areas of discrepancy between the prediction and the target. The area in the South Pacific show that the target has a higher difference temperature compared to the prediction. This smoothness in the prediction is easier to see for areas in the ocean. Many sharp features are lost and the state prediction start to resemble averaged view of the climatology.
 \begin{figure}[H]
   \centering
   \begin{subfigure}{\linewidth}
@@ -2017,7 +2008,6 @@ The state predictions which is obtained by adding the climatology to the predict
 \end{figure}
 
 The p-matrix and correlation image is shown in \lccref{fig:sc3_interpretation}. For the correlation image, we see that most wave numbers are correlated or inversely correlated with the outputs. The strongest correlation is shown by the features of the same wave number as the sorted target. This is an indication that the equations involved may be nonlinear. If we look at the p-matrix however, it seems very flat save a faint diagonal line from the top left to the bottom right. The values of the p-matrix are also extremely high. With the \enquote{flatness} we see, this is indicative of strong contributions by a few inputs.
-
 \begin{figure}[H]
   \centering
   \begin{subfigure}{0.49\linewidth}
@@ -2036,7 +2026,7 @@ The p-matrix and correlation image is shown in \lccref{fig:sc3_interpretation}. 
   \caption{Correlation image and p-matrix for WeatherBench 2 model. The correlation image was sorted same order the values of the real component of wave number \((k_{longitude}=0, k_{latitude}=2)\) were sorted in descending order.}\label{fig:sc3_interpretation}
 \end{figure}
 
-To see more details of the p-matrix, we show a zoomed in version in \lccrefs{fig:sc3_pm_zoom1,fig:sc3_pm_zoom2}. The relationships are much more clear between features and outputs that do not share the same wave number. The coefficients with the same longitude wave numbers appear in the same \enquote{square} shape. Within the \enquote{square}, coefficients close to the same latitude wave number show much stronger contribution. For low wave numbers, shown in \lccref{fig:sc3_pm_zoom1}, the contribution is spread over more latitude wave numbers. The higher wave numbers, on the other hand, has the contributions much more concentrated on the coefficients with the same latitude wave numbers. In addition, the value of contribution differ by an order of magnitude with lower longitude wave numbers having higher maximum contribution. This observation suggests that the nonlinearity and magnitude are inversely proportional to the absolute value of the longitude wave number. This is in contrast to when we discussed the forcing term for our Burgers' equation scenario. The low frequencies in longitude may indicate that the model has learned some feature of the anomaly that is specific to different times of day. This is because the lowest longitudinal wave number would correspond to when different parts of the world is in nighttime or in daytime. Other possible explanations may be due to the fact that the earth more closely resemble a sphere compared to the toroidal shape that the 2-dimensional Fourier transform assumes. This would result in the representation latitude-wise being distorted. For this issue, the use of spherical harmonics may be a better fit to rule out the possibility of any distortions the Fourier transform may introduce.
+To see more details of the p-matrix, we show a zoomed in version in \lccrefs{fig:sc3_pm_zoom1,fig:sc3_pm_zoom2}. The relationships are much more clear between features and outputs that do not share the same wave number. The coefficients with the same longitude wave numbers appear in the same \enquote{square} shape. Within the \enquote{square}, coefficients close to the same latitude wave number show much stronger contribution. For low wave numbers, shown in \lccref{fig:sc3_pm_zoom1}, the contribution is spread over more latitude wave numbers. The higher wave numbers, on the other hand, has the contributions much more concentrated on the coefficients with the same latitude wave numbers. In addition, the value of contribution differ by an order of magnitude with lower longitude wave numbers having higher maximum contribution.
 \begin{figure}[H]
   \centering
   \begin{subfigure}{\linewidth}
@@ -2054,4 +2044,147 @@ To see more details of the p-matrix, we show a zoomed in version in \lccrefs{fig
   \caption{The p-matrix of the WeatherBench 2 models zoomed in to specific wave numbers.}\label{fig:sc3_pm_zoomed}
 \end{figure}
 
-The results of our experiments show that the proposed model has the ability to learn the relationships that PDEs and other governing equations define. The interpretation methods for support vector regression that we used, namely the correlation image and p-matrix developed by \textcite{ustunVisualisationInterpretationSupport2007}, allows us to confirm what the model has learned. In the case of the WeatherBench2 model, it has also allowed us to glean some insight into some mechanisms that the model has learned. This information was used to verify the learned relationships for the simple derivative equation. Together with the performance metrics on three different problems, we have shown the proposed model to be a viable tool for situations with limited knowledge and a need for some level of interpretability of the model.
+\subsection{Comparisons}
+
+Next we present the results of comparing our model in for solving the IVP for the Burgers' Equation against the method of lines and finite differences using SciPy odeint, torchdiffeq odeint, NumPy gradient, and PyTorch gradient. First, we present the results of solving \lccref{eq:burgers_exact_solution} as an IVP as shown in \lccref{table:comparison_exact_metrics_0.1} for viscosity \(\nu=0.1\). For the forcing term, we use a constant value of zero. The functions are also unperturbed. The metrics measure the performace of the predicted solutions compared against the exact solution. We see that our model has slightly better performance compared to the lsoda method. We do want to note that for lower viscosity values the lsoda method performs much better compared to ours as shown in \lccref{sec:burgers_comparison}. And for the viscosity of \(\nu=0.0\), even the IABM method performs much better due to the fact that the solution is a constant value of zero.
+\begin{table}[H]
+  \caption{Metrics for predicting the exact solution for each method with viscosity \(\nu=0.1\)}\label{table:comparison_exact_metrics_0.1}
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    Method      & MSE  & RMSE & MAE  & sMAPE \\
+    \midrule
+    SpectralSVR & 0.00 & 0.02 & 0.02 & 1.47  \\
+    lsoda       & 0.00 & 0.03 & 0.02 & 1.56  \\
+    IABM        & nan  & nan  & nan  & nan   \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+For better visualization, the predictions and the difference against the exact solution is shown in \lccref{fig:comparison_burgers_exact_0.1}. We show that for our method and the lsoda method, the exact solution is achieved to a recognizable form. However, using the IABM method with torchdiffeq is ineffective and the solution \enquote{blows up} and results in many not a number values. Our method has errors characterized by lines which stems form our use of only eight basis functions to represent solution. This is in contrast to the error of the lsoda method, which is spread over larger areas.
+\begin{figure}[H]
+  \centering
+  \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_model_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR prediction.}\label{fig:comp_exact_model_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_model_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_exact_model_diff_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_spo_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy prediction.}\label{fig:comp_exact_spo_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_spo_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy difference with target.}\label{fig:comp_exact_spo_diff_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_tdo_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{torchdiffeq \& PyTorch prediction.}\label{fig:comp_exact_tdo_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_tdo_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{torchdiffeq \& PyTorch difference with target.}\label{fig:comp_exact_tdo_diff_0.1}
+    \end{subfigure}
+  \end{adjustwidth}
+  \caption{Comparison of our model (SpectralSVR) and numerical methods for the exact solution in \cref{eq:burgers_exact_solution} of the Forced Burgers equation with viscosity \(\nu=0.1\).}\label{fig:comparison_burgers_exact_0.1}
+\end{figure}
+
+The predictions for IVP rollout of the functions in the test set is shown in \lccrefs{fig:comparison_burgers_0.1} for viscosity \(\nu=0.1\). Other viscosity values were also compared and presented in \lccrefs{fig:comparison_burgers_0.0,fig:comparison_burgers_0.01}. An obvious observation is the fact that the numerical methods fail to solve the entire solution. The SciPy odeint version is able to solve up until the 13th iteration or time \(t=0.6533\). The torchdiffeq version on the other hand only solves up until the second iteration. Even at this early step, the solution is already unstable with many values having an order of larger than \num{10e10}.
+\begin{figure}[H]
+  \centering
+  \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_model_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR prediction.}\label{fig:comp_model_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_model_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_model_diff_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_spo_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy prediction.}\label{fig:comp_spo_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_spo_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy difference with target.}\label{fig:comp_spo_diff_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_tdo_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{torchdiffeq \& PyTorch prediction.}\label{fig:comp_tdo_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_tdo_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{torchdiffeq \& PyTorch difference with target.}\label{fig:comp_tdo_diff_0.1}
+    \end{subfigure}
+  \end{adjustwidth}
+  \caption{Comparison of our model (SpectralSVR) and numerical methods for a manufactured solution of the Forced Burgers equation with viscosity \(\nu=0.1\).}\label{fig:comparison_burgers_0.1}
+\end{figure}
+
+In terms of efficiency, we also present our measurements of the time it took for each method to solve the exact solution IVP using the \verb|%timit| macro in Jupyter Notebook. This was done on our machine without any hardware accelerators such as GPUs. The time was averaged over 7 measurements. The results are shown in \lccref{table:comparison_efficiency}. Our method solves this problem the fastest by around 33 times faster than the lsoda method.
+\begin{table}[H]
+  \caption{Average time elapsed in solving for \lccref{eq:burgers_exact_solution} by method.}\label{table:comparison_efficiency}
+  \centering
+  \begin{tabular}{lc}
+    \toprule
+    Method      & Time Elapsed               \\
+    \midrule
+    SpectralSVR & \textbf{0.431 s ± 0.122 s} \\
+    lsoda       & 12.1 s ± 2.62 s            \\
+    IABM        & 15.7 s ± 1.85 s            \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Discussion}\label{sec:discussion}
+
+\noindent Here we will discuss the results of the three scenarios. The first goal of the three scenarios is to show that the model is capable of predicting the correct outputs given challenges of the data such as noise, nonlinearity, stiffness, and incomplete data.
+The results show that the model is able to learn effectively the relationships of equations in our scenarios embedded in data. On the question of noise, \lccref{table:scenario_1_spectral_metrics} shows that the model is able to generalize from the training data and learn the simple linear antiderivative operator. While increasing noise levels does degrade the performance, this is partly due to the target values also having been perturbed. This fact can be seen if we look at how predictions from the very same trained models on noisy inputs are compared to the noise-free versions of the antiderivative functions as shown in \lccrefs{table:scenario_1_spectral_metrics,table:scenario_1_clean_spectral_metrics}. The metrics show that the model predictions are slightly closer to the unperturbed function coefficients compared to the perturbed versions. This can be seen as the influence of the independent synthetic measurement noise in the perturbed targets being removed from the testing metrics.
+
+The higher noise levels shows that the model is still relatively accurate. Looking at the R\textsuperscript{2} score for the 50\% noise level, the model is more accurate than a baseline mean value model. The R\textsuperscript{2} score of 0.5 means that the model predictions has roughly half the error the baseline would produce. This is explained by the double penalty phenomenon \autocite{lledoScaledependentVerificationPrecipitation2023}. The loss function used for LSSVR penalizes the model for predicting a non-zero value that turns out to be wrong compared to predicting a zero value. This results in a model with predictions that are close to the mean of the training data. This is exemplified by \lccref{fig:antiderivative_exact} and our previous observation of the flatter solutions of higher noise levels.
+
+We also touch on the effectivity of the learned model as a surrogate in inverse problems in noisy conditions. Our results show that the model is capable of being a surrogate for parameter determination in lower noise levels. Higher noise levels show the model performing worse with the inverse predictions being worse than a mean value model. We believe the main contributing factor is the uneven contribution of input to output coefficients across wave numbers. This may exaggerate the gradients evaluated for different coefficients. Because of the difference in gradient sizes the optimizer we used could have more difficulty in higher noise levels \autocite{griffithsAchievingRobustnessAleatoric2022, ozbayramHeteroscedasticGaussianProcess2024,zhangImprovedAdamOptimizer2018}. To alleviate this, scaling the outputs to a similar standard deviation may be needed. This would balance the influence of the outputs and allow for easier optimization.
+
+On the topic of nonlinearity and stiffness, the results show that the model is also capable of learning nonlinear operators as shown in \lccrefs{table:scenario_2_spectral_metrics,table:scenario_2_function_metrics}. The increase of the viscosity, which corresponds to the stiffness or the high variability of a component in an equation, shows that the model's performance decrease with increasing stiffness. This problem is similar what one encounters in solving stiff equations using traditional methods like FDM\@. Stiff differential equations refer to the presence of a rapidly varying component. We can see that the larger amplitudes of high frequency components in the forcing term to represent the rapidly varying components as shown in \lccrefs{fig:burgers_forcing_0.0,fig:burgers_forcing_0.01,fig:burgers_forcing_0.1}. In those cases, specialized methods were developed to address the issue \autocite{kassamFourthOrderTimeSteppingStiff2005,seydaogluNumericalSolutionBurgers2016}. Otherwise, the using a solver like FDM would require much finer time steps such that it could become impractical. However, the stiffness does not affect our approach as bad as traditional approaches as it is still able to solve the Burgers' equation initial value problem at a relatively coarse time resolution as shown in \lccref{fig:scenario_2_rollout} and \lccref{table:scenario_2_rollout_function_metrics}. The initial value problem formulation actually highlights the fact that for this use case, the nonlinear term actually presents more of a problem compared to the stiffness. This seems to be the same challenge that traditional solvers also face with the shocks that may be present with lower viscosity values.
+
+If we look at the case for the initial value problem formulation of the exact equation shown in \lccref{fig:scenario_2_exact} and \lccref{table:scenario_2_exact_function_metrics}, another factor for better generalization of the model may be identified. If we focus on the flatter parts of the predicted solution, the error take a very similar shape across the different viscosity values. Since we essentially used the same solutions for training the model for each viscosity, the similarity in error means that it can be alleviated with more diverse training samples. Specifically for the error int the flatter functions may be reduced by including similar functions with flat areas during training. This would allow the model to avoid making similar errors.
+
+For the ERA 5 WeatherBench 2 dataset, our model is able to learn to predict the 2-meter temperature anomaly distribution for 6 hours in the future with only the current 2-meter temperature anomaly distribution as shown in \lccref{table:sc3_test_anomaly_metrics}. If we look at the predicted values, there is a lack of detail which seems to be a problem of underestimation. We believe this is caused by the so-called \enquote{double penalty} issue caused by the loss function used for the LSSVR \autocite{lledoScaledependentVerificationPrecipitation2023}. The predictions tend to be closer to the mean of the data. This is motivated to avoid the extra penalty from a wrong prediction with a high value. One way to allow for finer details that are less accurate is to penalize the higher frequency wave numbers less compared to the lower frequency wave numbers. For our case this means the LSSVR for each output will have their regularization parameter decreased to allow the model to focus less on the errors for higher frequencies. Another factor is the purposeful lack of other information that are crucial to higher detail such as wind speed. With this in consideration, the model is able to learn from partial data.
+
+For the second goal, which is whether the model is learning the correct relationships, we use the visualization tools by \textcite{ustunVisualisationInterpretationSupport2007} which are the correlation image and p-matrix. For the derivative equation, an observation we make is how for all the p-matrices shown in \lccref{fig:scenario_1_interpretation}, the contribution of the input wave number is pronounced for the corresponding output wave number. This means that the majority of contributions to each output coefficients come from the corresponding input coefficients of the same wave number or it's negative wave number counterpart as the complex conjugate. Our knowledge on how the simple derivative equation for Fourier series relate the coefficients of the derivative function and the antiderivative function is shown in \lccref{eq:derivative_coeff}. Our observations align with this knowledge. This confirms that the model is indeed learning the relations that is defined by the derivative equation.
+
+The p-matrix for the Burgers' equation on the other hand does not have the same straightforward relationship visualized as shown in \lccref{fig:scenario_2_interpretation}. Instead, the contribution of for each output coefficient is from multiple input coefficients. The contribution is more pronounced for higher frequencies. This aligns with the quadratic scaling from the wave number on the coefficients \autocite{canutoSpectralMethodsEvolution2007}. The p-matrix for lower viscosity values show more structured contribution of other wave numbers in comparison to the higher wave numbers. This structure comes in the form of a grid pattern. For the real components of the output, the contribution of other wave numbers alternate between higher and lower values depending on whether the input component is real or not. The imaginary output components on the other hand have a more constant contribution across the input components. The contribution once again become more pronounced the higher the absolute value of the wave number.
+
+Input coefficients of other wave numbers also significantly contribute to each output coefficient. If we take a look back to the relationship shown in \lccref{eq:burgers_convolution}, the nonlinear term corresponds to a convolution that sums the multiplication of each wave number against all wave numbers. This means that the contribution of multiple input wave numbers is the model trying to do something like the convolution. With this in contrast to the linear contribution we see for the derivative equation, we believe that the model has learned the nonlinear term correctly. However, because of the multiple terms in the Burgers' equation, and p-matrix representing the total of those terms, it is not possible to separate the contributions into each term.
+
+A different way these multiple inputs can contribute to the same output coefficient is demonstrated in scenario 3 with the 2-meter temperature data. The p-matrix shown in \lccrefs{fig:sc3_interpretation,fig:sc3_pm_zoomed} displays similar behavior to the p-matrix from the Burgers' equation. Here we see that largest contributor to each output coefficient, is the input coefficient of the same wave number. We also see contribution from other wave numbers. However, we can see that the pattern is very different. There are two possible reasons for this. First, similar to the Burgers' equation, there is a term in the governing equation that does convolution scaled by the closeness of each wave number to each other. Our observation of how higher longitude frequencies spread the contribution to more latitude frequencies compared to higher longitude frequency suggests that the nonlinearity and magnitude of contribution are inversely proportional to the absolute value of the longitude wave number. This is in contrast to when we discussed the forcing term for our Burgers' equation scenario. The low frequencies in longitude may indicate that the model has learned some nonlinear feature of the anomaly that is specific to different times of day. This is because the lowest longitudinal wave number would correspond to when different parts of the world is in nighttime or in daytime. The second plausible reason is the fact that our choice of basis functions are suboptimal \autocite{bonevSphericalFourierNeural2023,shenSpectralMethodsAlgorithms2011}. The earth more closely resemble a sphere compared to the toroidal shape that the 2-dimensional Fourier transform assumes. This would result in the representation latitude-wise being distorted. For this issue, the use of spherical harmonics may be a better fit to rule out the possibility of any distortions the Fourier transform may introduce.
+
+In summary, the model is able to learn the linear relationship defined by the derivative equation and the nonlinear relationships characteristic of systems such as the weather and systems described by the Burgers' equation. This is true even for some levels of noise levels and stiffness. Interpreting the p-matrix, we explain how the model has learned the correct contribution of the input coefficients to each output coefficient based on the equations obtained using the spectral method. The interpretation methods for support vector regression that we used, namely the correlation image and p-matrix developed by \textcite{ustunVisualisationInterpretationSupport2007}, allows us to confirm what the model has learned. In the case of the WeatherBench2 model, it has also allowed us to glean some insight into some mechanisms that the model has learned. This information was used to verify the learned relationships for the simple derivative equation and partially for the Burgers' equation. Together with the performance metrics on three different problems, we have shown the proposed model to be a viable tool for situations with limited knowledge and a need for some level of interpretability of the model. Our comparisons with the lsoda and IABM methods with FDM in space, also show how our model as being relatively stable and efficient for quickly computing solutions in comparison with grid-based traditional methods. This shows how the model can be used for many-query problems. As an example, inverse prediction of the function is done relatively well for lower noise levels.

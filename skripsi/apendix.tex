@@ -155,6 +155,132 @@ Prediction
 \end{equation}
 Where \(\vb{1}_{m}\) is a vector of 1s with the length of \(U\).
 
+\chapter{BURGERS' EQUATION COMPARISON}\label{sec:burgers_comparison}
+Comparison of SpectralSVR against the Method of Lines with finite differences. The numerical methods used for comparison are lsoda and Implicit Adams-Bashforth-Moulton methods.
+\begin{figure}[H]
+  \centering
+  \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_model_pred_0.0.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR prediction.}\label{fig:comp_model_pred_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_model_diff_0.0.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_model_diff_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_spo_pred_0.0.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy prediction.}\label{fig:comp_spo_pred_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_spo_diff_0.0.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy difference with target.}\label{fig:comp_spo_diff_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_tdo_pred_0.0.pgf}
+      \end{adjustbox}
+      \caption{torchdiffeq \& PyTorch prediction.}\label{fig:comp_tdo_pred_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_tdo_diff_0.0.pgf}
+      \end{adjustbox}
+      \caption{torchdiffeq \& PyTorch difference with target.}\label{fig:comp_tdo_diff_0.0}
+    \end{subfigure}
+  \end{adjustwidth}
+  \caption{Comparison of our model (SpectralSVR) and numerical methods for the Forced Burgers equation with viscosity \(\nu=0.0\).}\label{fig:comparison_burgers_0.0}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_model_pred_0.01.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR prediction.}\label{fig:comp_model_pred_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_model_diff_0.01.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_model_diff_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_spo_pred_0.01.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy prediction.}\label{fig:comp_spo_pred_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_spo_diff_0.01.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy difference with target.}\label{fig:comp_spo_diff_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_tdo_pred_0.01.pgf}
+      \end{adjustbox}
+      \caption{torchdiffeq \& PyTorch prediction.}\label{fig:comp_tdo_pred_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_tdo_diff_0.01.pgf}
+      \end{adjustbox}
+      \caption{torchdiffeq \& PyTorch difference with target.}\label{fig:comp_tdo_diff_0.01}
+    \end{subfigure}
+  \end{adjustwidth}
+  \caption{Comparison of our model (SpectralSVR) and numerical methods for the Forced Burgers equation with viscosity \(\nu=0.01\).}\label{fig:comparison_burgers_0.01}
+\end{figure}
+\begin{table}
+  \caption{Metrics for predicting the exact solution for SpectralSVR (Ours) method}\label{table:comparison_exact_metrics_model}
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    \(\nu \) & MSE  & RMSE & MAE  & sMAPE \\
+    \midrule
+    0.0      & 0.01 & 0.07 & 0.06 & 1.99  \\
+    0.01     & 0.00 & 0.07 & 0.06 & 1.61  \\
+    0.1      & 0.00 & 0.02 & 0.02 & 1.47  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\begin{table}
+  \caption{Metrics for predicting the exact solution for the lsoda method}\label{table:comparison_exact_metrics_lsoda}
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    \(\nu \) & MSE  & RMSE & MAE  & sMAPE \\
+    \midrule
+    0.0      & 0.00 & 0.00 & 0.00 & 0.00  \\
+    0.01     & 0.00 & 0.00 & 0.00 & 0.09  \\
+    0.1      & 0.00 & 0.03 & 0.02 & 1.56  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\begin{table}
+  \caption{Metrics for predicting the exact solution for the IABM method}\label{table:comparison_exact_metrics_iabm}
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    \(\nu \) & MSE  & RMSE & MAE  & sMAPE \\
+    \midrule
+    0.0      & 0.00 & 0.00 & 0.00 & 0.00  \\
+    0.01     & nan  & nan  & nan  & nan   \\
+    0.1      & nan  & nan  & nan  & nan   \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 % \section{PROGRAM SATU}
 % \section{PROGRAM DUA}
 
