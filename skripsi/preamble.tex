@@ -1,6 +1,7 @@
 % !TEX root = ./skripsi.tex
 \usepackage{geometry}
 \geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=4cm,rmargin=3cm}
+\usepackage{textcase}
 \usepackage[luatex,bookmarks=true,unicode=true,pdfusetitle,bookmarksnumbered=true,bookmarksopen=true,breaklinks=true,pdfborder={0 0 1},backref=none,colorlinks=false]{hyperref}
 \usepackage{bookmark}
 \usepackage[none]{hyphenat}
@@ -73,21 +74,31 @@
 \newcommand{\lcfirstnamecref}[1]{\lcfirstnamecrefs #1,\@nil}
 \makeatother
 \newcommand{\lccrefs}[1]{\lcfirstnamecref{#1}~\labelcref{#1}}
-
+% reference with number and name
+\newcommand*{\chref}[1]{\hyperref[{#1}]{\bfseries\MakeTextUppercase{Chapter~\ref{#1}}\hspace{1em}\nameref*{#1}}}
 %%% pengaturan global
 
 % format enumitem
 \usepackage{enumitem}
 \usepackage{calc}
-\newcounter{descriptcount}
-\renewcommand*\thedescriptcount{\arabic{descriptcount}.}
+\newcounter{numdesccount}
+\renewcommand*\thenumdesccount{\arabic{numdesccount}.}
 \newlist{numdesc}{description}{1}
 \setlist[numdesc]{%
-  before={\setcounter{descriptcount}{0}},%
-  font=\normalfont\stepcounter{descriptcount}\thedescriptcount\hspace{4ex-\widthof{\thedescriptcount}},%
+  before={\setcounter{numdesccount}{0}},%
+  font=\normalfont\stepcounter{numdesccount}\thenumdesccount\hspace{4ex-\widthof{\thenumdesccount}},%
   style=nextline,           % Places the description text on the next line
   leftmargin=4ex,           % No extra left margin
 }
+% \newcounter{chdesccount}
+% \renewcommand*\thechdesccount{\Roman{chdesccount}.}
+% \newlist{chdesc}{description}{1}
+% \setlist[chdesc]{%
+%   before={\setcounter{chdesccount}{0}},%
+%   font=\normalfont\stepcounter{chdesccount}\textbf{CHAPTER \Roman\thechdesccount}\hspace{4ex-\widthof{\thechdesccount}},%
+%   style=nextline,           % Places the description text on the next line
+%   leftmargin=4ex,           % No extra left margin
+% }
 % format judul
 \usepackage{titlesec}
 \titleformat{\chapter}[display]

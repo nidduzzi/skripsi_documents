@@ -1,5 +1,5 @@
 % !TEX root = ./skripsi.tex
-\chapter{RESULTS AND DISCUSSION}\label{sec:results_and_discussion}
+\chapter{RESULTS AND DISCUSSION}\label{ch:results_and_discussion}
 \noindent This chapter is organized into five sections which are the results of data generation, data retrieval, design of computational model, implementation of computational model, experimental scenarios, and the experiments themselves.
 
 \section{Data Generation}\label{sec:data_generation}
@@ -989,7 +989,8 @@ Using the learned data to predict other output function representations from uns
         if torch.is_complex(f):
             f = to_real_coeff(f)
         coeff = self.svr.predict(f)
-        # convert to complex if basis needs complex values so that the reshaping is correct
+        # convert to complex if basis needs complex
+        # values so that the reshaping is correct
         if self.basis.coeff_dtype.is_complex:
             coeff = to_complex_coeff(coeff)
 
@@ -1024,11 +1025,15 @@ The final core piece of functionality the SpectralSVR class provides is the inve
         f_shape = (u_coeff.shape[0], self.svr.sv_x.shape[1])
         complex_coeff = u_coeff.is_complex()
         original_device = u_coeff.device
-        u_coeff = to_real_coeff(u_coeff.flatten(1)).to(self.svr.device)
+        u_coeff = to_real_coeff(
+          u_coeff.flatten(1)
+        ).to(self.svr.device)
 
         # inverse problem
         f_coeff_pred = (
-            torch.randn(f_shape, generator=generator).to(self.svr.device) * gain
+            torch.randn(
+              f_shape, generator=generator
+            ).to(self.svr.device) * gain
         )
         f_coeff_pred.requires_grad_()
         optim = torch.optim.Adam([f_coeff_pred], **optimizer_params)
