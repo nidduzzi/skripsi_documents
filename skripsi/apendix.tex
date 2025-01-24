@@ -1,6 +1,160 @@
 % !TEX root = ./skripsi.tex
 \appendix
 
+\chapter{EXAMPLE GENERATION AND PROCESSING OF DATA BEFORE AND AFTER THE LSSVR}\label{ch:example_prepostprocessing_basis}
+First we will start with how a function can be generated randomly. The random solution and parameter pair generation process starts by randomly sampling from a normal distribution coefficients of Fourier basis functions which result in tensors as shown in \lccref{fig:example_generated_coefficients}. The dimensions of this tensor of coefficients is the number of unique functions \(N\) by the number of basis functions representing each dimension \(m_1, m_2, \ldots, m_d\).
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+tensor([[ 0.0000+0.0000j,  5.9584-7.5454j, -6.4740-6.0901j,  ...,
+          4.5666+7.3829j, -6.4740+6.0901j,  5.9584+7.5454j],
+        [ 0.0000+0.0000j,  5.4649-6.3776j, -4.8105+1.3955j,  ...,
+          4.8338-1.8225j, -4.8105-1.3955j,  5.4649+6.3776j],
+        [ 0.0000+0.0000j,  1.4697-5.8133j,  7.7991+2.8807j,  ...,
+          2.0915-1.7939j,  7.7991-2.8807j,  1.4697+5.8133j],
+        ...,
+        [ 0.0000+0.0000j, -0.7932+4.6427j,  6.5799+1.1859j,  ...,
+         -0.1577-9.3086j,  6.5799-1.1859j, -0.7932-4.6427j],
+        [ 0.0000+0.0000j,  5.2905-6.0955j, -5.6544+3.8172j,  ...,
+          5.8754-1.5761j, -5.6544-3.8172j,  5.2905+6.0955j],
+        [ 0.0000+0.0000j,  3.2358+6.8016j, -8.0814+3.5778j,  ...,
+         -5.1760+1.9684j, -8.0814-3.5778j,  3.2358-6.8016j]])
+\end{lstlisting}
+  \caption{Example of coefficients randomly generated as the solution of the 1D derivative equation.}\label{fig:example_generated_coefficients}
+\end{figure}
+
+Noise is then added to the generated coefficients by transforming the coefficients to their function values using the function shown in \lccref{fig:fourier_transform_impl}. For our previous tensor of randomly generated coefficients the inverse transform results in the tensor shown in \lccref{fig:example_clean_inv_transform}. This tensor has the shape of \(N\) unique functions by the number of points in each dimension \(n_1,n_2,\ldots,n_d\).
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+  tensor([[-1.4411-4.4703e-08j,  0.3935-2.2054e-08j, -1.4868-8.9565e-09j,
+          ..., -0.7727-4.2093e-08j, -0.3239+2.0381e-08j,
+          1.1053-8.6315e-08j],
+        [-0.9293-5.7220e-08j, -0.0500-4.7684e-08j, -0.2628+2.8610e-08j,
+          ...,  1.4031-5.8692e-08j,  0.1245-6.1988e-08j,
+          2.1139+2.9045e-08j],
+        [-0.7640-2.8610e-08j,  1.0191+6.1989e-08j,  0.8502+2.7388e-08j,
+          ..., -1.1099-5.4252e-08j,  0.3513+2.3798e-08j,
+          1.0349-1.5378e-07j],
+        ...,
+        [ 0.3640+1.7881e-09j, -0.6330+5.5432e-08j, -1.6459-1.1356e-07j,
+          ...,  1.9432+7.8670e-08j,  0.1409+1.5608e-08j,
+          1.9429-1.1898e-07j],
+        [ 1.4188-5.7220e-08j, -0.0971-1.9073e-08j,  1.2511-6.4455e-09j,
+          ..., -0.2919+8.5157e-08j, -0.2904+1.2012e-08j,
+          0.4568-1.1858e-07j],
+        [-1.1443-9.5367e-09j, -1.6120+9.0599e-08j,  0.7427-3.5344e-08j,
+          ..., -0.6559+4.0621e-08j,  0.6636+2.1595e-08j,
+          0.7892-6.0481e-08j]])
+\end{lstlisting}
+  \caption{Example of the inverse Fourier transform of the randomly generated coefficients.}\label{fig:example_clean_inv_transform}
+\end{figure}
+
+The values we have obtained are perturbed using random values sampled from a normal distribution and then scaled to the requested noise ratio based on the standard deviation of the computed function values. Once perturbed, the values are transformed back to the Fourier domain.
+
+For data that starts as function values, like measurements or the ERA5 dataset, this is where the computational process would start. The function values transformed into the coefficient representation is shown in \lccref{fig:example_data_fourier_transformed}. This tensor has the same shape as \lccref{fig:example_generated_coefficients}. For data that started as function values, the number of modes would be by default the same as the discretization in each dimension. This can be altered according to the problem.
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+tensor([[ 7.1488e-01-1.0658e-14j,  6.4083e+00-7.7222e+00j,
+         -6.8440e+00-6.9812e+00j,  ...,
+          4.9350e+00+6.8183e+00j, -6.8440e+00+6.9812e+00j,
+          6.4083e+00+7.7222e+00j],
+        [ 1.4488e-01-9.5923e-14j,  5.7198e+00-6.4293e+00j,
+         -5.0511e+00+1.5238e+00j,  ...,
+          4.6795e+00-1.7510e+00j, -5.0511e+00-1.5238e+00j,
+          5.7198e+00+6.4293e+00j],
+        [-9.2841e-01+6.3949e-14j,  2.2419e+00-5.2065e+00j,
+          7.8745e+00+2.6073e+00j,  ...,
+          1.3050e+00-8.7435e-01j,  7.8745e+00-2.6073e+00j,
+          2.2419e+00+5.2065e+00j],
+        ...,
+        [-1.1377e-03+1.4211e-14j,  2.9627e-01+4.8204e+00j,
+          7.0653e+00+7.0965e-01j,  ...,
+         -1.1042e-01-9.8381e+00j,  7.0653e+00-7.0965e-01j,
+          2.9627e-01-4.8204e+00j],
+        [-8.5599e-01-6.0396e-14j,  4.9924e+00-5.7394e+00j,
+         -6.8187e+00+3.7167e+00j,  ...,
+          5.8396e+00-1.1584e+00j, -6.8187e+00-3.7167e+00j,
+          4.9924e+00+5.7394e+00j],
+        [ 7.6012e-01-2.1316e-14j,  3.6402e+00+5.9960e+00j,
+         -7.6304e+00+3.8345e+00j,  ...,
+         -4.6177e+00+2.4993e+00j, -7.6304e+00-3.8345e+00j,
+          3.6402e+00-5.9960e+00j]])
+\end{lstlisting}
+  \caption{Example of the coefficients from the Fourier transform of the data which was either generated and perturbed or from external sources as function values like ERA5 2-meter temperature.}\label{fig:example_data_fourier_transformed}
+\end{figure}
+
+For the generated data, the entire process of adding noise and getting the coefficients of the perturbed function values is done using the perturb function of the base Basis class as shown in \lccref{fig:basis_perturb_impl}.
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+...
+    def perturb(
+        self,
+        std_ratio: float = 0.1,
+        rand_func=torch.randn,
+        generator: torch.Generator | None = None,
+    ) -> Self:
+        values = self.inv_transform(self.coeff)
+        perturbed_values = (
+            values
+            + rand_func(
+                values.shape,
+                generator=generator,
+                dtype=self.coeff.dtype
+                if self._complex_funcs
+                else self.coeff.real.dtype,
+            )
+            * std_ratio
+            * values.std()
+        )
+        copy = self.copy()
+        copy.coeff = self.transform(perturbed_values)
+        return copy
+...
+\end{lstlisting}
+  \caption{Example of the inverse Fourier transform of the randomly generated coefficients.}\label{fig:basis_perturb_impl}
+\end{figure}
+
+Finally, the tensor of noisy generated functions or function values from other sources are preprocessed to be able to be used with the LSSVR\@. First, since LSSVR only works with one dimensional feature vectors, we flatten the tensors so that they become matrices. The coefficients are complex types, we represent them as two elements of the float type in the tensor as shown in \lccref{fig:example_coeff_flat_real}. Notice that the values are just the components of the complex number in \lccref{fig:example_data_fourier_transformed} as their own elements side by side. This would have the shape of \(N\) unique functions by the product of the number of modes in each dimension \(m_1\times m_2 \times\cdots\times m_d\) and multiplied by two because of the representation of complex number components as real elements. The final shape is \(N\) by \(2\times m_1\times m_2 \times\cdots\times m_d\).
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+tensor([[ 7.1488e-01, -1.0658e-14,  6.4083e+00,  ...,  6.9812e+00,
+          6.4083e+00,  7.7222e+00],
+        [ 1.4488e-01, -9.5923e-14,  5.7198e+00,  ..., -1.5238e+00,
+          5.7198e+00,  6.4293e+00],
+        [-9.2841e-01,  6.3949e-14,  2.2419e+00,  ..., -2.6073e+00,
+          2.2419e+00,  5.2065e+00],
+        ...,
+        [-1.1377e-03,  1.4211e-14,  2.9627e-01,  ..., -7.0965e-01,
+          2.9627e-01, -4.8204e+00],
+        [-8.5599e-01, -6.0396e-14,  4.9924e+00,  ..., -3.7167e+00,
+          4.9924e+00,  5.7394e+00],
+        [ 7.6012e-01, -2.1316e-14,  3.6402e+00,  ..., -3.8345e+00,
+          3.6402e+00, -5.9960e+00]])
+\end{lstlisting}
+  \caption{Example of the flattened coefficients represented as real numbers side by side.}\label{fig:example_coeff_flat_real}
+\end{figure}
+
+For the real representation of the parameter functions which will act as features, the data is scaled to have a distribution with a mean of zero and standard deviation of zero. This is the standard scaling of the data to achieve better and more consistent performance with the LSSVR\@. To achieve this, the current mean and standard deviation of the data is computed for each feature column (coefficient component). By subtracting the current data by the computed mean and then dividing by the standard deviation, the data should now have a mean of roughly zero and standard deviation of one. For our example data the scaled version is shown in \lccref{fig:example_scaled_data}.
+\begin{figure}[H]
+  \centering
+  \begin{lstlisting}[language=Python]
+tensor([[ 1.0025, -0.0103,  1.2830,  ...,  1.4096,  1.2830,  1.5487],
+        [ 0.1999, -0.0955,  1.1464,  ..., -0.3085,  1.1464,  1.2894],
+        [-1.3114,  0.0643,  0.4562,  ..., -0.5274,  0.4562,  1.0442],
+        ...,
+        [-0.0057,  0.0146,  0.0701,  ..., -0.1440,  0.0701, -0.9666],
+        [-1.2095, -0.0600,  1.0020,  ..., -0.7515,  1.0020,  1.1511],
+        [ 1.0662, -0.0209,  0.7337,  ..., -0.7753,  0.7337, -1.2024]])
+  \end{lstlisting}
+  \caption{Example of the scaled parameter function coefficients real representation.}\label{fig:example_scaled_data}
+\end{figure}
+
+The scaled parameter function coefficients which will act as the features along with the labels of the solution function coefficients are then used to get the trained parameters of the LSSVR\@. Since the predictions will be in the same format as shown in \lccref{fig:example_coeff_flat_real}, to obtain the predicted function values, we simply do the reverse process until we get to the function values. First the coefficients are changed to their complex number representation and then the dimensions are unflattened which results in a similar format to \lccref{fig:example_data_fourier_transformed}. So for labels that were originally two-dimensional, this means the predictions need to be reshaped from the flattened state into the same two-dimensional form. So the flattened dimension with size \(2\times m_1\times m_2 \times\cdots\times m_d\) would become \(d\) dimensions with shape \(m_1, m_2, \ldots, m_d\). Once the coefficients are formatted correctly, we use the inverse Fourier transform to obtain the function values with the implementation of \lccref{eq:inverse_discrete_fourier_transform}. The resulting function values should have the same format as the example shown in \lccref{fig:example_clean_inv_transform}. Since for the most part we are only interested in real-valued functions, we can discard the imaginary component. This results in the final predicted solution function values.
+
 \chapter{EXAMPLE COMPUTATION OF LSSVR}
 % Example computation
 In this example we will be using the function \(2x^2+4\). The values of this function can be seen in \lccref{table:lssvr_example_function_values}.
@@ -24,7 +178,7 @@ For example, with \(\sigma=1\), \(x_i=0.0\), \& \(x_j = 0.33\dots \)
 \begin{equation}
   \begin{split}
     K(0.0,0.33) & = \exp\left(-\frac{\norm*{0.0-0.33}^2}{2{(1)}^2}\right) \\
-                & = \exp\left(-\frac{0.33^2}{2}\right)                  \\
+                & = \exp\left(-\frac{0.33^2}{2}\right)                    \\
                 & = 0.9460
   \end{split}
 \end{equation}
