@@ -1,0 +1,20 @@
+% !TEX root = ./techincal_doc.tex
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node[style=Data] (complex tensor) {Complex Tensor};
+		\node[style=Process,anchor=north,yshift=-1em] (separate components) at (complex tensor.south) {Separate Complex Components};
+		\node[style=Data,anchor=north,yshift=-1em] (component tensors) at (separate components.south) {Component Tensors};
+		\node[style=Process,anchor=north,yshift=-1em] (merge tensors) at (component tensors.south) {Merge Component Tensors};
+		\node[style=Data,anchor=north,yshift=-1em] (complex tensor real representation) at (merge tensors.south) {Complex Tensor\\Real Representation};
+		\node[style=Termination Point,anchor=south,yshift=1em] (start) at (complex tensor.north) {Start};
+		\node[style=Termination Point,anchor=north,yshift=-1em] (stop) at (complex tensor real representation.south) {Stop};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (complex tensor) to (separate components);
+		\draw [style=Single arrow] (separate components) to (component tensors);
+		\draw [style=Single arrow] (component tensors) to (merge tensors);
+		\draw [style=Single arrow] (merge tensors) to (complex tensor real representation);
+		\draw [style=Single arrow] (start) to (complex tensor);
+		\draw [style=Single arrow] (complex tensor real representation) to (stop);
+	\end{pgfonlayer}
+\end{tikzpicture}

@@ -1,2 +1,36 @@
 % !TEX root = ./technical_doc.tex
 \chapter{REQUIREMENTS}
+The requirements of the software can be divided into two main categories of functional and non-functional requirements. The functional requirements of the software are:\nopagebreak
+\begin{itemize}
+    \item The ability to transform between discrete function values and the coefficients of their Fourier series approximation.
+    \item The ability to visualize functions in their coefficient representation
+    \item The ability to represent differential equations using Fourier series and the coefficient relation between parameters and solution.
+    \item Generation of random functions.
+    \item Generate parameters and solutions for the derivative equation and Burgers' equation.
+    \item A way to represent complex numbers as a pair of real numbers.
+    \item An LSSVR model for regressing the coefficient relationship of parameter and solutions.
+    \item A way to normalize inputs to the LSSVR.
+    \item A way to measure the accuracy and efficiency of the model.
+    \item A way to interpret the coefficient relationship learned by the model.
+    \item The ability to use the tools in a Jupyter Notebooks or Python scripts.
+\end{itemize}
+
+\noindent The non-functional requirements for the software are:\nopagebreak
+\begin{itemize}
+    \item Working memory footprint that fits within 16 GB\@.
+    \item Efficient and fast performance.
+    \item Reliability and the consistency.
+    \item Extendable to other problems.
+\end{itemize}
+\filbreak
+\noindent The information requirements of the software are:
+\begin{itemize}
+    \item Reference of derivative and Burgers' equations.
+    \item Mathematical formulation of LSSVR.
+    \item Mathematical formulation of the Discrete Fourier Transform (DFT) and properties of the basis and its coefficients.
+\end{itemize}
+
+\noindent The external interface requirements are:\nopagebreak
+\begin{itemize}
+    \item Data compatibility with Zarr or other data formats.
+\end{itemize}

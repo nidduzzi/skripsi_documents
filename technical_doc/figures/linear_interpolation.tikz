@@ -1,0 +1,18 @@
+% !TEX root = ./techincal_doc.tex
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node[style=Data] (values tensor) {Values Tensor};
+		\node[style=Process,anchor=north,yshift=-1em] (get pairs) at (values tensor.south) {Get Floor and\\Ceiling Index};
+		\node[style=Process,anchor=north,yshift=-1em] (interpolate pairs) at (get pairs.south) {Interpolate between\\pairs};
+		\node[style=Data,anchor=north,yshift=-1em] (interpolated values tensor) at (interpolate pairs.south) {Interpolated Values Tensor};
+		\node[style=Termination Point,anchor=south,yshift=1em] (start) at (values tensor.north) {Start};
+		\node[style=Termination Point,anchor=north,yshift=-1em] (stop) at (interpolated values tensor.south) {Stop};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (values tensor) to (get pairs);
+		\draw [style=Single arrow] (get pairs) to (interpolate pairs);
+		\draw [style=Single arrow] (interpolate pairs) -- (interpolated values tensor);
+		\draw [style=Single arrow] (start) to (values tensor);
+		\draw [style=Single arrow] (interpolated values tensor) to (stop);
+	\end{pgfonlayer}
+\end{tikzpicture}

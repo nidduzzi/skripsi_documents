@@ -3,13 +3,18 @@
 
 \section{Purpose}
 
-This document is an example of a software manual created using \LaTeX\ and Overleaf. It provides a nice clean format for producing this type of technical document. 
+The purpose of this technical document is to provide a comprehensive, interpretable guide for all stakeholders to understand the library. The requirements that were gathered will first be presented. Then there will be an explanation of the architecture and designs that will go towards fulfilling the requirements and constraints. This includes the different modules and their roles in performing operator learning in the Fourier domain using LSSVR\@. The designs will also discuss the way the modules will interface with external stimuli. From the designs, the implementation will be tested on its adherence to restrictions and the designs as a whole.
 
-Simply start writing your document and use the Recompile button to view the updated PDF preview. Examples of commonly used commands and features can be found in the sections below, to help you get started.
+\section{Scope}
+This document will cover the requirements, design and analysis, implementation, and testing of the library. The library is a software product developed with the purpose of providing functionality relevant to our proposed SpectralSVR operator learning approach.
 
-To change the logo shown on the front page, simply upload your own logo image file (via the file-tree menu) to replace the default logo.pdf file. 
-
-Once you're familiar with the editor, you can find various project settings in the Overleaf menu, accessed via the button in the very top left of the editor. To view tutorials, user guides, and further documentation, please visit our \url{https://www.overleaf.com/learn}. If you haven't used \LaTeX\ before, our \url{https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes} tutorial is an excellent place to start.
-
-For large documents, it can be useful to split the document into multiple source files.
-Double-clicking on text in Overleaf's PDF preview will take you directly to the corresponding code in the editor.
+\section{Outline}
+This document will be organized as follows:
+\begin{enumerate}
+    \item Introduction: This chapter provides context to the purpose of this document. This chapter also describes the scope and structure of this document.
+    \item Requirements: This chapter explains the software requirements, including functional requirements, non-functional requirements, information requirements, user characteristics, and external interface requirements.
+    \item Use Case: This chapter explains the model used based on the results of the software requirements analysis. The model created consists of a rich picture diagram that visualize the use case for the software product.
+    \item Design: This chapter explains the software design using Sequence Diagram and module descriptions.
+    \item Implementation: This chapter explains the implementation of the software in a specific programming language.
+    \item Testing: This chapter contains the process of testing the software using specific test cases. The current results of said test cases are also presented.
+\end{enumerate}

@@ -1,0 +1,19 @@
+% !TEX root = ./techincal_doc.tex
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node[style=Data] (coefficients tensor) {Coefficients Tensor};
+		\node[style=Process,anchor=north,yshift=-1em] (pad modes) at (coefficients tensor.south) {Pad Wave Numbers\\Up To Dimension Target};
+		\node[style=Decision,anchor=north,yshift=-1em] (dims expanded) at (pad modes.south) {Target modes\\achieved?};
+		\node[style=Data,anchor=north,yshift=-2em] (expanded coefficients tensor) at (dims expanded.south) {Expanded Coefficients Tensor};
+		\node[style=Termination Point,anchor=south,yshift=1em] (start) at (coefficients tensor.north) {Start};
+		\node[style=Termination Point,anchor=north,yshift=-1em] (stop) at (expanded coefficients tensor.south) {Stop};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (coefficients tensor) to (pad modes);
+		\draw [style=Single arrow] (pad modes) to (dims expanded);
+		\draw [style=Single arrow] (dims expanded) -- (expanded coefficients tensor) node[midway,left]{Yes};
+		\draw [style=Single arrow] (dims expanded) -| ([xshift=2em]dims expanded.east) node[below]{No} |- ([xshift=2em]pad modes.east) -- (pad modes);
+		\draw [style=Single arrow] (start) to (coefficients tensor);
+		\draw [style=Single arrow] (expanded coefficients tensor) to (stop);
+	\end{pgfonlayer}
+\end{tikzpicture}

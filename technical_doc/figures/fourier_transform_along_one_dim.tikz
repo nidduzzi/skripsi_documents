@@ -1,0 +1,20 @@
+% !TEX root = ./techincal_doc.tex
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node[style=Data] (data tensor) {Data Tensor};
+		\node[style=Process,anchor=north,yshift=-1em] (flatten) at (data tensor.south) {Flatten All\\Other Dimensions As\\Separate Functions};
+		\node[style=Process,anchor=north,yshift=-1em] (one dim transform) at (flatten.south) {1D Fourier Transform\\of Each \enquote{Function}};
+		\node[style=Process,anchor=north,yshift=-1em] (rearange) at (one dim transform.south) {Rearrange Flattened\\Dimensions to\\Original Shape};
+		\node[style=Data,anchor=north,yshift=-1em] (coefficients tensor) at (rearange.south) {Coefficients Tensor};
+		\node[style=Termination Point,anchor=south,yshift=1em] (start) at (data tensor.north) {Start};
+		\node[style=Termination Point,anchor=north,yshift=-1em] (stop) at (coefficients tensor.south) {Stop};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (data tensor) to (flatten);
+		\draw [style=Single arrow] (flatten) to (one dim transform);
+		\draw [style=Single arrow] (one dim transform) -- (rearange);
+		\draw [style=Single arrow] (rearange) -- (coefficients tensor);
+		\draw [style=Single arrow] (start) to (data tensor);
+		\draw [style=Single arrow] (coefficients tensor) to (stop);
+	\end{pgfonlayer}
+\end{tikzpicture}

@@ -1,0 +1,20 @@
+% !TEX root = ./techincal_doc.tex
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node[style=Data] (features) {Features};
+		\node[style=Process,anchor=north,yshift=-1em] (kernel matrix) at (features.south) {Contruct Kernel\\Matrix};
+		\node[style=Process,anchor=north,yshift=-1em] (multiply) at (kernel matrix.south) {Multiply Kernel\\Matrix With\\Lagrangian Multipliers};
+		\node[style=Process,anchor=north,yshift=-1em] (add bias) at (multiply.south) {Add Bias};
+		\node[style=Data,anchor=north,yshift=-1em] (predictions) at (add bias.south) {Predictions};
+		\node[style=Termination Point,anchor=south,yshift=1em] (start) at (features.north) {Start};
+		\node[style=Termination Point,anchor=north,yshift=-1em] (stop) at (predictions.south) {Stop};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (features) to (kernel matrix);
+		\draw [style=Single arrow] (kernel matrix) to (multiply);
+		\draw [style=Single arrow] (multiply) to (add bias);
+		\draw [style=Single arrow] (add bias) to (predictions);
+		\draw [style=Single arrow] (start) to (features);
+		\draw [style=Single arrow] (predictions) to (stop);
+	\end{pgfonlayer}
+\end{tikzpicture}

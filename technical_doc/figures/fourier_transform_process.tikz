@@ -1,0 +1,21 @@
+% !TEX root = ./techincal_doc.tex
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node[style=Termination Point] (start) {Start};
+		\node[style=Data,anchor=north,yshift=-1em] (values tensor) at (start.south) {Values Tensor};
+		\node[style=Process,anchor=north,yshift=-1em] (determine parameters) at (values tensor.south) {Determine Parameters};
+		\node[style=Process,anchor=north,yshift=-1em] (transform one dim) at (determine parameters.south) {Transform Along\\One Dimension};
+		\node[style=Decision,anchor=north,yshift=-1em] (done transform all) at (transform one dim.south) {All Dimensions\\Transformed?};
+		\node[style=Data,anchor=north,yshift=-2em] (coefficients tensor) at (done transform all.south) {Coefficients Tensor};
+		\node[style=Termination Point,anchor=north,yshift=-1em] (stop) at (coefficients tensor.south) {Stop};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (start) to (values tensor);
+		\draw [style=Single arrow] (values tensor) to (determine parameters);
+		\draw [style=Single arrow] (determine parameters) to (transform one dim);
+		\draw [style=Single arrow] (transform one dim) -- (done transform all);
+		\draw [style=Single arrow] (done transform all) -- (coefficients tensor) node[midway,left]{Yes};
+		\draw [style=Single arrow] (done transform all) -| ([xshift=2em]done transform all.east) node[below]{No} |- ([xshift=2em]transform one dim.east) -- (transform one dim);
+		\draw [style=Single arrow] (coefficients tensor) to (stop);
+	\end{pgfonlayer}
+\end{tikzpicture}

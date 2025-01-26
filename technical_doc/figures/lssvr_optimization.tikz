@@ -1,0 +1,22 @@
+% !TEX root = ./techincal_doc.tex
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node[style=Data] (features labels) {Features \& Labels};
+		\node[style=Process,anchor=north,yshift=-1em] (kernel matrix) at (features labels.south) {Contruct Kernel\\Matrix};
+		\node[style=Process,anchor=north,yshift=-1em] (left hand side) at (kernel matrix.south) {Contruct\\Left Hand-Side\\Matrix};
+		\node[style=Process,anchor=north,yshift=-1em] (right hand side) at (left hand side.south) {Contruct\\Right Hand-Side\\Matrix};
+		\node[style=Process,anchor=north,yshift=-1em] (solve) at (right hand side.south) {Call External\\Least Squares\\Solver};
+		\node[style=Data,anchor=north,yshift=-1em] (parameters) at (solve.south) {Lagrangian Multipliers\\\& Bias};
+		\node[style=Termination Point,anchor=south,yshift=1em] (start) at (features labels.north) {Start};
+		\node[style=Termination Point,anchor=north,yshift=-1em] (stop) at (parameters.south) {Stop};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (features labels) to (kernel matrix);
+		\draw [style=Single arrow] (kernel matrix) to (left hand side);
+		\draw [style=Single arrow] (left hand side) to (right hand side);
+		\draw [style=Single arrow] (right hand side) to (solve);
+		\draw [style=Single arrow] (solve) to (parameters);
+		\draw [style=Single arrow] (start) to (features labels);
+		\draw [style=Single arrow] (parameters) to (stop);
+	\end{pgfonlayer}
+\end{tikzpicture}

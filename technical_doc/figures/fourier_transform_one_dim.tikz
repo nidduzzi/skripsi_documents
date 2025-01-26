@@ -1,0 +1,27 @@
+% !TEX root = ./techincal_doc.tex
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node[style=Termination Point] (start)  {Start};
+		\node[style=Data,anchor=north,yshift=-1em] (values tensor) at (start.south) {Values Tensor};
+		\node[style=Decision,anchor=north,yshift=-1em] (is fft eligible) at (values tensor.south) {Is FFT\\Eligibile?};
+		\node[style=Process,anchor=north east,yshift=-1em] (call external fft) at (is fft eligible.south west) {Call External\\FFT Implementation};
+		\node[style=Process,anchor=north west,yshift=-1em] (determine transform) at (is fft eligible.south east) {Determine Transform\\Type Sign};
+		\node[style=Process,anchor=north,yshift=-1em] (setup grid) at (determine transform.south) {Create Evaluation\\Grid};
+		\node[style=Process,anchor=north,yshift=-1em] (basis function) at (setup grid.south) {Evaluate Basis\\Function at Grid};
+		\node[style=Process,anchor=north,yshift=-1em] (multiply) at (basis function.south) {Multiply Basis\\Function Values\\With Values Tensor};
+		\node[style=Data,anchor=north east,yshift=-1em] (result) at (multiply.south west) {Result Tensor};
+		\node[style=Termination Point,anchor=north,yshift=-1em] (stop) at (result.south) {Stop};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (start) to (values tensor);
+		\draw [style=Single arrow] (values tensor) to (is fft eligible);
+		\draw [style=Single arrow] (is fft eligible) -| (call external fft) node[midway,above] {Yes};
+		\draw [style=Single arrow] (call external fft) |- (result);
+		\draw [style=Single arrow] (is fft eligible) -| (determine transform) node[midway,above] {No};
+		\draw[style=Single arrow] (determine transform) -- (setup grid);
+		\draw[style=Single arrow] (setup grid) -- (basis function);
+		\draw[style=Single arrow] (basis function) -- (multiply);
+		\draw [style=Single arrow] (multiply) |- (result);
+		\draw [style=Single arrow] (result) -- (stop);
+	\end{pgfonlayer}
+\end{tikzpicture}

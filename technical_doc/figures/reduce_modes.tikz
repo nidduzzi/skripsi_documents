@@ -1,0 +1,19 @@
+% !TEX root = ./techincal_doc.tex
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node[style=Data] (coefficients tensor) {Coefficients Tensor};
+		\node[style=Process,anchor=north,yshift=-1em] (extract modes) at (coefficients tensor.south) {Extract Wave Numbers\\Up To Dimension Target};
+		\node[style=Decision,anchor=north,yshift=-1em] (dims reduced) at (extract modes.south) {Target modes\\achieved?};
+		\node[style=Data,anchor=north,yshift=-2em] (reduced coefficients tensor) at (dims reduced.south) {Reduced Coefficients Tensor};
+		\node[style=Termination Point,anchor=south,yshift=1em] (start) at (coefficients tensor.north) {Start};
+		\node[style=Termination Point,anchor=north,yshift=-1em] (stop) at (reduced coefficients tensor.south) {Stop};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Single arrow] (coefficients tensor) to (extract modes);
+		\draw [style=Single arrow] (extract modes) to (dims reduced);
+		\draw [style=Single arrow] (dims reduced) -- (reduced coefficients tensor) node[midway,left]{Yes};
+		\draw [style=Single arrow] (dims reduced) -| ([xshift=2em]dims reduced.east) node[below]{No} |- ([xshift=2em]extract modes.east) -- (extract modes);
+		\draw [style=Single arrow] (start) to (coefficients tensor);
+		\draw [style=Single arrow] (reduced coefficients tensor) to (stop);
+	\end{pgfonlayer}
+\end{tikzpicture}
