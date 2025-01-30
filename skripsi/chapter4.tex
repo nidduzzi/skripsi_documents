@@ -1439,6 +1439,7 @@ The spectral residual of the Burgers' equation which is used in the method of ma
 \noindent The implementation is followed by tests of the functionality core to this study. The testing is done using the PyTest library. The testing method used is a black box approach. The tests are written in a separate \verb|tests| directory. Each module is tested by a separate file. The tests are done to ensure compliance of the implementation to the requirements of the software. The final results are presented in \lccref{table:impl_test_result}. Each version and iteration of the development must ensure that the tests are passed before any changes are committed to the GitHub repository.
 
 \begin{table}[H]
+  \caption{Testing results of the SpectralSVR Library implementation using black box method.}\label{table:impl_test_result}
   \centering
   \begin{tabular}{lm{0.2\linewidth}m{0.5\linewidth}l}
     % \toprule
@@ -1456,7 +1457,6 @@ The spectral residual of the Burgers' equation which is used in the method of ma
     9  & SpectralSVR Prediction          & Function value prediction error within tolerable range                                                        & Achieved    \\
     \bottomrule
   \end{tabular}
-  \caption{Testing results of the SpectralSVR Library implementation using black box method.}\label{table:impl_test_result}
 \end{table}
 
 \section{Experimental Scenarios}\label{sec:experimental_scenarios}

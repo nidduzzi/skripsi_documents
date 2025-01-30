@@ -241,3 +241,12 @@
   aboveskip = \baselineskip,
   showstringspaces = false
 }
+
+% Adjust float placement parameters
+\setcounter{topnumber}{4}      % Max floats at top
+\setcounter{bottomnumber}{4}   % Max floats at bottom
+\setcounter{totalnumber}{4}    % Max total floats per page
+\renewcommand{\topfraction}{0.9}     % Max fraction of page for top floats
+\renewcommand{\bottomfraction}{0.9}  % Max fraction of page for bottom floats
+\renewcommand{\textfraction}{0.05}   % Min text per page
+\renewcommand{\floatpagefraction}{0.8}  % Min fraction for float-only pages

@@ -160,6 +160,7 @@ The scaled parameter function coefficients which will act as the features along 
 In this example we will be using the function \(2x^2+4\). The values of this function can be seen in \lccref{table:lssvr_example_function_values}.
 
 \begin{table}[H]
+  \caption{Example data of function \(2x^2+4\)}\label{table:lssvr_example_function_values}
   \centering
   \begin{tabular}{@{}lll@{}}
     \toprule
@@ -170,7 +171,6 @@ In this example we will be using the function \(2x^2+4\). The values of this fun
     4  & 1.0        & 6.0        \\
     \bottomrule
   \end{tabular}
-  \caption{Example data of function \(2x^2+4\)}\label{table:lssvr_example_function_values}
 \end{table}
 For \(\Omega_{i,j}=K(x_i,x_j)=\exp\left(-\frac{\norm*{x_i-x_j}^2}{2\sigma^2}\right)\)
 
@@ -396,7 +396,7 @@ Comparison of SpectralSVR against the Method of Lines with finite differences. T
   \end{adjustwidth}
   \caption{Comparison of our model (SpectralSVR) and numerical methods for the Forced Burgers equation with viscosity \(\nu=0.01\).}\label{fig:comparison_burgers_0.01}
 \end{figure}
-\begin{table}
+\begin{table}[H]
   \caption{Metrics for predicting the exact solution for SpectralSVR (Ours) method}\label{table:comparison_exact_metrics_model}
   \centering
   \begin{tabular}{lcccc}
@@ -409,7 +409,7 @@ Comparison of SpectralSVR against the Method of Lines with finite differences. T
     \bottomrule
   \end{tabular}
 \end{table}
-\begin{table}
+\begin{table}[H]
   \caption{Metrics for predicting the exact solution for the lsoda method}\label{table:comparison_exact_metrics_lsoda}
   \centering
   \begin{tabular}{lcccc}
@@ -422,7 +422,7 @@ Comparison of SpectralSVR against the Method of Lines with finite differences. T
     \bottomrule
   \end{tabular}
 \end{table}
-\begin{table}
+\begin{table}[H]
   \caption{Metrics for predicting the exact solution for the IABM method}\label{table:comparison_exact_metrics_iabm}
   \centering
   \begin{tabular}{lcccc}
