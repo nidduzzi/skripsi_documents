@@ -1491,7 +1491,7 @@ Each scenario serves a different purpose. The first scenario is constructed to e
   f(x) & = \sin\left(2\pi x\right)\label{eq:sine_function}
 \end{align}
 
-The second scenario extends the goal of the first scenario by examining the model and its behavior when learning a nonlinear PDE\@. The data subsets with different viscosity values are intended to allow us to learn more about how this will affect the performance on the exact solutions for lower viscosity numbers. The model will learn to predict future states of systems governed by the Burgers' equation from past states. The model for each viscosity will be used to predict \lccref{eq:burgers_exact_solution} from initial conditions at time equals zero and the corresponding forcing term of a constant value of zero. The exact equation prediction will be done using a initial value problem formulation, also described as a rollout. The initial solution value along with the forcing term will be given to the model to predict the solution at the first time step. The model will then use the predicted solution with the forcing term to predict the solution at the second time step. This is repeated until the stopping condition of time \(t=10\). The forcing term for the exact solution is a constant zero. In addition to the rollout of the exact solution, we also perform rollout on of the test set. This will be done in comparison to traditional numerical methods, namely the commonly used method of lines in time using SciPy \autocite{virtanenSciPy10Fundamental2020} and torchdiffeq \autocite{Chen_torchdiffeq_2021} with finite differences in space using NumPy gradient and PyTorch gradient respectively. Specifically, the SciPy odeint function uses lsoda from the FORTRAN library ODEPACK \autocite{osti_145724}. And, the torchdiffeq version will use Implicit Adams-Bashforth-Moulton (IABM) method \autocite{bashforth1883attempt,moulton1926new}. Both of these were chosen for their availability for use in Python and therefore the kind of numerical solver one could set up with relative reliability. The choice of conventional physics based numerical methods is due to its mathematical guarantee that machine learning models do not possess \autocite{schiesserNumericalMethodLines2012,karniadakisPhysicsinformedMachineLearning2021}.
+The second scenario extends the goal of the first scenario by examining the model and its behavior when learning a nonlinear PDE\@. The data subsets with different viscosity values are intended to allow us to learn more about how this will affect the performance on the exact solutions for lower viscosity numbers. The model will learn to predict future states of systems governed by the Burgers' equation from past states. The model for each viscosity will be used to predict \lccref{eq:burgers_exact_solution} from initial conditions at time equals zero and the corresponding forcing term of a constant value of zero. The exact equation prediction will be done using a initial value problem formulation, also described as a rollout. The initial solution value along with the forcing term will be given to the model to predict the solution at the first time step. The model will then use the predicted solution with the forcing term to predict the solution at the second time step. This is repeated until the stopping condition of time \(t=10\). The forcing term for the exact solution is a constant zero. In addition to the rollout of the exact solution, we also perform rollout on of the test set. This will be done in comparison to traditional numerical methods, namely the commonly used method of lines in time using SciPy \autocite{virtanenSciPy10Fundamental2020} and torchdiffeq \autocite{Chen_torchdiffeq_2021} with finite differences in space using NumPy gradient and PyTorch gradient respectively. Specifically, the SciPy odeint function uses lsoda from the FORTRAN library ODEPACK \autocite{osti_145724}. And, the torchdiffeq version will use Implicit Adams-Bashforth-Moulton (IABM) method \autocite{bashforth1883attempt,moulton1926new}. Both of these were chosen for their availability for use in Python and therefore the kind of numerical solver one could set up with relative reliability. The choice of conventional physics based numerical methods is due to its mathematical guarantee that machine learning models do not possess \autocite{schiesserNumericalMethodLines2012,karniadakisPhysicsinformedMachineLearning2021}. However, for the sake of completeness, a comparison with as simple neural network to replace the LSSVR will also be done. This is by no means an attempt to replicate the SNO \autocite{fanaskovSpectralNeuralOperators2023} or NSM \autocite{du2024neural} approaches. The neural network will have 4 hidden layers with a width of 64 neurons each. The activation function we will use is the softplus function. And after some rough estimation of the number of epochs that will be required to avoid overfitting by comparing against a validation set, the model will be trained over 7 epochs using the same data as the LSSVR version.
 
 The third scenario is designed to demonstrate the modeling capability of SpectralSVR on a more practical problem of weather prediction. The earth weather system is a complex collection of processes. Using the ERA5 dataset, the model will be used to predict future states of the atmosphere from previous states. Specifically, the model will learn to predict the temperature 2 meters above the surface. That means that other than the time and spatial resolution not being the highest, the model will also learn from partial information of the relationships defined by the equation since no other variables will be included. This choice was made as an analog for situation with unknown PDEs and therefore unknown variables. With these situations, there is no guarantee that the variables measured have any relation with the system. These three scenarios together address the last two aims of this study.
 
@@ -2051,36 +2051,49 @@ To see more details of the p-matrix, we show a zoomed in version in \lccrefs{fig
 
 \subsection{Comparisons}
 
-Next we present the results of comparing our model in for solving the IVP for the Burgers' Equation against the method of lines and finite differences using SciPy odeint, torchdiffeq odeint, NumPy gradient, and PyTorch gradient. First, we present the results of solving \lccref{eq:burgers_exact_solution} as an IVP as shown in \lccref{table:comparison_exact_metrics_0.1} for viscosity \(\nu=0.1\). For the forcing term, we use a constant value of zero. The functions are also unperturbed. The metrics measure the performace of the predicted solutions compared against the exact solution. We see that our model has slightly better performance compared to the lsoda method. We do want to note that for lower viscosity values the lsoda method performs much better compared to ours as shown in \lccref{sec:burgers_comparison}. And for the viscosity of \(\nu=0.0\), even the IABM method performs much better due to the fact that the solution is a constant value of zero.
+Next we present the results of comparing our model in for solving the IVP for the Burgers' Equation against the method of lines and finite differences using SciPy odeint, torchdiffeq odeint, NumPy gradient, and PyTorch gradient. First, we present the results of solving \lccref{eq:burgers_exact_solution} as an IVP as shown in \lccref{table:comparison_exact_metrics_0.1} for viscosity \(\nu=0.1\). For the forcing term, we use a constant value of zero. The functions are also unperturbed. The metrics measure the performace of the predicted solutions compared against the exact solution. We see that our model has slightly better performance compared to the lsoda method. We do want to note that for lower viscosity values the lsoda method performs much better compared to ours as shown in \lccref{sec:burgers_comparison}. And for the viscosity of \(\nu=0.0\), even the IABM method performs much better due to the fact that the solution is a constant value of zero. The baseline FNN method, however, does not perform well on any of the viscosities with the solution becoming unstable after several time steps.
 \begin{table}[H]
   \caption{Metrics for predicting the exact solution for each method with viscosity \(\nu=0.1\)}\label{table:comparison_exact_metrics_0.1}
   \centering
   \begin{tabular}{lcccc}
     \toprule
-    Method      & MSE  & RMSE & MAE  & sMAPE \\
+    Method            & MSE  & RMSE & MAE  & sMAPE \\
     \midrule
-    SpectralSVR & 0.00 & 0.02 & 0.02 & 1.47  \\
-    lsoda       & 0.00 & 0.03 & 0.02 & 1.56  \\
-    IABM        & nan  & nan  & nan  & nan   \\
+    SpectralSVR       & 0.00 & 0.02 & 0.02 & 1.47  \\
+    SpectralSVR (FNN) & inf  & inf  & inf  & 1.98  \\
+    lsoda             & 0.00 & 0.03 & 0.02 & 1.56  \\
+    IABM              & nan  & nan  & nan  & nan   \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-For better visualization, the predictions and the difference against the exact solution is shown in \lccref{fig:comparison_burgers_exact_0.1}. We show that for our method and the lsoda method, the exact solution is achieved to a recognizable form. However, using the IABM method with torchdiffeq is ineffective and the solution \enquote{blows up} and results in many not a number values. Our method has errors characterized by lines which stems form our use of only eight basis functions to represent solution. This is in contrast to the error of the lsoda method, which is spread over larger areas.
+For better visualization, the predictions and the difference against the exact solution is shown in \lccref{fig:comparison_burgers_exact_0.1}. We show that for our method and the lsoda method, the exact solution is achieved to a recognizable form. However, using the IABM method with torchdiffeq is ineffective and the solution \enquote{blows up} and results in many not a number values, which is why we chose not to display them. Our method has errors characterized by lines which stems form our use of only eight basis functions to represent solution. This is in contrast to the error of the lsoda method, which is spread over larger areas.
 \begin{figure}[H]
   \centering
   \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_exact_model_pred_0.1.pgf}
+        \input{figures/comparisons/burgers_exact_lssvr_pred_0.1.pgf}
       \end{adjustbox}
-      \caption{SpectralSVR prediction.}\label{fig:comp_exact_model_pred_0.1}
+      \caption{SpectralSVR prediction.}\label{fig:comp_exact_lssvr_pred_0.1}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_exact_model_diff_0.1.pgf}
+        \input{figures/comparisons/burgers_exact_lssvr_diff_0.1.pgf}
       \end{adjustbox}
-      \caption{SpectralSVR difference with target.}\label{fig:comp_exact_model_diff_0.1}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_exact_lssvr_diff_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_fnn_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR (FNN) prediction.}\label{fig:comp_exact_fnn_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_fnn_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR (FNN) difference with target.}\label{fig:comp_exact_fnn_diff_0.1}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
@@ -2094,37 +2107,37 @@ For better visualization, the predictions and the difference against the exact s
       \end{adjustbox}
       \caption{SciPy \& NumPy difference with target.}\label{fig:comp_exact_spo_diff_0.1}
     \end{subfigure}
-    \begin{subfigure}{0.49\linewidth}
-      \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_exact_tdo_pred_0.1.pgf}
-      \end{adjustbox}
-      \caption{torchdiffeq \& PyTorch prediction.}\label{fig:comp_exact_tdo_pred_0.1}
-    \end{subfigure}
-    \begin{subfigure}{0.49\linewidth}
-      \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_exact_tdo_diff_0.1.pgf}
-      \end{adjustbox}
-      \caption{torchdiffeq \& PyTorch difference with target.}\label{fig:comp_exact_tdo_diff_0.1}
-    \end{subfigure}
   \end{adjustwidth}
-  \caption{Comparison of our model (SpectralSVR) and numerical methods for the exact solution in \cref{eq:burgers_exact_solution} of the Forced Burgers equation with viscosity \(\nu=0.1\).}\label{fig:comparison_burgers_exact_0.1}
+  \caption{Comparison of our model (SpectralSVR), baseline FNN model, and numerical methods for the exact solution in \cref{eq:burgers_exact_solution} of the Forced Burgers equation with viscosity \(\nu=0.1\).}\label{fig:comparison_burgers_exact_0.1}
 \end{figure}
 
-The predictions for IVP rollout of the functions in the test set is shown in \lccrefs{fig:comparison_burgers_0.1} for viscosity \(\nu=0.1\). Other viscosity values were also compared and presented in \lccrefs{fig:comparison_burgers_0.0,fig:comparison_burgers_0.01}. An obvious observation is the fact that the numerical methods fail to solve the entire solution. The SciPy odeint version is able to solve up until the 13th iteration or time \(t=0.6533\). The torchdiffeq version on the other hand only solves up until the second iteration. Even at this early step, the solution is already unstable with many values having an order of larger than \num{10e10}.
+The predictions for IVP rollout of the functions in the test set is shown in \lccrefs{fig:comparison_burgers_0.1} for viscosity \(\nu=0.1\). Other viscosity values were also compared and presented in \lccrefs{fig:comparison_burgers_0.0,fig:comparison_burgers_0.01}. An obvious observation is the fact that the numerical methods fail to solve the entire solution. The SciPy odeint (lsoda) version is able to solve up until the 13th iteration or time \(t=0.6533\). The torchdiffeq (IABM) version on the other hand only solves up until the second iteration. Even at this early step, the solution is already unstable with many values having an order of larger than \num{10e10}.
 \begin{figure}[H]
   \centering
   \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_rollout_model_pred_0.1.pgf}
+        \input{figures/comparisons/burgers_rollout_lssvr_pred_0.1.pgf}
       \end{adjustbox}
-      \caption{SpectralSVR prediction.}\label{fig:comp_model_pred_0.1}
+      \caption{SpectralSVR prediction.}\label{fig:comp_lssvr_pred_0.1}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_rollout_model_diff_0.1.pgf}
+        \input{figures/comparisons/burgers_rollout_lssvr_diff_0.1.pgf}
       \end{adjustbox}
-      \caption{SpectralSVR difference with target.}\label{fig:comp_model_diff_0.1}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_lssvr_diff_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_fnn_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR (FNN) prediction.}\label{fig:comp_fnn_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_fnn_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR (FNN) difference with target.}\label{fig:comp_fnn_diff_0.1}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
@@ -2138,36 +2151,27 @@ The predictions for IVP rollout of the functions in the test set is shown in \lc
       \end{adjustbox}
       \caption{SciPy \& NumPy difference with target.}\label{fig:comp_spo_diff_0.1}
     \end{subfigure}
-    \begin{subfigure}{0.49\linewidth}
-      \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_rollout_tdo_pred_0.1.pgf}
-      \end{adjustbox}
-      \caption{torchdiffeq \& PyTorch prediction.}\label{fig:comp_tdo_pred_0.1}
-    \end{subfigure}
-    \begin{subfigure}{0.49\linewidth}
-      \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_rollout_tdo_diff_0.1.pgf}
-      \end{adjustbox}
-      \caption{torchdiffeq \& PyTorch difference with target.}\label{fig:comp_tdo_diff_0.1}
-    \end{subfigure}
   \end{adjustwidth}
-  \caption{Comparison of our model (SpectralSVR) and numerical methods for a manufactured solution of the Forced Burgers equation with viscosity \(\nu=0.1\).}\label{fig:comparison_burgers_0.1}
+  \caption{Comparison of our model (SpectralSVR), baseline FNN model, and numerical methods for a manufactured solution of the Forced Burgers equation with viscosity \(\nu=0.1\).}\label{fig:comparison_burgers_0.1}
 \end{figure}
 
-In terms of efficiency, we also present our measurements of the time it took for each method to solve the exact solution IVP using the \verb|%timit| macro in Jupyter Notebook. This was done on our machine without any hardware accelerators such as GPUs. The time was averaged over 7 measurements. The results are shown in \lccref{table:comparison_efficiency}. Our method solves this problem the fastest by around 33 times faster than the lsoda method.
+In terms of efficiency, we also present our measurements of the time it took for each method to solve the exact solution IVP using the \verb|%timit| macro in Jupyter Notebook. This was done on our machine without any hardware accelerators such as GPUs. The time was averaged over 7 measurements. The results are shown in \lccref{table:comparison_efficiency}. Our method solves this problem around 33 times faster than the lsoda method. However, the kernel computation required does slow the LSSVR in comparison to the neural network version by around 140 milliseconds.
 \begin{table}[H]
   \caption{Average time elapsed in solving for \lccref{eq:burgers_exact_solution} by method.}\label{table:comparison_efficiency}
   \centering
   \begin{tabular}{lc}
     \toprule
-    Method      & Time Elapsed               \\
+    Method            & Time Elapsed               \\
     \midrule
-    SpectralSVR & \textbf{0.431 s ± 0.122 s} \\
-    lsoda       & 12.1 s ± 2.62 s            \\
-    IABM        & 15.7 s ± 1.85 s            \\
+    SpectralSVR       & 0.438 s ± 0.075 s          \\
+    SpectralSVR (FNN) & \textbf{0.298 s ± 0.054 s} \\
+    lsoda             & 15.1 s ± 2.85 s            \\
+    IABM              & 20.9 s ± 2.98 s            \\
     \bottomrule
   \end{tabular}
 \end{table}
+
+In terms of training, the FNN baseline model with 7 epochs and a batch size of 16, training takes on average 14.6 seconds ± 0.86 seconds. The LSSVR version takes on average 8 seconds ± 2.47 seconds.
 
 \section{Discussion}\label{sec:discussion}
 

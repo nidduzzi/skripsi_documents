@@ -316,15 +316,27 @@ Comparison of SpectralSVR against the Method of Lines with finite differences. T
   \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_rollout_model_pred_0.0.pgf}
+        \input{figures/comparisons/burgers_rollout_lssvr_pred_0.0.pgf}
       \end{adjustbox}
-      \caption{SpectralSVR prediction.}\label{fig:comp_model_pred_0.0}
+      \caption{SpectralSVR prediction.}\label{fig:comp_lssvr_pred_0.0}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_rollout_model_diff_0.0.pgf}
+        \input{figures/comparisons/burgers_rollout_lssvr_diff_0.0.pgf}
       \end{adjustbox}
-      \caption{SpectralSVR difference with target.}\label{fig:comp_model_diff_0.0}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_lssvr_diff_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_fnn_pred_0.0.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR prediction.}\label{fig:comp_fnn_pred_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_fnn_diff_0.0.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_fnn_diff_0.0}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
@@ -338,18 +350,6 @@ Comparison of SpectralSVR against the Method of Lines with finite differences. T
       \end{adjustbox}
       \caption{SciPy \& NumPy difference with target.}\label{fig:comp_spo_diff_0.0}
     \end{subfigure}
-    \begin{subfigure}{0.49\linewidth}
-      \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_rollout_tdo_pred_0.0.pgf}
-      \end{adjustbox}
-      \caption{torchdiffeq \& PyTorch prediction.}\label{fig:comp_tdo_pred_0.0}
-    \end{subfigure}
-    \begin{subfigure}{0.49\linewidth}
-      \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_rollout_tdo_diff_0.0.pgf}
-      \end{adjustbox}
-      \caption{torchdiffeq \& PyTorch difference with target.}\label{fig:comp_tdo_diff_0.0}
-    \end{subfigure}
   \end{adjustwidth}
   \caption{Comparison of our model (SpectralSVR) and numerical methods for the Forced Burgers equation with viscosity \(\nu=0.0\).}\label{fig:comparison_burgers_0.0}
 \end{figure}
@@ -359,15 +359,27 @@ Comparison of SpectralSVR against the Method of Lines with finite differences. T
   \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_rollout_model_pred_0.01.pgf}
+        \input{figures/comparisons/burgers_rollout_lssvr_pred_0.01.pgf}
       \end{adjustbox}
-      \caption{SpectralSVR prediction.}\label{fig:comp_model_pred_0.01}
+      \caption{SpectralSVR prediction.}\label{fig:comp_lssvr_pred_0.01}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_rollout_model_diff_0.01.pgf}
+        \input{figures/comparisons/burgers_rollout_lssvr_diff_0.01.pgf}
       \end{adjustbox}
-      \caption{SpectralSVR difference with target.}\label{fig:comp_model_diff_0.01}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_lssvr_diff_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_fnn_pred_0.01.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR prediction.}\label{fig:comp_fnn_pred_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_fnn_diff_0.01.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_fnn_diff_0.01}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
@@ -381,23 +393,11 @@ Comparison of SpectralSVR against the Method of Lines with finite differences. T
       \end{adjustbox}
       \caption{SciPy \& NumPy difference with target.}\label{fig:comp_spo_diff_0.01}
     \end{subfigure}
-    \begin{subfigure}{0.49\linewidth}
-      \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_rollout_tdo_pred_0.01.pgf}
-      \end{adjustbox}
-      \caption{torchdiffeq \& PyTorch prediction.}\label{fig:comp_tdo_pred_0.01}
-    \end{subfigure}
-    \begin{subfigure}{0.49\linewidth}
-      \begin{adjustbox}{width=\linewidth}
-        \input{figures/comparisons/burgers_rollout_tdo_diff_0.01.pgf}
-      \end{adjustbox}
-      \caption{torchdiffeq \& PyTorch difference with target.}\label{fig:comp_tdo_diff_0.01}
-    \end{subfigure}
   \end{adjustwidth}
   \caption{Comparison of our model (SpectralSVR) and numerical methods for the Forced Burgers equation with viscosity \(\nu=0.01\).}\label{fig:comparison_burgers_0.01}
 \end{figure}
 \begin{table}[H]
-  \caption{Metrics for predicting the exact solution for SpectralSVR (Ours) method}\label{table:comparison_exact_metrics_model}
+  \caption{Metrics for predicting the exact solution for SpectralSVR (Ours) method}\label{table:comparison_exact_metrics_lssvr}
   \centering
   \begin{tabular}{lcccc}
     \toprule
@@ -406,6 +406,19 @@ Comparison of SpectralSVR against the Method of Lines with finite differences. T
     0.0      & 0.01 & 0.07 & 0.06 & 1.99  \\
     0.01     & 0.00 & 0.07 & 0.06 & 1.61  \\
     0.1      & 0.00 & 0.02 & 0.02 & 1.47  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\begin{table}[H]
+  \caption{Metrics for predicting the exact solution for SpectralSVR (FNN) baseline method}\label{table:comparison_exact_metrics_fnn}
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    \(\nu \) & MSE & RMSE & MAE & sMAPE \\
+    \midrule
+    0.0      & inf & inf  & inf & 1.99  \\
+    0.01     & inf & inf  & inf & 1.98  \\
+    0.1      & inf & inf  & inf & 1.98  \\
     \bottomrule
   \end{tabular}
 \end{table}
