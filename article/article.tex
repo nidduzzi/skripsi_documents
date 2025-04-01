@@ -4,24 +4,25 @@
 \begin{document}
 \begin{frontmatter}
   \title{\judul}
-  % \author{
-  %   Lala Septem Riza\\
-  %   \texttt{lala.s.riza@upi.edu}
-  %   \and
-  %   Ahmad Izzuddin\\
-  %   \texttt{ahmadizzuddin@upi.edu}
   \author[upi]{Ahmad Izzuddin}
   \ead{ahmadizzuddin@upi.edu}
-  \author[upi]{Lala Septem Riza}
-  \ead{lala.s.riza@upi.edu}
   \author[upi]{Muhammad Nursalman}
   \ead{mnursalman@upi.edu}
+  \author[ku]{Hadi Susanto}
+  \ead{hadi.susanto@ku.ac.ae}
+  \author[upi]{Lala Septem Riza}
+  \ead{lala.s.riza@upi.edu}
 
-  \affiliation[upi]{organization={Department of Computer Science Education Universitas Pendidikan Indonesia},%Department and Organization
+  \affiliation[upi]{organization={Department of Computer Science Universitas Pendidikan Indonesia},%Department and Organization
     addressline={Jl. Dr.\ Setiabudi No.229},
     postcode={40154},
     city={Bandung},
     country={Indonesia}}
+  \affiliation[ku]{organization={Department of Mathematics Khalifa University},%Department and Organization
+    addressline={Shakhbout Bin Sultan St - Hadbat Al Za`Faranah},
+    postcode={127788},
+    city={Abu Dhabi},
+    country={United Arab Emirates}}
   \begin{abstract}
     Numerical models of systems are a crucial part of science and engineering. The use of machine learning in this space for operator learning provides an alternative as data-driven surrogates. The Fourier Transform provides a key component for learning the relationship between a function and its derivatives. Building on Spectral Neural Operators (SNO), we propose a Support Vector Machine (SVM) based framework to learn the underlying governing equations of a system based on data. We study the viability and interpretability of the proposed framework on the derivative equation and the Burgers' equation. The model is able to learn from mathematically correct random data and is able to partially generalize to an exact solution of the Burgers' equation. The learned model is interpreted and verified to have learned the correct contributions of the input function coefficients to the output function coefficients.
   \end{abstract}
@@ -66,6 +67,8 @@ The design of the proposed model is built upon performing regression in the Four
   \tikzfig{figures/training_spectralsvr}
   \caption{SpectralSVR training diagram}\label{fig:spectralsvr_training}
 \end{figure}
+% TODO: add psuedocode for training the model
+% TODO: add figures of how a dataset of 1D functions is represented and the transformed coefficient representation
 
 The prediction process is shown in \lccref{fig:spectralsvr_prediction}. The process starts by transforming the feature functions into their coefficients with the DFT\@. These coefficients are then scaled with the scaling function fitted during training. The scaled feature coefficients are then used with the learned parameters to produce the predicted coefficients using the LSSVR prediction function. Finally, the inverse DFT is computed on the predicted coefficients to obtain the predicted function value.
 \begin{figure}[H]
@@ -110,7 +113,7 @@ The functions generated for the Burgers' equation will use three different value
 % The final dataset we use is the ERA5 dataset. The cloud optimized version from WeatherBench 2 we use will have a grid size of 64 in longitude by 32 in latitude. The model will attempt to partially model the complex weather data using only the 2-meter temperature variable. For the reanalysis dataset, we limit the time range to the years 1995{-}2013 for training and 2020{-}2022 for testing. The specific time ranges for training are chosen to balance the diversity within the data and capacity of the machine the processing will be done on. We also use the climatology provided by WeatherBench 2 which is the averages for hours 0, 6, 12, and 18 for each day of the year from 1990 until 2019.
 
 \section{Results and Discussion}
-In this section, we will present the results of the experiments on each equation and the ERA5 dataset. The metrics we will show in this section are evaluated between the function values evaluated from the predicted coefficients and the function values of the test label coefficients.
+In this section, we will present the results of the experiments on the derivative equation and the Burgers' equation. The metrics we will show in this section are evaluated between the function values evaluated from the predicted coefficients and the function values of the test label coefficients.
 
 \subsection{Scenario 1: Derivative Equation}
 For the derivative equation, metrics between the noisy targets and predictions are shown in \lccref{table:scenario_1_function_metrics}. The metrics shows that the model is able to generalize from the training data and learn the simple linear antiderivative operator. Focusing on the R\textsuperscript{2} scores, we can see that the model is off by 0.04 to the perfect score of 1.0 for the lowest noise level. While increasing noise levels does degrade the performance, this is partly due to the target values also having been perturbed.
@@ -184,7 +187,7 @@ The predictions of the exact equation is shown in \lccref{fig:antiderivative_exa
   \caption{(\subref{fig:antiderivative_exact_input}) The perturbed exact input function values from \lccref{eq:sine_derivative}.\ (\subref{fig:antiderivative_exact_prediction}) Prediction of antiderivative from the input function that was perturbed.}\label{fig:antiderivative_exact}
 \end{figure}
 
-Next, we have the correlation image and p-matrix for the model of each noise level. The results are shown in \lccref{fig:scenario_1_interpretation}. Each row in the figure represent the results of a model trained on a different noise level. The correlation image for 5\% and 10\% noise show clear lines on the coefficient corresponding to the output coefficient that was sorted. We can also see that the negative wave number reflection also being sorted. This is because of the reflection that occurs with complex Fourier coefficients for real-valued functions. There are other faint vertical lines you are able to see for other input coefficients. These faint lines are not sorted like the corresponding coefficients we mentioned before. Meaning, while they don't affect the particular output coefficients that were sorted, they do show that there is information embedded in the kernel matrix for these input coefficients. However, if we look at the 50\% noise correlation image, even the corresponding coefficient does not show a clear line or gradient. The lines are more noisy compared to the other noise levels. But the kernel still manages to embed some information. The p-matrices show that The model itself is able to still learn some relationship between the input coefficients and the output coefficients. For the 5\% and 10\% noise levels, the p-matrices show very clearly the contributions of input coefficients to the output coefficients. However, looking at the p-matrix for 50\% noise level, the lower wave numbers show lower contribution of input coefficients to the output coefficients.
+Next, we have the correlation image and p-matrix for the model of each noise level. The results are shown in \lccref{fig:scenario_1_interpretation}. Each row in the figure represent the results of a model trained on a different noise level. The correlation image for 5\% and 10\% noise show clear lines on the coefficient corresponding to the output coefficient that was sorted. We can also see that the negative wave number reflection also being sorted. This is because of the reflection that occurs with complex Fourier coefficients for real-valued functions. There are other faint vertical lines you are able to see for other input coefficients. These faint lines are not sorted like the corresponding coefficients we mentioned before. Meaning, while they don't affect the particular output coefficients that were sorted, they do show that there is information embedded in the kernel matrix for these input coefficients. However, if we look at the 50\% noise correlation image, even the corresponding coefficient does not show a clear line or gradient. The lines are more noisy compared to the other noise levels. But the kernel still manages to embed some information. The p-matrices show that the model itself is able to still learn some relationship between the input coefficients and the output coefficients. For the 5\% and 10\% noise levels, the p-matrices show very clearly the contributions of input coefficients to the output coefficients. However, looking at the p-matrix for 50\% noise level, the lower wave numbers show lower contribution of input coefficients to the output coefficients.
 \begin{figure}[H]
   \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
     \centering
@@ -445,22 +448,136 @@ The correlation image and p-matrix for each viscosity can be seen in \lccref{fig
 Once we get to the highest viscosity, while the order is still present, we see a more random arrangement of the correlation image values. This observation and the lower scores can both be explained by the level of temporal discretization. This is the same issue we encounter when we use some traditional methods for higher viscosity values with the same time step for lower viscosity values \citep{kassamFourthOrderTimeSteppingStiff2005,seydaogluNumericalSolutionBurgers2016}. The issue arises in stiff differential equations. Stiff differential equations refer to the presence of a rapidly varying component. We can see that the larger amplitudes of high frequency components in the forcing term to represent the rapidly varying components as shown in \lccrefs{fig:burgers_forcing_0.0,fig:burgers_forcing_0.01,fig:burgers_forcing_0.1}. Traditionally, stiff equations would require specific numerical methods purpose built to efficiently solve the problem. Otherwise, the using a solver like FDM would require much finer time steps than the one we are using here.%TODO: add the data figures to the appendix
 
 The p-matrix shows the difference in contributions of both input functions. For the inviscid equation, the contributions mainly come from the forcing term. The current solution contributes a smaller amount in comparison. There is similarity with the antiderivative p-matrices in this case. The contributions to each output wave number mainly come from input coefficients with the same wave number. However, there is a noticeable contribution from other wave numbers too unlike the antiderivative case. The biggest contribution from the current solution is the constant/bias term. For higher viscosity values, notice that the contribution of the previous solution increases. The increase is more pronounced for higher frequencies. This aligns with the quadratic scaling from the wave number on the coefficients \citep{canutoSpectralMethodsEvolution2007}. The p-matrix for lower viscosity values show more structured contribution of other wave numbers in comparison to the higher wave numbers. This structure comes in the form of a grid pattern. For the real components of the output, the contribution of other wave numbers oscillate between higher and lower values depending on whether the input component is real or not. The imaginary output components on the other hand have a more constant contribution across the input components. The contribution once again become more pronounced the higher the absolute value of the wave number.
+
+\subsection{Comparisons}
+
+\noindent As a point of reference, the comparisons of our method against three other methods will be discussed for solving the Burger's equation as an initial value problem. The methods we compare against are the lsoda program using the SciPy library, the Implicit Adams-Bashforth-Moulton (IABM) method using the torchdiffeq library, and using a Fully-connected Neural Network (FNN) in place of the LSSVR to directly model the coefficient relationships. Both the lsoda and IABM approaches discretize the solution in space into 400 points and the periodicity is enforced using a ghost cell at one end that has the same value as the other end. First, we present the results of solving \lccref{eq:burgers_exact_solution} as an IVP as shown in \lccref{table:comparison_exact_metrics_0.1} for viscosity \(\nu=0.1\). For the forcing term, we use a constant value of zero. The functions are also unperturbed. The metrics measure the performance of the predicted solutions compared against the exact solution. We see that our model has slightly better performance compared to the lsoda method. However, for lower viscosity values the lsoda method performs much better compared to ours as shown in~\ref{sec:burgers_comparison}. And for the viscosity of \(\nu=0.0\), even the IABM method performs much better due to the fact that the solution is a constant value of zero. The baseline FNN method, however, does not perform well on any of the viscosity values with the solution becoming unstable after several time steps.
+\begin{table}[H]
+  \caption{Metrics for predicting the exact solution for each method with viscosity \(\nu=0.1\)}\label{table:comparison_exact_metrics_0.1}
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    Method            & MSE  & RMSE & MAE  & sMAPE \\
+    \midrule
+
+    SpectralSVR       & 0.00 & 0.02 & 0.02 & 1.47  \\
+    SpectralSVR (FNN) & inf  & inf  & inf  & 1.98  \\
+    lsoda             & 0.00 & 0.04 & 0.04 & 1.52  \\
+    IABM              & nan  & nan  & nan  & nan   \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+For better visualization, the predictions and the difference against the exact solution is shown in \lccref{fig:comparison_burgers_exact_0.1}. We show that for our method and the lsoda method, the exact solution is achieved to a recognizable form. However, using the IABM method with torchdiffeq is ineffective, and the solution \enquote{blows up} and results in many not a number values, which is why we chose not to display them. Our method has errors characterized by \enquote{lines} which stems form our use of only eight basis functions to represent solution. This is in contrast to the error of the lsoda method, which is spread over larger areas.
+\begin{figure}[H]
+  \centering
+  \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_lssvr_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR prediction.}\label{fig:comp_exact_lssvr_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_lssvr_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_exact_lssvr_diff_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_fnn_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR (FNN) prediction.}\label{fig:comp_exact_fnn_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_fnn_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR (FNN) difference with target.}\label{fig:comp_exact_fnn_diff_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_spo_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy prediction.}\label{fig:comp_exact_spo_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_exact_spo_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy difference with target.}\label{fig:comp_exact_spo_diff_0.1}
+    \end{subfigure}
+  \end{adjustwidth}
+  \caption{Comparison of our model (SpectralSVR), baseline FNN model, and numerical methods for the exact solution in \cref{eq:burgers_exact_solution} of the Forced Burgers equation with viscosity \(\nu=0.1\).}\label{fig:comparison_burgers_exact_0.1}
+\end{figure}
+
+The predictions for IVP rollout of the functions in the test set is shown in \lccrefs{fig:comparison_burgers_0.1} for viscosity \(\nu=0.1\). Other viscosity values were also compared and presented in \lccrefs{fig:comparison_burgers_0.0,fig:comparison_burgers_0.01}. An obvious observation is the fact that the numerical methods fail to solve the entire solution. The SciPy odeint (lsoda) version is able to solve up until the 13th iteration or time \(t=0.6533\). The torchdiffeq (IABM) version on the other hand only solves up until the second iteration. Even at this early step, the solution is already unstable with many values having an order of larger than \num{10e10}.
+\begin{figure}[H]
+  \centering
+  \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_lssvr_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR prediction.}\label{fig:comp_lssvr_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_lssvr_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_lssvr_diff_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_fnn_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR (FNN) prediction.}\label{fig:comp_fnn_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_fnn_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR (FNN) difference with target.}\label{fig:comp_fnn_diff_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_spo_pred_0.1.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy prediction.}\label{fig:comp_spo_pred_0.1}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_spo_diff_0.1.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy difference with target.}\label{fig:comp_spo_diff_0.1}
+    \end{subfigure}
+  \end{adjustwidth}
+  \caption{Comparison of our model (SpectralSVR), baseline FNN model, and numerical methods for a manufactured solution of the Forced Burgers equation with viscosity \(\nu=0.1\).}\label{fig:comparison_burgers_0.1}
+\end{figure}
+
+In terms of efficiency, we also present our measurements of the time it took for each method to solve the exact solution IVP using the \verb|%timit| macro in Jupyter Notebook. This was done on our machine without any hardware accelerators such as GPUs. The time was averaged over 7 measurements. The results are shown in \lccref{table:comparison_efficiency}. Our method solves this problem around 33 times faster than the lsoda method. However, the kernel computation required does slow the LSSVR in comparison to the neural network version by around 140 milliseconds.
+\begin{table}[H]
+  \caption{Average time elapsed in solving for \lccref{eq:burgers_exact_solution} by method.}\label{table:comparison_efficiency}
+  \centering
+  \begin{tabular}{lc}
+    \toprule
+    Method            & Time Elapsed               \\
+    \midrule
+    SpectralSVR       & 0.438 s \pm{} 0.075 s          \\
+    SpectralSVR (FNN) & \textbf{0.298 s \pm{} 0.054 s} \\
+    lsoda             & 15.1 s \pm{} 2.85 s            \\
+    IABM              & 20.9 s \pm{} 2.98 s            \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+In terms of training, the FNN baseline model with 7 epochs and a batch size of 16, training takes on average 14.6 seconds \pm{} 0.86 seconds. The LSSVR version takes on average 8 seconds \pm{} 2.47 seconds.
+
 \section{Conclusion}
-\noindent Based on the results of the research into \MakeLowercase{\judul}, several conclusions can be drawn.
-\begin{enumerate}
-  \item The proposed SpectralSVR model is able to learn the relationships defined by PDEs. This is done using a model that learns in the Fourier domain with Fourier Transforms and Inverse Transform bridging the Fourier domain and the physical domain.
-  \item Interpretation of the proposed model can be done to a certain extent using two tools which are the correlation image and p-matrix developed by \citet{ustunVisualisationInterpretationSupport2007}. This interpretation shows that the model correctly attributes the relationship of the input coefficients to the output coefficients.
-  \item The proposed model is also capable in dealing with noise and partial data as shown in scenario 1.
-        % \item The model's capabilities are also verified using exact solution. This revealed that for some configurations the model is able to successfully generalize to exact solutions.
-\end{enumerate}
+\noindent Using the LSSVR to predict the Fourier coefficients of approximate solutions to PDEs, we demonstrate the advantages of this approach in terms of efficiency and interpretability. Because of the potential this approach has shown, it is a promising candidate for further research. 
 
-To improve the model's predictive capabilities, several key areas of enhancement have been identified for future works. First, the synthetic data used in scenarios 1 and 2 lack realism, even though they are mathematically correct when generated using the method of manufactured solutions. Incorporating data derived from traditional numerical methods or other reliable sources could help the model produce more accurate and realistic predictions. Evaluating the performance of auto-regression in weather data compared to target data is another critical step. Additionally, the inverse prediction results should be compared with traditional methods, such as the spectral method or finite difference method (FDM), to assess accuracy and reliability.
-
-Further improvements include benchmarking the proposed method against comparable approaches and measuring computational efficiency in terms of time, relative to both traditional and machine learning-based methods. Expanding the range of basis functions, such as spherical harmonics or wavelet bases, and incorporating additional regression models, specifically support vector regression models, could enhance the utility of tools like the correlation image and p-matrix. The use of better performance metrics, such as the standard error of regression, is recommended, along with a detailed analysis of performance across varying hyperparameters, data sizes, and error trends by wave number. Addressing the issue of double penalties, which lead to overly smooth solutions \citep{brownForecastsSpatialFields2011,NIPS2017_44a2e080}, requires exploring stronger regularization for higher wave numbers. Finally, incorporating data assimilation techniques, such as the Lomb-Scargle periodogram \citep{vanderplasUnderstandingLombScargle2018} and 4D-Var assimilation \citep{puNumericalWeatherPrediction2018,parkDataAssimilationAtmospheric2013}, could enable support for sparse data. Finally, a study of contribution patterns for different terms in partial differential equations (PDEs) using methods like the p-matrix would provide deeper insights into model dynamics.
-
-These future directions build on the strengths of the proposed SpectralSVR model, which has demonstrated its ability to learn relationships defined by PDEs, interpret results using tools like the correlation image and p-matrix, and handle noise and partial data effectively. By addressing these identified areas of improvement, the model's robustness, accuracy, and applicability could be further enhanced, especially in real-world scenarios.
-
-Through these developments, the SpectralSVR model has the potential to not only refine its generalization capabilities, as evidenced by its partial success with exact solutions, but also to expand its utility across diverse and complex problems. These steps will contribute to advancing computational approaches for SciML-based modelling and establish the proposed framework as a versatile tool in this domain.
+Based on the limitations of this work, we highlight three areas of interest for future research. First, our focus on the use of the Fourier basis means that it is much more suited for certain geometries. This may cause aberrations when used with unsuitable geometries such as a sphere \citep{bonevSphericalFourierNeural2023}. Which is why other kinds of basis functions such as spherical harmonics or even learned basis functions is of great interest in a variety of applications. Second, our configuration for generating the training data means that it is mathematically correct \citep{roacheCodeVerificationMethod2002,salariCodeVerificationMethod2000,vedovotoApplicationMethodManufactured2011} but not representative of the desired distribution of function types; in addition to lacking realism. Because of this, an investigation into different distributions of function types like using more realistic solutions from traditional solvers would allow the model to handle challenges like flatness. Last but not least, improving the interpretability of the model such as gaining insight into the contributions of each term in a governing equation will build upon the visualization provided by the p-matrix.
 
 \input{apendix.tex}
 

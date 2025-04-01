@@ -67,3 +67,142 @@
   \end{subfigure}
   \caption{Example sample pairs of solution and forcing terms for the Burgers' equation dataset.}\label{fig:burgers_data}
 \end{figure}
+
+\section{Burgers' Equation Comparison}\label{sec:burgers_comparison}
+\begin{figure}[H]
+  \centering
+  \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_lssvr_pred_0.0.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR prediction.}\label{fig:comp_lssvr_pred_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_lssvr_diff_0.0.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_lssvr_diff_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_fnn_pred_0.0.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR prediction.}\label{fig:comp_fnn_pred_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_fnn_diff_0.0.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_fnn_diff_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_spo_pred_0.0.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy prediction.}\label{fig:comp_spo_pred_0.0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_spo_diff_0.0.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy difference with target.}\label{fig:comp_spo_diff_0.0}
+    \end{subfigure}
+  \end{adjustwidth}
+  \caption{Comparison of our model (SpectralSVR) and numerical methods for the Forced Burgers equation with viscosity \(\nu=0.0\).}\label{fig:comparison_burgers_0.0}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_lssvr_pred_0.01.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR prediction.}\label{fig:comp_lssvr_pred_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_lssvr_diff_0.01.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_lssvr_diff_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_fnn_pred_0.01.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR prediction.}\label{fig:comp_fnn_pred_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_fnn_diff_0.01.pgf}
+      \end{adjustbox}
+      \caption{SpectralSVR difference with target.}\label{fig:comp_fnn_diff_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_spo_pred_0.01.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy prediction.}\label{fig:comp_spo_pred_0.01}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+      \begin{adjustbox}{width=\linewidth}
+        \input{figures/comparisons/burgers_rollout_spo_diff_0.01.pgf}
+      \end{adjustbox}
+      \caption{SciPy \& NumPy difference with target.}\label{fig:comp_spo_diff_0.01}
+    \end{subfigure}
+  \end{adjustwidth}
+  \caption{Comparison of our model (SpectralSVR) and numerical methods for the Forced Burgers equation with viscosity \(\nu=0.01\).}\label{fig:comparison_burgers_0.01}
+\end{figure}
+\begin{table}[H]
+  \caption{Metrics for predicting the exact solution for SpectralSVR (Ours) method}\label{table:comparison_exact_metrics_lssvr}
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    \(\nu \) & MSE  & RMSE & MAE  & sMAPE \\
+    \midrule
+    0.0      & 0.01 & 0.07 & 0.06 & 1.99  \\
+    0.01     & 0.00 & 0.07 & 0.06 & 1.61  \\
+    0.1      & 0.00 & 0.02 & 0.02 & 1.47  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\begin{table}[H]
+  \caption{Metrics for predicting the exact solution for SpectralSVR (FNN) baseline method}\label{table:comparison_exact_metrics_fnn}
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    \(\nu \) & MSE & RMSE & MAE & sMAPE \\
+    \midrule
+    0.0      & inf & inf  & inf & 1.99  \\
+    0.01     & inf & inf  & inf & 1.98  \\
+    0.1      & inf & inf  & inf & 1.98  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\begin{table}[H]
+  \caption{Metrics for predicting the exact solution for the lsoda method}\label{table:comparison_exact_metrics_lsoda}
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    \(\nu \) & MSE  & RMSE & MAE  & sMAPE \\
+    \midrule
+    0.0      & 0.00 & 0.00 & 0.00 & 0.00  \\
+    0.01     & 0.00 & 0.00 & 0.00 & 0.08  \\
+    0.1      & 0.00 & 0.04 & 0.04 & 1.52  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\begin{table}[H]
+  \caption{Metrics for predicting the exact solution for the IABM method}\label{table:comparison_exact_metrics_iabm}
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    \(\nu \) & MSE  & RMSE & MAE  & sMAPE \\
+    \midrule
+    0.0      & 0.00 & 0.00 & 0.00 & 0.00  \\
+    0.01     & nan  & nan  & nan  & nan   \\
+    0.1      & nan  & nan  & nan  & nan   \\
+    \bottomrule
+  \end{tabular}
+\end{table}
