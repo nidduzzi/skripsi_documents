@@ -60,24 +60,52 @@ In this paper, we propose an operator learning model based on basis functions an
 This section describes the proposed method and the case studies we used.
 \subsection{SpectralSVR}
 % Model design
-The design of the proposed model is built upon performing regression in the Fourier domain. This means that any function values that will be used by the model, should be transformed into their coefficients. And, any predictions from the model, which are coefficients, should be transformed back into function values. The training process is shown in \lccref{fig:spectralsvr_training}. The process starts with determining the feature and label functions. Typically, the feature functions would include the forcing term and other parameter functions such as the solution at the current time step. The label functions typically is the solution function or the solution function at the next time step. The Fourier coefficients are then computed using the DFT\@. The coefficients are then flattened for each sample. A scaling function is fitted on the flattened feature coefficients and the feature coefficients are then scaled using the fitted scaling function. Finally, Using the scaled feature and label coefficients, the training function computes the parameters of the model.
-
-\begin{figure}[H]
+The design of the proposed model is built upon performing regression in the Fourier domain. This means that any function values that will be used by the model, should be transformed into their coefficients. And, any predictions from the model, which are coefficients, should be transformed back into function values.
+\begin{figure}[hbp]
   \centering
   \tikzfig{figures/training_spectralsvr}
-  \caption{SpectralSVR training diagram}\label{fig:spectralsvr_training}
+  \caption{SpectralSVR training diagram.}\label{fig:spectralsvr_training}
 \end{figure}
-% TODO: add psuedocode for training the model
+
+The training process is shown in \lccref{fig:spectralsvr_training}. The process in psuedocode is also shown in \lccref{alg:spectralsvr_training_psuedocode}. The process starts with determining the parameter and solution functions. Typically, the parameter functions would include the forcing term and others such as the initial solution function values. The solution function typically is the state variable that the PDE constraints using its derivatives, such as the displacement of a membrane for the wave equation. Next, the features and labels are constructed. Generally, the Fourier coefficients for both functions are computed using the DFT\@. And then, the parameter and solution coefficients are used as the feature and labels respectively. To finalize the construction, the coefficients are flattened into one dimension for each sample. And then, the features are scaled for training the LSSVR\@. Finally, after the feature and label construction, we train the LSSVR by computing the parameters of the model. In the psuedocode this starts by computing the kernel matrix from the features. And then the two matrices, \(\vb{A}\) and \(\vb{B}\), are put together to compute the model parameters via least-squares, which marks the end of the training process.
+\begin{algorithm}[hbp]
+  \caption{SpectralSVR Training Psuedocode.}\label{alg:spectralsvr_training_psuedocode}
+  \begin{algorithmic}[1]
+    \Procedure{TrainSpectralSVR}{$\vb{U}, \vb{F}, C $}
+    \State{\(\vb{\hat{U}} \gets DFT(\vb{U})\)}
+    \State{\(\vb{\hat{F}} \gets DFT(\vb{F})\)}
+    \Comment{Compute Fourier coefficients of training functions}
+    \State{\(\vb{X} \gets finalizeFeatures(\vb{\hat{U}},\vb{\hat{F}})\)}
+    \State{\(\vb{y} \gets finalizeLabels(\vb{\hat{U}},\vb{\hat{F}})\)}
+    \State{\(\Omega \gets K(\vb{X})\)}
+    \Comment{Construct matrix of inner products}
+    \State{\(\vb{A} \gets [[]]\)}
+    \State{\(\vb{B} \gets [[]]\)}
+    \State{\(\vb{A}[1:,1:] \gets \Omega+\frac{\vb{I}}{C}, \vb{A}[0,:] \gets 0,\vb{A}[:,0] \gets 0\)}
+    \State{\(\vb{B}[0] \gets 0, \vb{B}[1:] \gets \vb{y}\)}
+    \State{\(\vb{S} \gets leastSquares(\vb{A},\vb{B})\)}
+    \State{\(\vb{\alpha} \gets \vb{S}[1:],\vb{b} \gets \vb{S}[0]\)}
+    \Comment{Learned model parameters}
+    \State{\textbf{return} \(\vb{\alpha}, \vb{b}\)}
+    \EndProcedure{}
+  \end{algorithmic}
+\end{algorithm}
+
 % TODO: add figures of how a dataset of 1D functions is represented and the transformed coefficient representation
+% The data transformations are visualized in \lccref{fig:spectralsvr_training_data}.
+% \begin{figure}[hbp]
+%   \centering
+%   \tikzfig{figures/training_spectralsvr_data}
+%   \caption{SpectralSVR training data transformations.}\label{fig:spectralsvr_training_data}
+% \end{figure}
 
 The prediction process is shown in \lccref{fig:spectralsvr_prediction}. The process starts by transforming the feature functions into their coefficients with the DFT\@. These coefficients are then scaled with the scaling function fitted during training. The scaled feature coefficients are then used with the learned parameters to produce the predicted coefficients using the LSSVR prediction function. Finally, the inverse DFT is computed on the predicted coefficients to obtain the predicted function value.
-\begin{figure}[H]
+\begin{figure}[hbp]
   \centering
   \tikzfig{figures/prediction_spectralsvr}
-  \caption{SpectralSVR prediction diagram}\label{fig:spectralsvr_prediction}
+  \caption{SpectralSVR prediction diagram.}\label{fig:spectralsvr_prediction}
 \end{figure}
 
-To interpret the relationship learned by the LSSVR between the feature and label coefficients, we use two tools called the correlation image and p-matrix introduced by \citet{ustunVisualisationInterpretationSupport2007}.
 
 \subsection{Case Studies}
 % case studies
@@ -188,7 +216,7 @@ The predictions of the exact equation is shown in \lccref{fig:antiderivative_exa
 \end{figure}
 
 Next, we have the correlation image and p-matrix for the model of each noise level. The results are shown in \lccref{fig:scenario_1_interpretation}. Each row in the figure represent the results of a model trained on a different noise level. The correlation image for 5\% and 10\% noise show clear lines on the coefficient corresponding to the output coefficient that was sorted. We can also see that the negative wave number reflection also being sorted. This is because of the reflection that occurs with complex Fourier coefficients for real-valued functions. There are other faint vertical lines you are able to see for other input coefficients. These faint lines are not sorted like the corresponding coefficients we mentioned before. Meaning, while they don't affect the particular output coefficients that were sorted, they do show that there is information embedded in the kernel matrix for these input coefficients. However, if we look at the 50\% noise correlation image, even the corresponding coefficient does not show a clear line or gradient. The lines are more noisy compared to the other noise levels. But the kernel still manages to embed some information. The p-matrices show that the model itself is able to still learn some relationship between the input coefficients and the output coefficients. For the 5\% and 10\% noise levels, the p-matrices show very clearly the contributions of input coefficients to the output coefficients. However, looking at the p-matrix for 50\% noise level, the lower wave numbers show lower contribution of input coefficients to the output coefficients.
-\begin{figure}[H]
+\begin{figure}[hbp]
   \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
     \centering
     \begin{subfigure}{0.49\linewidth}
@@ -252,64 +280,64 @@ The function value evaluated from the predictions is shown in \lccref{table:scen
 \end{table}
 
 The testing results are complimented with a rollout experiment. The results from the rollout are shown in \lccref{fig:scenario_2_rollout}. The rollout starts from time \(t=0\). In all the plots, this is at the bottom. We have included this initial condition in the plots. From this initial condition in combination with the forcing term at the initial time step, the model predicts the first time step solution. The model then uses the predicted solution combined with the corresponding forcing term to predict the second time step. To see how well the model is performing relative to the actual target values, we compute the difference between the two as shown in \lccrefs{fig:sc2_rollout_diff_0.0,fig:sc2_rollout_diff_0.01,fig:sc2_rollout_diff_0.1}. Observe that errors are introduced relatively early around time \(t=1\). However, the model rollout stays stable until the end despite this error. This results in the model being able to finish the rollout for this sample.
-\begin{figure}[H]
+\begin{figure}[hbp]
   \centering
   \begin{adjustwidth}{-0.1\linewidth}{-0.1\linewidth}
     \begin{subfigure}{0.33\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_rollout_target_0.0.pgf}
       \end{adjustbox}
-      \caption{The target for \(\nu=0.0\)}\label{fig:sc2_rollout_target_0.0}
+      \caption{The target for \(\nu=0.0\).}\label{fig:sc2_rollout_target_0.0}
     \end{subfigure}
     \begin{subfigure}{0.33\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_rollout_pred_0.0.pgf}
       \end{adjustbox}
-      \caption{The prediction for \(\nu=0.0\)}\label{fig:sc2_rollout_pred_0.0}
+      \caption{The prediction for \(\nu=0.0\).}\label{fig:sc2_rollout_pred_0.0}
     \end{subfigure}
     \begin{subfigure}{0.32\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_rollout_diff_0.0.pgf}
       \end{adjustbox}
-      \caption{The difference for \(\nu=0.0\)}\label{fig:sc2_rollout_diff_0.0}
+      \caption{The difference for \(\nu=0.0\).}\label{fig:sc2_rollout_diff_0.0}
     \end{subfigure}
     \\[0.7\baselineskip]
     \begin{subfigure}{0.33\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_rollout_target_0.01.pgf}
       \end{adjustbox}
-      \caption{The target for \(\nu=0.01\)}\label{fig:sc2_rollout_target_0.01}
+      \caption{The target for \(\nu=0.01\).}\label{fig:sc2_rollout_target_0.01}
     \end{subfigure}
     \begin{subfigure}{0.33\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_rollout_pred_0.01.pgf}
       \end{adjustbox}
-      \caption{The prediction for \(\nu=0.01\)}\label{fig:sc2_rollout_pred_0.01}
+      \caption{The prediction for \(\nu=0.01\).}\label{fig:sc2_rollout_pred_0.01}
     \end{subfigure}
     \begin{subfigure}{0.32\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_rollout_diff_0.01.pgf}
       \end{adjustbox}
-      \caption{The difference for \(\nu=0.01\)}\label{fig:sc2_rollout_diff_0.01}
+      \caption{The difference for \(\nu=0.01\).}\label{fig:sc2_rollout_diff_0.01}
     \end{subfigure}
     \\[0.7\baselineskip]
     \begin{subfigure}{0.33\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_rollout_target_0.1.pgf}
       \end{adjustbox}
-      \caption{The target for \(\nu=0.1\)}\label{fig:sc2_rollout_target_0.1}
+      \caption{The target for \(\nu=0.1\).}\label{fig:sc2_rollout_target_0.1}
     \end{subfigure}
     \begin{subfigure}{0.33\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_rollout_pred_0.1.pgf}
       \end{adjustbox}
-      \caption{The prediction for \(\nu=0.1\)}\label{fig:sc2_rollout_pred_0.1}
+      \caption{The prediction for \(\nu=0.1\).}\label{fig:sc2_rollout_pred_0.1}
     \end{subfigure}
     \begin{subfigure}{0.32\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_rollout_diff_0.1.pgf}
       \end{adjustbox}
-      \caption{The difference for \(\nu=0.1\)}\label{fig:sc2_rollout_diff_0.1}
+      \caption{The difference for \(\nu=0.1\).}\label{fig:sc2_rollout_diff_0.1}
     \end{subfigure}
     % \\[0.7\baselineskip]
   \end{adjustwidth}
@@ -337,64 +365,64 @@ To test the generalization capability of the model on other function families, w
 \end{equation}
 
 The exact function \cref{eq:burgers_exact_solution} is computed for each viscosity value. The discrete Fourier transform of the values are then used for doing rollout with the model. For the forcing term, we just use a constant function with a value of zero. The rollout predictions are shown in \lccref{fig:scenario_2_exact}. The model is not successful in the rollout for the inviscid equation and for the viscosity of \(\nu=0.01\). Both of these cases, the model produces too much error that the original function is no longer recognizable in the predictions. For the higher viscosity value of \(\nu=0.1\) the rollout produces a recognizable prediction. The error stays to about half the maximum function value. We do see some more noticeable error in the flatter parts of the function. The error also take a very similar shape across the different viscosity values. Since we essentially used the same solutions for training the model for each viscosity, the similarity in error means that it can be alleviated with more diverse training samples. The error for the flatter functions may also be alleviated by including similar flatter functions during training.
-\begin{figure}[H]
+\begin{figure}[hbp]
   \centering
   \begin{adjustwidth}{-0.1\linewidth}{-0.1\linewidth}
     \begin{subfigure}{0.33\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_exact_target_0.0.pgf}
       \end{adjustbox}
-      \caption{The target for \(\nu=0.0\)}\label{fig:sc2_exact_target_0.0}
+      \caption{The target for \(\nu=0.0\).}\label{fig:sc2_exact_target_0.0}
     \end{subfigure}
     \begin{subfigure}{0.33\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_exact_pred_0.0.pgf}
       \end{adjustbox}
-      \caption{The prediction for \(\nu=0.0\)}\label{fig:sc2_exact_pred_0.0}
+      \caption{The prediction for \(\nu=0.0\).}\label{fig:sc2_exact_pred_0.0}
     \end{subfigure}
     \begin{subfigure}{0.32\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_exact_diff_0.0.pgf}
       \end{adjustbox}
-      \caption{The difference for \(\nu=0.0\)}\label{fig:sc2_exact_diff_0.0}
+      \caption{The difference for \(\nu=0.0\).}\label{fig:sc2_exact_diff_0.0}
     \end{subfigure}
     \\[0.7\baselineskip]
     \begin{subfigure}{0.33\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_exact_target_0.01.pgf}
       \end{adjustbox}
-      \caption{The target for \(\nu=0.01\)}\label{fig:sc2_exact_target_0.01}
+      \caption{The target for \(\nu=0.01\).}\label{fig:sc2_exact_target_0.01}
     \end{subfigure}
     \begin{subfigure}{0.33\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_exact_pred_0.01.pgf}
       \end{adjustbox}
-      \caption{The prediction for \(\nu=0.01\)}\label{fig:sc2_exact_pred_0.01}
+      \caption{The prediction for \(\nu=0.01\).}\label{fig:sc2_exact_pred_0.01}
     \end{subfigure}
     \begin{subfigure}{0.32\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_exact_diff_0.01.pgf}
       \end{adjustbox}
-      \caption{The difference for \(\nu=0.01\)}\label{fig:sc2_exact_diff_0.01}
+      \caption{The difference for \(\nu=0.01\).}\label{fig:sc2_exact_diff_0.01}
     \end{subfigure}
     \\[0.7\baselineskip]
     \begin{subfigure}{0.33\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_exact_target_0.1.pgf}
       \end{adjustbox}
-      \caption{The target for \(\nu=0.1\)}\label{fig:sc2_exact_target_0.1}
+      \caption{The target for \(\nu=0.1\).}\label{fig:sc2_exact_target_0.1}
     \end{subfigure}
     \begin{subfigure}{0.33\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_exact_pred_0.1.pgf}
       \end{adjustbox}
-      \caption{The prediction for \(\nu=0.1\)}\label{fig:sc2_exact_pred_0.1}
+      \caption{The prediction for \(\nu=0.1\).}\label{fig:sc2_exact_pred_0.1}
     \end{subfigure}
     \begin{subfigure}{0.32\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/burgers_exact_diff_0.1.pgf}
       \end{adjustbox}
-      \caption{The difference for \(\nu=0.1\)}\label{fig:sc2_exact_diff_0.1}
+      \caption{The difference for \(\nu=0.1\).}\label{fig:sc2_exact_diff_0.1}
     \end{subfigure}
     % \\[0.7\baselineskip]
   \end{adjustwidth}
@@ -402,42 +430,48 @@ The exact function \cref{eq:burgers_exact_solution} is computed for each viscosi
 \end{figure}
 
 The correlation image and p-matrix for each viscosity can be seen in \lccref{fig:scenario_2_interpretation}. Analyzing the correlation images first, we see that some columns are sorted in correlation to how the samples are sorted based on the real component of the 4th output wave number. For the inviscid equation, this correlation is the strongest with multiple columns exhibiting the correlation. The highest and visually most sorted values are from the forcing term portion of the inputs. Different wave numbers in the inputs are also sorted differently, this indicates an inverse correlation. For a higher viscosity of \(\nu=0.01\), a weaker correlation is still present.
-\begin{figure}[H]
+\begin{figure}[hbp]
   \centering
   \begin{subfigure}{0.49\linewidth}
-    \begin{adjustbox}{width=\linewidth}
+    \centering
+    \begin{adjustbox}{height=5.5cm}
       \input{figures/burgers_ci_0.0.pgf}
     \end{adjustbox}
     \caption{Correlation image \(\nu=0.0\).}\label{fig:sc2_ci_0.0}
   \end{subfigure}
   \begin{subfigure}{0.49\linewidth}
-    \begin{adjustbox}{width=\linewidth}
+    \centering
+    \begin{adjustbox}{height=5.5cm}
       \input{figures/burgers_pm_0.0.pgf}
     \end{adjustbox}
     \caption{The p-matrix for \(\nu=0.0\).}\label{fig:sc2_pm_0.0}
   \end{subfigure}
   % \\[-0.7\baselineskip]
   \begin{subfigure}{0.49\linewidth}
-    \begin{adjustbox}{width=\linewidth}
+    \centering
+    \begin{adjustbox}{height=5.5cm}
       \input{figures/burgers_ci_0.01.pgf}
     \end{adjustbox}
     \caption{Correlation image \(\nu=0.01\).}\label{fig:sc2_ci_0.01}
   \end{subfigure}
   \begin{subfigure}{0.49\linewidth}
-    \begin{adjustbox}{width=\linewidth}
+    \centering
+    \begin{adjustbox}{height=5.5cm}
       \input{figures/burgers_pm_0.01.pgf}
     \end{adjustbox}
     \caption{The p-matrix for \(\nu=0.01\).}\label{fig:sc2_pm_0.01}
   \end{subfigure}
   % \\[-0.7\baselineskip]
   \begin{subfigure}{0.49\linewidth}
-    \begin{adjustbox}{width=\linewidth}
+    \centering
+    \begin{adjustbox}{height=5.5cm}
       \input{figures/burgers_ci_0.1.pgf}
     \end{adjustbox}
     \caption{Correlation image \(\nu=0.1\).}\label{fig:sc2_ci_0.1}
   \end{subfigure}
   \begin{subfigure}{0.49\linewidth}
-    \begin{adjustbox}{width=\linewidth}
+    \centering
+    \begin{adjustbox}{height=5.5cm}
       \input{figures/burgers_pm_0.1.pgf}
     \end{adjustbox}
     \caption{The p-matrix for \(\nu=0.1\).}\label{fig:sc2_pm_0.1}
@@ -452,8 +486,8 @@ The p-matrix shows the difference in contributions of both input functions. For 
 \subsection{Comparisons}
 
 \noindent As a point of reference, the comparisons of our method against three other methods will be discussed for solving the Burger's equation as an initial value problem. The methods we compare against are the lsoda program using the SciPy library, the Implicit Adams-Bashforth-Moulton (IABM) method using the torchdiffeq library, and using a Fully-connected Neural Network (FNN) in place of the LSSVR to directly model the coefficient relationships. Both the lsoda and IABM approaches discretize the solution in space into 400 points and the periodicity is enforced using a ghost cell at one end that has the same value as the other end. First, we present the results of solving \lccref{eq:burgers_exact_solution} as an IVP as shown in \lccref{table:comparison_exact_metrics_0.1} for viscosity \(\nu=0.1\). For the forcing term, we use a constant value of zero. The functions are also unperturbed. The metrics measure the performance of the predicted solutions compared against the exact solution. We see that our model has slightly better performance compared to the lsoda method. However, for lower viscosity values the lsoda method performs much better compared to ours as shown in~\ref{sec:burgers_comparison}. And for the viscosity of \(\nu=0.0\), even the IABM method performs much better due to the fact that the solution is a constant value of zero. The baseline FNN method, however, does not perform well on any of the viscosity values with the solution becoming unstable after several time steps.
-\begin{table}[H]
-  \caption{Metrics for predicting the exact solution for each method with viscosity \(\nu=0.1\)}\label{table:comparison_exact_metrics_0.1}
+\begin{table}[htp]
+  \caption{Metrics for predicting the exact solution for each method with viscosity \(\nu=0.1\).}\label{table:comparison_exact_metrics_0.1}
   \centering
   \begin{tabular}{lcccc}
     \toprule
@@ -469,7 +503,7 @@ The p-matrix shows the difference in contributions of both input functions. For 
 \end{table}
 
 For better visualization, the predictions and the difference against the exact solution is shown in \lccref{fig:comparison_burgers_exact_0.1}. We show that for our method and the lsoda method, the exact solution is achieved to a recognizable form. However, using the IABM method with torchdiffeq is ineffective, and the solution \enquote{blows up} and results in many not a number values, which is why we chose not to display them. Our method has errors characterized by \enquote{lines} which stems form our use of only eight basis functions to represent solution. This is in contrast to the error of the lsoda method, which is spread over larger areas.
-\begin{figure}[H]
+\begin{figure}[hbp]
   \centering
   \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
     \begin{subfigure}{0.49\linewidth}
@@ -500,20 +534,20 @@ For better visualization, the predictions and the difference against the exact s
       \begin{adjustbox}{width=\linewidth}
         \input{figures/comparisons/burgers_exact_spo_pred_0.1.pgf}
       \end{adjustbox}
-      \caption{SciPy \& NumPy prediction.}\label{fig:comp_exact_spo_pred_0.1}
+      \caption{lsoda prediction.}\label{fig:comp_exact_spo_pred_0.1}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/comparisons/burgers_exact_spo_diff_0.1.pgf}
       \end{adjustbox}
-      \caption{SciPy \& NumPy difference with target.}\label{fig:comp_exact_spo_diff_0.1}
+      \caption{lsoda difference with target.}\label{fig:comp_exact_spo_diff_0.1}
     \end{subfigure}
   \end{adjustwidth}
   \caption{Comparison of our model (SpectralSVR), baseline FNN model, and numerical methods for the exact solution in \cref{eq:burgers_exact_solution} of the Forced Burgers equation with viscosity \(\nu=0.1\).}\label{fig:comparison_burgers_exact_0.1}
 \end{figure}
 
 The predictions for IVP rollout of the functions in the test set is shown in \lccrefs{fig:comparison_burgers_0.1} for viscosity \(\nu=0.1\). Other viscosity values were also compared and presented in \lccrefs{fig:comparison_burgers_0.0,fig:comparison_burgers_0.01}. An obvious observation is the fact that the numerical methods fail to solve the entire solution. The SciPy odeint (lsoda) version is able to solve up until the 13th iteration or time \(t=0.6533\). The torchdiffeq (IABM) version on the other hand only solves up until the second iteration. Even at this early step, the solution is already unstable with many values having an order of larger than \num{10e10}.
-\begin{figure}[H]
+\begin{figure}[hbp]
   \centering
   \begin{adjustwidth}{-0.05\linewidth}{-0.05\linewidth}
     \begin{subfigure}{0.49\linewidth}
@@ -544,25 +578,25 @@ The predictions for IVP rollout of the functions in the test set is shown in \lc
       \begin{adjustbox}{width=\linewidth}
         \input{figures/comparisons/burgers_rollout_spo_pred_0.1.pgf}
       \end{adjustbox}
-      \caption{SciPy \& NumPy prediction.}\label{fig:comp_spo_pred_0.1}
+      \caption{lsoda prediction.}\label{fig:comp_spo_pred_0.1}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/comparisons/burgers_rollout_spo_diff_0.1.pgf}
       \end{adjustbox}
-      \caption{SciPy \& NumPy difference with target.}\label{fig:comp_spo_diff_0.1}
+      \caption{lsoda difference with target.}\label{fig:comp_spo_diff_0.1}
     \end{subfigure}
   \end{adjustwidth}
   \caption{Comparison of our model (SpectralSVR), baseline FNN model, and numerical methods for a manufactured solution of the Forced Burgers equation with viscosity \(\nu=0.1\).}\label{fig:comparison_burgers_0.1}
 \end{figure}
 
 In terms of efficiency, we also present our measurements of the time it took for each method to solve the exact solution IVP using the \verb|%timit| macro in Jupyter Notebook. This was done on our machine without any hardware accelerators such as GPUs. The time was averaged over 7 measurements. The results are shown in \lccref{table:comparison_efficiency}. Our method solves this problem around 33 times faster than the lsoda method. However, the kernel computation required does slow the LSSVR in comparison to the neural network version by around 140 milliseconds.
-\begin{table}[H]
+\begin{table}[hbp]
   \caption{Average time elapsed in solving for \lccref{eq:burgers_exact_solution} by method.}\label{table:comparison_efficiency}
   \centering
   \begin{tabular}{lc}
     \toprule
-    Method            & Time Elapsed               \\
+    Method            & Time Elapsed                   \\
     \midrule
     SpectralSVR       & 0.438 s \pm{} 0.075 s          \\
     SpectralSVR (FNN) & \textbf{0.298 s \pm{} 0.054 s} \\
@@ -575,12 +609,12 @@ In terms of efficiency, we also present our measurements of the time it took for
 In terms of training, the FNN baseline model with 7 epochs and a batch size of 16, training takes on average 14.6 seconds \pm{} 0.86 seconds. The LSSVR version takes on average 8 seconds \pm{} 2.47 seconds.
 
 \section{Conclusion}
-\noindent Using the LSSVR to predict the Fourier coefficients of approximate solutions to PDEs, we demonstrate the advantages of this approach in terms of efficiency and interpretability. Because of the potential this approach has shown, it is a promising candidate for further research. 
+\noindent Using the LSSVR to predict the Fourier coefficients of approximate solutions to PDEs, we demonstrate the advantages of this approach in terms of efficiency and interpretability. Because of the potential this approach has shown, it is a promising candidate for further research.
 
 Based on the limitations of this work, we highlight three areas of interest for future research. First, our focus on the use of the Fourier basis means that it is much more suited for certain geometries. This may cause aberrations when used with unsuitable geometries such as a sphere \citep{bonevSphericalFourierNeural2023}. Which is why other kinds of basis functions such as spherical harmonics or even learned basis functions is of great interest in a variety of applications. Second, our configuration for generating the training data means that it is mathematically correct \citep{roacheCodeVerificationMethod2002,salariCodeVerificationMethod2000,vedovotoApplicationMethodManufactured2011} but not representative of the desired distribution of function types; in addition to lacking realism. Because of this, an investigation into different distributions of function types like using more realistic solutions from traditional solvers would allow the model to handle challenges like flatness. Last but not least, improving the interpretability of the model such as gaining insight into the contributions of each term in a governing equation will build upon the visualization provided by the p-matrix.
 
-\input{apendix.tex}
-
 \bibliographystyle{elsarticle-harv}
 \bibliography{references.bib}
+
+\input{apendix.tex}
 \end{document}

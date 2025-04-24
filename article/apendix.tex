@@ -100,13 +100,13 @@
       \begin{adjustbox}{width=\linewidth}
         \input{figures/comparisons/burgers_rollout_spo_pred_0.0.pgf}
       \end{adjustbox}
-      \caption{SciPy \& NumPy prediction.}\label{fig:comp_spo_pred_0.0}
+      \caption{lsoda prediction.}\label{fig:comp_spo_pred_0.0}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/comparisons/burgers_rollout_spo_diff_0.0.pgf}
       \end{adjustbox}
-      \caption{SciPy \& NumPy difference with target.}\label{fig:comp_spo_diff_0.0}
+      \caption{lsoda difference with target.}\label{fig:comp_spo_diff_0.0}
     \end{subfigure}
   \end{adjustwidth}
   \caption{Comparison of our model (SpectralSVR) and numerical methods for the Forced Burgers equation with viscosity \(\nu=0.0\).}\label{fig:comparison_burgers_0.0}
@@ -143,19 +143,19 @@
       \begin{adjustbox}{width=\linewidth}
         \input{figures/comparisons/burgers_rollout_spo_pred_0.01.pgf}
       \end{adjustbox}
-      \caption{SciPy \& NumPy prediction.}\label{fig:comp_spo_pred_0.01}
+      \caption{lsoda prediction.}\label{fig:comp_spo_pred_0.01}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
       \begin{adjustbox}{width=\linewidth}
         \input{figures/comparisons/burgers_rollout_spo_diff_0.01.pgf}
       \end{adjustbox}
-      \caption{SciPy \& NumPy difference with target.}\label{fig:comp_spo_diff_0.01}
+      \caption{lsoda difference with target.}\label{fig:comp_spo_diff_0.01}
     \end{subfigure}
   \end{adjustwidth}
   \caption{Comparison of our model (SpectralSVR) and numerical methods for the Forced Burgers equation with viscosity \(\nu=0.01\).}\label{fig:comparison_burgers_0.01}
 \end{figure}
 \begin{table}[H]
-  \caption{Metrics for predicting the exact solution for SpectralSVR (Ours) method}\label{table:comparison_exact_metrics_lssvr}
+  \caption{Metrics for predicting the exact solution for SpectralSVR (Ours) method.}\label{table:comparison_exact_metrics_lssvr}
   \centering
   \begin{tabular}{lcccc}
     \toprule
@@ -168,7 +168,7 @@
   \end{tabular}
 \end{table}
 \begin{table}[H]
-  \caption{Metrics for predicting the exact solution for SpectralSVR (FNN) baseline method}\label{table:comparison_exact_metrics_fnn}
+  \caption{Metrics for predicting the exact solution for SpectralSVR (FNN) baseline method.}\label{table:comparison_exact_metrics_fnn}
   \centering
   \begin{tabular}{lcccc}
     \toprule
@@ -181,7 +181,7 @@
   \end{tabular}
 \end{table}
 \begin{table}[H]
-  \caption{Metrics for predicting the exact solution for the lsoda method}\label{table:comparison_exact_metrics_lsoda}
+  \caption{Metrics for predicting the exact solution for the lsoda method.}\label{table:comparison_exact_metrics_lsoda}
   \centering
   \begin{tabular}{lcccc}
     \toprule
@@ -194,7 +194,7 @@
   \end{tabular}
 \end{table}
 \begin{table}[H]
-  \caption{Metrics for predicting the exact solution for the IABM method}\label{table:comparison_exact_metrics_iabm}
+  \caption{Metrics for predicting the exact solution for the IABM method.}\label{table:comparison_exact_metrics_iabm}
   \centering
   \begin{tabular}{lcccc}
     \toprule
