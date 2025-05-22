@@ -4,25 +4,49 @@
 \input{preamble}
 \input{database.hyphenate}
 \begin{document}
+\pagestyle{fancy}
 \include{cover}
 \pagenumbering{roman}
+\fancyhf{}% Clear header and footer
+\fancyfoot[C]{\thepage}% Custom page number placement
+\include{pengesahan}
+\include{copyright}
+\include{statementoforiginality}
 \include{abstrak}
 \include{abstract}
-\include{pengesahan}
-% \include{pedoman}
-\include{statementoforiginality}
 \include{acknowledgments}
 \include{listofcontents}
-% \include{listofnotation}
 \include{listofabbreviations}
 \include{listoffigures}
 \include{listoftables}
 \pagenumbering{arabic}
+\fancyhf{}% Clear header and footer
+\fancyfoot[C]{\thepage\\
+{\fontsize{9pt}{9pt}\selectfont%
+\footerfont\raggedright%
+\textbf{%
+    \penulis, 2025\\
+    \textit{\judulcapitalized}\\
+    Universitas Pendidikan Indonesia | repository.upi.edu | perpustakaan.upi.edu\\
+}
+}}% Custom footer
 \include{chapter1}
 \include{chapter2}
 \include{chapter3}
 \include{chapter4}
 \include{chapter5}
-\input{references.tex}
-\input{apendix.tex}
+\fancyhf{}% Clear header and footer
+\fancyfoot[C]{\thepage}
+\include{references.tex}
+\fancyhf{}% Clear header and footer
+\fancyfoot[C]{\thepage\\
+{\fontsize{9pt}{9pt}\selectfont%
+\footerfont\raggedright%
+\textbf{%
+    \penulis, 2025\\
+    \textit{\judulcapitalized}\\
+    Universitas Pendidikan Indonesia | repository.upi.edu | perpustakaan.upi.edu\\
+}
+}}% Custom footer
+\include{apendix.tex}
 \end{document}

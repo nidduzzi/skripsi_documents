@@ -19,6 +19,8 @@
 # memoize cache
 **/*.memo.dir/
 *.mmz
+# private figures
+**/figures/private/
 
 ## Intermediate documents:
 *.dvi

@@ -7,7 +7,6 @@
 \usepackage[none]{hyphenat}
 \sloppy
 
-
 \usepackage{listing}
 \usepackage{graphicx}      %menghandle gambar
 \graphicspath{{figures/}{figures/comparisons}}   % the function needs the path need to be surounded by curly braces
@@ -37,7 +36,6 @@
   pdftitle={\judul},
   pdfkeywords={\keywords}}
 \usepackage[titletoc]{appendix}
-
 \usepackage[american]{babel} %plugin english
 \usepackage{csquotes}
 \usepackage[backend=biber, style=apa]{biblatex} %TODO change style to apa or other style, backref=true
@@ -47,6 +45,12 @@
 \usepackage{xpatch}
 \usepackage{fontspec}   % biar bisa kombinasi font
 \setmainfont{Times New Roman}
+\newfontfamily\footerfont{Trebuchet MS} % font for footer
+% setup header & footer
+\usepackage{fancyhdr}
+\renewcommand{\headrule}{}% remove default header rule
+\usepackage{etoolbox}
+\patchcmd{\chapter}{\thispagestyle{plain}}{\thispagestyle{fancy}}{}{}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{mathrsfs}

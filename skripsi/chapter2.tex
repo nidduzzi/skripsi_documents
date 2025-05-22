@@ -223,9 +223,8 @@ The construction of matrices in \lccref{eq:lssvr_solution} and the solving proce
     \For{\(k=0 \to n\)}
     \State{\(\vb{B}_{k+1} \gets \vb{y}_{k}\)}
     \EndFor{}
-    \State{\(\vb{A}^{\dagger} \gets leastSquares(\vb{A})\)}
+    \State{\(\vb{S} \gets \gets leastSquares(\vb{A},\vb{B})\)}
     \Comment{Compute solution using least-squares}
-    \State{\(\vb{S} \gets \vb{A}^{\dagger}\vb{B}\)}
     \State{\(b \gets \vb{S}_{0}\)}
     \For{\(k=0 \to n\)}
     \State{\(\vb{\alpha}_{k} \gets \vb{S}_{k+1}\)}
